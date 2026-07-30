@@ -18,6 +18,7 @@
       "open": true,
       "note": "Open to embedded/hardware roles in the GTA or remote, and taking on freelance projects."
     },
+    "_profiles": "Order here is the order in the footer. Any entry whose url still contains TODO is skipped on the live site (and shown dimmed in dev), so you can delete the ones you do not use and fill in the rest.",
     "profiles": [
       {
         "network": "LinkedIn",
@@ -25,14 +26,34 @@
         "url": "https://www.linkedin.com/in/TODO"
       },
       {
+        "network": "GitHub",
+        "username": "TODO",
+        "url": "https://github.com/TODO"
+      },
+      {
         "network": "Upwork",
         "username": "ehsun",
         "url": "https://www.upwork.com/freelancers/ehsun"
       },
       {
-        "network": "GitHub",
+        "network": "Dribbble",
         "username": "TODO",
-        "url": "https://github.com/TODO"
+        "url": "https://dribbble.com/TODO"
+      },
+      {
+        "network": "X",
+        "username": "TODO",
+        "url": "https://x.com/TODO"
+      },
+      {
+        "network": "Instagram",
+        "username": "TODO",
+        "url": "https://www.instagram.com/TODO"
+      },
+      {
+        "network": "Telegram",
+        "username": "TODO",
+        "url": "https://t.me/TODO"
       }
     ]
   },

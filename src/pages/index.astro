@@ -35,29 +35,32 @@ const {
       <p class="mt-4 text-lead text-muted">{basics.label}</p>
       <p class="prose-block mt-7 text-lead">{basics.headline}</p>
 
+      {/* Whichever action matters most is the filled one. Until the résumé
+          pipeline ships (Phase 4), that is the contact link. */}
       <div class="mt-9 flex flex-wrap items-center gap-x-3 gap-y-4">
         {
           site.resumeReady && (
-            <a
-              href="/resume.pdf"
-              class="rounded-full bg-accent px-5 py-2.5 text-body font-medium text-white transition-opacity hover:opacity-90"
-            >
+            <a href="/resume.pdf" class="btn btn-primary">
               Download résumé
             </a>
           )
         }
         <a
           href={`mailto:${basics.email}`}
-          class="rounded-full border border-border px-5 py-2.5 text-body font-medium transition-colors hover:border-accent hover:text-accent"
+          class:list={['btn', site.resumeReady ? 'btn-secondary' : 'btn-primary']}
         >
           Get in touch
         </a>
-        {
-          basics.availability.open && basics.availability.note && (
-            <p class="text-meta text-muted">{basics.availability.note}</p>
-          )
-        }
       </div>
+
+      {
+        basics.availability.open && basics.availability.note && (
+          <p class="mt-6 flex items-center gap-2.5 text-meta text-muted">
+            <span class="status-dot" aria-hidden="true" />
+            {basics.availability.note}
+          </p>
+        )
+      }
     </div>
 
     <HeroVisual class="mx-auto mt-14 max-w-wide" />
@@ -73,14 +76,14 @@ const {
         {
           work.map((job) => (
             <li>
-              <p class="text-meta text-muted tabular-nums">
-                {formatRange(job.startDate, job.endDate)}
-                {job.location && <span> · {job.location}</span>}
-              </p>
-              <h3 class="mt-1.5 text-subhead">
+              <h3 class="text-subhead">
                 {job.position}
                 <span class="font-normal text-muted"> · {job.company}</span>
               </h3>
+              <p class="mt-1 text-meta text-muted tabular-nums">
+                {formatRange(job.startDate, job.endDate)}
+                {job.location && <span> · {job.location}</span>}
+              </p>
               {job.summary && (
                 <p class="prose-block mt-2 text-muted">{job.summary}</p>
               )}
@@ -178,14 +181,18 @@ const {
         {
           education.map((entry) => (
             <li>
-              <p class="text-meta text-muted tabular-nums">
+              <h3 class="text-subhead">{entry.institution}</h3>
+              <p class="mt-1 text-meta text-muted tabular-nums">
                 {entry.startDate} — {entry.endDate}
               </p>
-              <h3 class="mt-1.5 text-subhead">{entry.institution}</h3>
-              <p class="mt-1 text-muted">
+              <p class="mt-2 text-muted">
                 {entry.studyType}, {entry.area}
               </p>
-              {entry.note && <p class="text-meta text-muted">{entry.note}</p>}
+              {
+                entry.note && (
+                  <p class="mt-0.5 text-meta text-muted">{entry.note}</p>
+                )
+              }
             </li>
           ))
         }
@@ -198,8 +205,7 @@ const {
           <ul class="space-y-5">
             {awards.map((entry) => (
               <li>
-                <p class="text-meta text-muted tabular-nums">{entry.date}</p>
-                <h3 class="mt-1.5 text-subhead">
+                <h3 class="text-subhead">
                   {entry.url ? (
                     <a
                       href={entry.url}
@@ -212,7 +218,9 @@ const {
                     entry.title
                   )}
                 </h3>
-                <p class="mt-1 text-muted">{entry.issuer}</p>
+                <p class="mt-1 text-meta text-muted tabular-nums">
+                  {entry.issuer} · {entry.date}
+                </p>
               </li>
             ))}
           </ul>

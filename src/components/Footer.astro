@@ -1,32 +1,50 @@
 ---
+import SocialIcon from './SocialIcon.astro';
 import { cv } from '../data/cv';
 import { site } from '../data/site';
 
 const year = new Date().getFullYear();
+
+// Placeholder URLs never reach the live site. In dev they render dimmed so the
+// icon set is visible while cv.json is still being filled in.
+const isPlaceholder = (url: string) => url.includes('TODO');
+const profiles = import.meta.env.DEV
+  ? cv.basics.profiles
+  : cv.basics.profiles.filter((profile) => !isPlaceholder(profile.url));
 ---
 
-<footer class="mt-24 border-t border-border/60">
+<footer class="mt-24 border-t border-border/70">
   <div
-    class="mx-auto flex max-w-page flex-col gap-3 px-6 py-8 text-meta text-muted sm:flex-row sm:items-center"
+    class="mx-auto flex max-w-page flex-col gap-5 px-6 py-8 text-meta text-muted sm:flex-row sm:items-center"
   >
     <p>© {year} {cv.basics.name}</p>
-    <ul class="flex flex-wrap gap-4 sm:ml-auto">
+
+    <ul class="flex flex-wrap items-center gap-1 sm:ml-auto">
       {
-        cv.basics.profiles.map((profile) => (
+        profiles.map((profile) => (
           <li>
             <a
               href={profile.url}
               rel="me noopener"
-              class="transition-colors hover:text-text"
+              aria-label={profile.network}
+              title={
+                isPlaceholder(profile.url)
+                  ? `${profile.network} — URL not set in cv.json`
+                  : profile.network
+              }
+              class:list={[
+                'grid size-9 place-items-center rounded-full transition-colors hover:bg-surface hover:text-accent',
+                isPlaceholder(profile.url) && 'opacity-30',
+              ]}
             >
-              {profile.network}
+              <SocialIcon network={profile.network} />
             </a>
           </li>
         ))
       }
       {
         site.resumeReady && (
-          <li>
+          <li class="ml-2">
             <a href="/resume.pdf" class="transition-colors hover:text-text">
               Résumé (PDF)
             </a>
