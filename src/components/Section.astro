@@ -1,0 +1,23 @@
+---
+interface Props {
+  id: string;
+  title: string;
+  /** Optional one-line note rendered under the heading. */
+  note?: string;
+}
+
+const { id, title, note } = Astro.props;
+---
+
+{/*
+  A hairline above each section and more space above the heading than below it.
+  That rule plus the gap is the whole section grammar — no uppercase eyebrow,
+  which reads as a label stuck on top of content rather than structure.
+*/}
+<section id={id} class="scroll-mt-20 border-t border-border/70 pt-10 pb-4">
+  <h2 class="text-heading">{title}</h2>
+  {note && <p class="mt-1.5 text-meta text-muted">{note}</p>}
+  <div class="mt-7">
+    <slot />
+  </div>
+</section>

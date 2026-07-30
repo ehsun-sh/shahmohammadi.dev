@@ -1,0 +1,373 @@
+{
+  "_readme": "Single source of truth for the website AND resume.pdf. Never duplicate any of this into .astro files or the Typst template. Source: Docs/Resume.MD (newer than Docs/Ehsan CV V 4.1.pdf — the PDF is missing the Teqware role).",
+  "_privacy": "No phone number lives in this repo. /resume.pdf is a public URL and this file is readable on GitHub, so anything here is public. Contact goes through email and the contact form. Keep a separate private résumé for direct applications.",
+
+  "basics": {
+    "name": "Ehsan Shahmohammadi",
+    "label": "Embedded, Hardware & Optical Engineer",
+    "headline": "I take electronic products from schematic to production — PCB and signal integrity, embedded firmware, and the optical link layer most hardware engineers never touch.",
+    "summary": "Embedded, hardware and optical engineer with 10+ years in electronics and telecom. I lead full-cycle product development: prototyping, multi-layer PCB design with EMC/EMI and thermal compliance, firmware in C/C++ on ESP32 and ARM, optical module integration, and system bring-up. My work spans a 4.25 Gbps SFP+ transceiver, a nationwide DWDM deployment, an SNMP monitoring platform running 2,000+ nodes, and an optical-fibre MRI receive coil. Based in Toronto and open to high-impact engineering teams.",
+    "email": "ehsun.ca@gmail.com",
+    "url": "https://shahmohammadi.dev",
+    "location": {
+      "city": "Toronto, Ontario",
+      "countryCode": "CA",
+      "remote": true
+    },
+    "availability": {
+      "open": true,
+      "note": "Open to embedded/hardware roles in the GTA or remote, and taking on freelance projects."
+    },
+    "profiles": [
+      {
+        "network": "LinkedIn",
+        "username": "TODO",
+        "url": "https://www.linkedin.com/in/TODO"
+      },
+      {
+        "network": "Upwork",
+        "username": "ehsun",
+        "url": "https://www.upwork.com/freelancers/ehsun"
+      },
+      {
+        "network": "GitHub",
+        "username": "TODO",
+        "url": "https://github.com/TODO"
+      }
+    ]
+  },
+
+  "work": [
+    {
+      "company": "Teqware",
+      "position": "Senior Hardware and Embedded Designer",
+      "location": "Toronto, ON (Remote)",
+      "startDate": "2025-11",
+      "endDate": null,
+      "summary": "End-to-end hardware ownership across multiple electronic products, from prototype through mass production.",
+      "highlights": [
+        "Cut production costs 30% by building internal manufacturing and lifecycle tooling that also raised assembly throughput.",
+        "Designed 4-layer PCBs and embedded Linux systems for mission-critical 24/7 operation.",
+        "Engineered for regulatory compliance from the first schematic, folding UL (incl. UL94 flammability) and FCC EMC/EMI requirements into early design decisions.",
+        "Coordinated design, validation testing and component sourcing directly with external suppliers and contract manufacturers."
+      ],
+      "stack": ["Altium", "Embedded Linux", "UL / FCC", "DFM"]
+    },
+    {
+      "company": "Upwork",
+      "position": "Freelance Hardware and Embedded Systems Engineer",
+      "location": "Toronto, ON (Remote)",
+      "startDate": "2023-09",
+      "endDate": null,
+      "summary": "Contract hardware and firmware work for clients shipping connected products.",
+      "highlights": [
+        "Boosted system performance over 80% by rewriting firmware on ESP-IDF and FreeRTOS with WebSocket transport.",
+        "Reduced hardware footprint 60% with a compact Altium redesign, with no loss of functionality.",
+        "Built an OTA firmware update system over CANBus for ESP32 modules integrated with a Particle IoT hub.",
+        "Cut RAM usage 15% in memory-constrained embedded systems through firmware refactoring.",
+        "Designed a 6-layer PCB to UL and FCC standards for EMC/EMI and thermal performance.",
+        "Programmed Quectel modules with QuecOpen, implementing LTE, GPS and Wi-Fi communication algorithms."
+      ],
+      "stack": ["ESP-IDF", "FreeRTOS", "CANBus", "Altium", "QuecOpen", "Particle IoT"]
+    },
+    {
+      "company": "Partoe Aval",
+      "position": "Senior R&D Engineer",
+      "location": "Tehran, Iran",
+      "startDate": "2021",
+      "endDate": "2023",
+      "summary": "Optical systems R&D for telecom infrastructure and fibre sensing.",
+      "highlights": [
+        "Achieved 8× capacity improvement researching optical multiplexing for 5G CPRI fronthaul.",
+        "Cut client optical-infrastructure upgrade costs 60% through a cost-optimization programme.",
+        "Developed a high-speed Fiber Bragg Grating (FBG) sensing system using WDM techniques."
+      ],
+      "stack": ["CWDM/DWDM", "CPRI", "FBG", "Link design"]
+    },
+    {
+      "company": "DanialMoj",
+      "position": "Embedded Systems Engineer",
+      "location": "Tehran, Iran",
+      "startDate": "2013",
+      "endDate": "2021",
+      "summary": "Embedded and optical hardware for nationwide telecom deployments.",
+      "highlights": [
+        "Led a 5-person team building a modular DWDM system — transponders, mux/demux, power and thermal subsystems.",
+        "Designed an SFP+ optical transceiver module supporting 4.25 Gbps.",
+        "Created a 24/7 SNMP monitoring system managing 2,000+ nodes, cutting memory use 70%.",
+        "Designed and programmed embedded firmware for optical systems deployed nationwide."
+      ],
+      "stack": ["DWDM", "SFP+", "SNMP", "C", "Embedded Linux"]
+    },
+    {
+      "company": "Pars Homa Parto",
+      "position": "Software Developer",
+      "location": "Tehran, Iran",
+      "startDate": "2011",
+      "endDate": "2013",
+      "summary": "Element Management System software for telecom equipment.",
+      "highlights": [
+        "Designed and maintained EMS software for telecom devices in C#/.NET over SNMP.",
+        "Analyzed system data to guide installations and recommend infrastructure improvements.",
+        "Ran comprehensive software testing to validate equipment performance and long-term reliability."
+      ],
+      "stack": ["C#", ".NET", "SNMP"]
+    },
+    {
+      "company": "Iran Telecom Research Center (ITRC)",
+      "position": "Embedded System Developer",
+      "location": "Tehran, Iran",
+      "startDate": "2009",
+      "endDate": "2011",
+      "summary": "Control-plane hardware and firmware for CWDM systems.",
+      "highlights": [
+        "Increased backplane data throughput 150% by implementing SSP-based communication between control and service cards in a CWDM system.",
+        "Developed and evaluated a new control card on a Windows CE core board for system stability and communication reliability."
+      ],
+      "stack": ["CWDM", "Windows CE", "C"]
+    }
+  ],
+
+  "education": [
+    {
+      "institution": "Science and Research Branch, Islamic Azad University (SRBIAU)",
+      "area": "Mechatronics Engineering",
+      "studyType": "M.Sc.",
+      "startDate": "2013",
+      "endDate": "2015",
+      "note": "Automation and Human-Machine Interface. Tehran, Iran."
+    },
+    {
+      "institution": "Telecommunication Faculty",
+      "area": "Telecommunication Engineering",
+      "studyType": "B.Sc.",
+      "startDate": "2007",
+      "endDate": "2010",
+      "note": "Data Communication. Tehran, Iran."
+    }
+  ],
+
+  "skills": [
+    {
+      "category": "Optical Systems",
+      "items": [
+        "CWDM / DWDM",
+        "Coherent optics",
+        "AWG",
+        "Pluggable transceivers (SFP/SFP+/XFP)",
+        "Passive & active optical components",
+        "Optical link design",
+        "Optical performance testing"
+      ]
+    },
+    {
+      "category": "Embedded Platforms",
+      "items": [
+        "ESP32",
+        "ARM (ARM7)",
+        "PIC",
+        "Embedded Linux",
+        "Particle IoT",
+        "Quectel (QuecOpen)"
+      ]
+    },
+    {
+      "category": "PCB Design & Integrity",
+      "items": [
+        "Signal integrity",
+        "Power integrity",
+        "Impedance-controlled routing",
+        "HDI",
+        "EMC/EMI compliance",
+        "Thermal management",
+        "UL / FCC design-for-compliance"
+      ]
+    },
+    {
+      "category": "Programming & Frameworks",
+      "items": [
+        "C",
+        "C++",
+        "C#",
+        "Python",
+        "JavaScript",
+        "FreeRTOS",
+        "ESP-IDF",
+        "Arduino",
+        ".NET"
+      ]
+    },
+    {
+      "category": "Protocols & Interfaces",
+      "items": [
+        "I2C",
+        "SPI",
+        "UART",
+        "CANBus",
+        "USB",
+        "Ethernet",
+        "Wi-Fi",
+        "SNMP",
+        "TCP/IP",
+        "OTA over LTE & CANBus"
+      ]
+    },
+    {
+      "category": "Test & Measurement",
+      "items": [
+        "Oscilloscope",
+        "Logic analyzer",
+        "Spectrum analyzer",
+        "OSA",
+        "OTDR",
+        "Optical power meter",
+        "VOA",
+        "Light source",
+        "Fiber splicer"
+      ]
+    },
+    {
+      "category": "Tools",
+      "items": [
+        "Altium Designer",
+        "MATLAB / Simulink",
+        "Git",
+        "Jira",
+        "SQL / SQLite",
+        "MongoDB"
+      ]
+    }
+  ],
+
+  "projects": [
+    {
+      "name": "MRI Radio Coil with Optical Transmission",
+      "year": "2024",
+      "summary": "Replaced coaxial cabling in MRI receive coils with optical fibre, improving SNR and cutting thermal effects. Designed an SDR to digitize and transmit coil signals at 63.875 MHz over fibre.",
+      "tags": ["SDR", "Optical", "Medical"],
+      "slug": null
+    },
+    {
+      "name": "Optical Transmitter System with WDM",
+      "year": "2017",
+      "summary": "Modular WDM optical transmitter carrying multiple services and protocols over a single fibre, with SFP/XFP transceiver cards and an embedded Linux control plane.",
+      "tags": ["WDM", "Embedded Linux", "Telecom"],
+      "slug": null
+    },
+    {
+      "name": "SFP 4.25G Transceiver Design",
+      "year": "2015",
+      "summary": "4.25 Gbps SFP optical transceiver on a 4-layer Altium design. Prototyped and characterized ROSA/TOSA optics plus the amplification and laser-control ICs.",
+      "tags": ["SFP", "High-speed PCB", "Optics"],
+      "slug": null
+    },
+    {
+      "name": "Digital Motor Protection Relay",
+      "year": "2013",
+      "summary": "Three-phase motor protection built on PIC18F67K22 with an ADE7758 metering front end, providing real-time monitoring and fault logging.",
+      "tags": ["PIC", "Power", "Industrial"],
+      "slug": null
+    }
+  ],
+
+  "awards": [
+    {
+      "title": "Khwarizmi Award",
+      "issuer": "Iranian Research Organization for Science & Technology (IROST)",
+      "date": "2010",
+      "url": "https://en.wikipedia.org/wiki/Khwarizmi_International_Award"
+    }
+  ],
+
+  "certificates": [
+    {
+      "name": "Agile Foundations",
+      "issuer": "PMI",
+      "date": "2024-02"
+    },
+    {
+      "name": "C Programming for Embedded Applications",
+      "issuer": "LinkedIn",
+      "date": "2024-01"
+    },
+    {
+      "name": "Git Command Line for Beginners",
+      "issuer": "Udemy",
+      "date": "2023-10"
+    }
+  ],
+
+  "languages": [
+    { "language": "Persian", "fluency": "Native" },
+    { "language": "English", "fluency": "Professional working proficiency" }
+  ],
+
+  "services": {
+    "intro": "I work with hardware teams and product companies that need a connected electronic product taken from concept to something a contract manufacturer can actually build — and with telecom operators that need the optical layer designed or debugged.",
+    "offerings": [
+      {
+        "title": "Schematic & PCB Design",
+        "description": "Multi-layer boards up to 6 layers with impedance-controlled routing, designed against UL and FCC EMC/EMI and thermal requirements from the first schematic rather than after the first failed scan.",
+        "deliverables": [
+          "Schematic",
+          "PCB layout",
+          "Gerber + drill",
+          "BOM",
+          "Pick & place",
+          "Assembly drawing",
+          "Stack-up and impedance report"
+        ]
+      },
+      {
+        "title": "Embedded Firmware & Bring-up",
+        "description": "C/C++ on ESP32, ARM and PIC — ESP-IDF, FreeRTOS, bare metal. Board bring-up, drivers, OTA update paths over LTE or CANBus, and production test firmware.",
+        "deliverables": [
+          "Bring-up report",
+          "Drivers and HAL",
+          "OTA update system",
+          "Production test firmware"
+        ]
+      },
+      {
+        "title": "Optical Systems & Link Design",
+        "description": "CWDM/DWDM link budgets, transceiver selection and integration, fibre sensing, and optical performance characterization with OSA, OTDR and power-meter measurements.",
+        "deliverables": [
+          "Link budget and topology",
+          "Transceiver / component selection",
+          "Measured performance report",
+          "Integration support"
+        ]
+      },
+      {
+        "title": "EMC Pre-compliance & Debug",
+        "description": "Finding why a board fails a scan and fixing it in layout rather than in a shield can. Pre-scan, root cause, and a mitigation plan you can hand to your CM.",
+        "deliverables": [
+          "Pre-scan results",
+          "Root-cause analysis",
+          "Layout and filtering mitigation plan"
+        ]
+      }
+    ],
+    "engagement": [
+      {
+        "model": "Fixed scope",
+        "fit": "A defined deliverable with a clear boundary — one board spun, one firmware feature, one EMC investigation."
+      },
+      {
+        "model": "Hourly",
+        "fit": "Exploratory work, debugging, or design review where the scope genuinely is not knowable up front."
+      },
+      {
+        "model": "Retainer",
+        "fit": "Ongoing engineering capacity for a team shipping a roadmap of revisions."
+      }
+    ],
+    "beforeWeStart": [
+      "Requirements or a functional spec, however rough",
+      "Mechanical constraints and target enclosure",
+      "Target certifications and markets (UL, FCC, CE)",
+      "Expected production volume",
+      "Existing design files, if you are picking up an in-flight project"
+    ]
+  }
+}

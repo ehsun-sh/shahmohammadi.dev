@@ -1,0 +1,153 @@
+---
+/**
+ * HERO VISUAL SLOT
+ * ================
+ * This is where the "Concept to Production" sequence goes (ROADMAP Phase 6).
+ * Right now it holds a placeholder SVG so the position, aspect ratio and
+ * framing are locked in while the real asset gets produced.
+ *
+ * TO SWAP IN THE REAL ASSET
+ * -------------------------
+ * 1. Put the render at `src/assets/hero/board.webp` (or a `frame-000.webp …`
+ *    sequence for Phase 6).
+ * 2. Replace the <svg> below with:
+ *
+ *      ---
+ *      import { Image } from 'astro:assets';
+ *      import board from '../assets/hero/board.webp';
+ *      ---
+ *      <Image src={board} alt="…" widths={[720, 1120, 1600]} loading="eager" />
+ *
+ * 3. Keep the wrapper: it owns the aspect ratio, the surface, and the border.
+ *
+ * ASSET SPEC — hand this to whatever renders the image
+ * ----------------------------------------------------
+ *   Aspect ratio   16:10  (this frame). Do not letterbox; fill it.
+ *   Export size    1600 × 1000 px, plus 2400 × 1500 for the 2× srcset
+ *   Format         WebP, quality ~82. Target under 180 KB per frame.
+ *   Background     TRANSPARENT. The page background shows through, and it
+ *                  differs between light and dark themes — a baked-in white
+ *                  or black plate will look like a pasted rectangle in one of
+ *                  the two. This is the single most common mistake here.
+ *   Framing        Board centred, ~8% margin on all sides so it never touches
+ *                  the rounded corners.
+ *   Lighting       Neutral studio, soft key from upper-left, no coloured gels.
+ *                  Keep highlights off pure white so they hold on a light bg.
+ */
+
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<figure
+  class:list={[
+    'relative overflow-hidden rounded-2xl bg-surface ring-1 ring-border/70 ring-inset',
+    className,
+  ]}
+>
+  <div class="aspect-[16/10]">
+    <svg
+      viewBox="0 0 800 500"
+      role="img"
+      aria-label="Placeholder illustration of a routed printed circuit board with an optical fibre leaving one edge."
+      class="size-full"
+      fill="none"
+    >
+      {/* Board substrate — extruded edge, then top face. */}
+      <path
+        d="M400 108 740 268 740 286 400 446 60 286 60 268Z"
+        fill="var(--color-border)"
+        opacity="0.5"
+      />
+      <path
+        d="M400 90 740 250 400 410 60 250Z"
+        fill="var(--color-bg)"
+        stroke="var(--color-border)"
+        stroke-width="1.5"
+      />
+
+      {/* Copper routing. Every turn is on the board's own axes, which is what
+          makes it read as routing rather than as random lines. */}
+      <g
+        stroke="var(--color-muted)"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        opacity="0.55"
+      >
+        <path d="M383 130 247 194 366 250 247 306" />
+        <path d="M468 138 621 210 502 266" />
+        <path d="M213 226 366 298 281 338" />
+        <path d="M536 202 434 250 553 306" />
+        <path d="M330 160 424 207" />
+        <path d="M180 262 262 303" />
+      </g>
+
+      {/* Vias. */}
+      <g fill="var(--color-muted)" opacity="0.65">
+        <ellipse cx="247" cy="306" rx="4" ry="2.2" />
+        <ellipse cx="502" cy="266" rx="4" ry="2.2" />
+        <ellipse cx="281" cy="338" rx="4" ry="2.2" />
+        <ellipse cx="553" cy="306" rx="4" ry="2.2" />
+        <ellipse cx="330" cy="160" rx="4" ry="2.2" />
+      </g>
+
+      {/* Main package. */}
+      <path
+        d="M410 193 492 231 400 274 318 236Z"
+        fill="var(--color-surface)"
+        stroke="var(--color-muted)"
+        stroke-width="1.5"
+      />
+      <path
+        d="M410 193 410 207 318 250 318 236Z"
+        fill="var(--color-border)"
+        opacity="0.6"
+      />
+      <path
+        d="M492 231 492 245 400 288 400 274Z"
+        fill="var(--color-border)"
+        opacity="0.35"
+      />
+      <path
+        d="M318 250 400 288 492 245"
+        stroke="var(--color-muted)"
+        stroke-width="1.5"
+        stroke-linejoin="round"
+      />
+
+      {/* Passives. */}
+      <g fill="var(--color-border)" stroke="var(--color-muted)" stroke-width="1">
+        <path d="M383 162 410 175 383 188 356 175Z" />
+        <path d="M470 170 497 183 470 196 443 183Z" />
+        <path d="M300 205 327 218 300 231 273 218Z" />
+        <path d="M455 320 482 333 455 346 428 333Z" />
+      </g>
+
+      {/* Optical fibre — the part of the story most hardware portfolios
+          cannot tell. Accent colour is reserved for it on purpose. */}
+      <path
+        d="M621 258 C 690 246, 726 206, 742 150"
+        stroke="var(--color-accent)"
+        stroke-width="2.5"
+        stroke-linecap="round"
+      />
+      <circle cx="742" cy="150" r="5" fill="var(--color-accent)" />
+      <circle cx="742" cy="150" r="13" fill="var(--color-accent)" opacity="0.18" />
+      <circle cx="742" cy="150" r="24" fill="var(--color-accent)" opacity="0.07" />
+      <ellipse cx="621" cy="258" rx="5" ry="3" fill="var(--color-accent)" />
+    </svg>
+  </div>
+
+  {
+    import.meta.env.DEV && (
+      <figcaption class="absolute bottom-3 left-3 rounded-md bg-bg/90 px-2.5 py-1 text-meta text-muted ring-1 ring-border">
+        Placeholder — drop the render in at 1600×1000, transparent background.
+        See <code class="font-mono">HeroVisual.astro</code>.
+      </figcaption>
+    )
+  }
+</figure>

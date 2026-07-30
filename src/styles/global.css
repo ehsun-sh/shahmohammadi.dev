@@ -1,0 +1,216 @@
+@import "tailwindcss";
+
+/* Dark mode is driven by a `data-theme` attribute on <html>, set before first
+   paint by the inline script in BaseLayout.astro. It resolves to the OS
+   preference unless the visitor has explicitly chosen a theme.
+
+   The second rule is the JS-disabled path: without the script no attribute is
+   ever set, so fall back to the OS preference. */
+@custom-variant dark {
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme="light"]), :root:not([data-theme="light"]) *) {
+      @slot;
+    }
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Palette (Apple HIG). These are the ONLY hex values in the codebase.
+   Components must reference the generated utilities or the `--color-*` vars.
+   Contrast verified against WCAG AA for body text in both themes.
+--------------------------------------------------------------------------- */
+:root {
+  --c-bg: #fbfbfd;
+  --c-surface: #ffffff;
+  --c-text: #1d1d1f;
+  --c-muted: #6e6e73;   /* 4.95:1 on --c-bg */
+  --c-accent: #0071e3;  /* 4.59:1 on --c-bg */
+  --c-border: #d2d2d7;
+}
+
+@media (prefers-color-scheme: dark) {
+  /* JS-disabled fallback. Higher specificity than [data-theme="dark"] below,
+     but sets the same values, so an explicit choice still wins either way. */
+  :root:not([data-theme="light"]) {
+    --c-bg: #000000;
+    --c-surface: #1c1c1e;
+    --c-text: #f5f5f7;
+    --c-muted: #a1a1a6;
+    --c-accent: #2997ff;
+    --c-border: #3a3a3c;
+  }
+}
+
+[data-theme="dark"] {
+  --c-bg: #000000;
+  --c-surface: #1c1c1e;
+  --c-text: #f5f5f7;
+  --c-muted: #a1a1a6;   /* 8.17:1 on --c-bg */
+  --c-accent: #2997ff;  /* 6.96:1 on --c-bg */
+  --c-border: #3a3a3c;
+}
+
+/* `inline` so utilities emit the resolved custom property, letting the palette
+   swap at runtime without regenerating CSS. */
+@theme inline {
+  --color-bg: var(--c-bg);
+  --color-surface: var(--c-surface);
+  --color-text: var(--c-text);
+  --color-muted: var(--c-muted);
+  --color-accent: var(--c-accent);
+  --color-border: var(--c-border);
+
+  /* System stack: zero font payload, and renders as real SF on Apple devices —
+     which is the point of an Apple-HIG-derived design. */
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "SF Mono", ui-monospace, "Cascadia Code", "Roboto Mono",
+    Menlo, Consolas, monospace;
+
+  /* -------------------------------------------------------------------------
+     Type scale — six roles, nothing else. Every size in the UI comes from this
+     list; no arbitrary `text-[15px]` values. Size alone does not carry the
+     hierarchy, weight and space do their share, which is why `body` and
+     `subhead` share a size and differ in weight.
+  ------------------------------------------------------------------------- */
+  --text-meta: 0.875rem;              /* 14px — dates, chips, footer */
+  --text-meta--line-height: 1.45;
+
+  --text-body: 1.0625rem;             /* 17px — all prose */
+  --text-body--line-height: 1.65;
+
+  --text-subhead: 1.0625rem;          /* 17px — entry titles */
+  --text-subhead--line-height: 1.4;
+  --text-subhead--font-weight: 600;
+
+  --text-heading: 1.125rem;           /* 18px — section titles */
+  --text-heading--line-height: 1.3;
+  --text-heading--font-weight: 600;
+  --text-heading--letter-spacing: -0.01em;
+
+  --text-lead: 1.375rem;              /* 22px — hero standfirst */
+  --text-lead--line-height: 1.55;
+
+  --text-display: clamp(2.5rem, 7vw, 3.5rem);
+  --text-display--line-height: 1.05;
+  --text-display--font-weight: 600;
+  --text-display--letter-spacing: -0.03em;
+
+  /* -------------------------------------------------------------------------
+     Measure. `page` is the reading column: at 17px it lands around 68ch, inside
+     the 65–75ch band, and it IS the container — so text fills it edge to edge
+     and the left and right gutters are symmetric by construction rather than by
+     luck. `wide` exists only for the hero visual.
+  ------------------------------------------------------------------------- */
+  --container-page: 44rem;
+  --container-wide: 56rem;
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    html:not([data-theme="light"]) {
+      color-scheme: dark;
+    }
+  }
+
+  [data-theme="dark"] {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Light text on a black field looks tighter and thinner than the same text
+     on white. Give it back a little leading and tracking. */
+  [data-theme="dark"] body {
+    line-height: 1.7;
+    letter-spacing: 0.003em;
+  }
+
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* Hard constraint from CLAUDE.md #2: honour reduced-motion globally, not
+     just in the hero. Any GSAP timeline must check this too. */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* Justified body copy. Justification only works without rivers of white when
+     the browser is allowed to hyphenate, which needs both `hyphens: auto` and
+     the `lang` attribute on <html>. `text-wrap: auto` because `pretty` fights
+     the justifier. Applied to prose blocks only — never to headings, chips, or
+     single-line labels, where justification just stretches a fragment. */
+  .prose-block {
+    text-align: justify;
+    text-justify: inter-word;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+    text-wrap: auto;
+  }
+
+  /* A last line left alone at the bottom of a justified block reads as a bug.
+     Narrow viewports have too few words per line for justification to look
+     like anything but damage, so drop back to ragged right. */
+  @media (width < 34rem) {
+    .prose-block {
+      text-align: left;
+    }
+  }
+
+  /* Skip link — visible only on keyboard focus. */
+  .skip-link {
+    position: absolute;
+    left: 0.5rem;
+    top: -4rem;
+    z-index: 100;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    background-color: var(--color-surface);
+    color: var(--color-text);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
+    transition: top 0.15s ease;
+  }
+  .skip-link:focus {
+    top: 0.5rem;
+  }
+}

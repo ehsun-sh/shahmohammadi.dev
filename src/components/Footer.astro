@@ -1,0 +1,38 @@
+---
+import { cv } from '../data/cv';
+import { site } from '../data/site';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="mt-24 border-t border-border/60">
+  <div
+    class="mx-auto flex max-w-page flex-col gap-3 px-6 py-8 text-meta text-muted sm:flex-row sm:items-center"
+  >
+    <p>© {year} {cv.basics.name}</p>
+    <ul class="flex flex-wrap gap-4 sm:ml-auto">
+      {
+        cv.basics.profiles.map((profile) => (
+          <li>
+            <a
+              href={profile.url}
+              rel="me noopener"
+              class="transition-colors hover:text-text"
+            >
+              {profile.network}
+            </a>
+          </li>
+        ))
+      }
+      {
+        site.resumeReady && (
+          <li>
+            <a href="/resume.pdf" class="transition-colors hover:text-text">
+              Résumé (PDF)
+            </a>
+          </li>
+        )
+      }
+    </ul>
+  </div>
+</footer>
