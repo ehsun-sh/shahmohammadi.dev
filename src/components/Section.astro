@@ -10,14 +10,22 @@ const { id, title, note } = Astro.props;
 ---
 
 {/*
-  A hairline above each section and more space above the heading than below it.
-  That rule plus the gap is the whole section grammar — no uppercase eyebrow,
-  which reads as a label stuck on top of content rather than structure.
+  The old full-width hairline separated sections but did nothing to make the
+  heading itself read as a heading. It is now a short accent rule sitting
+  directly above the title: same idea, a tenth of the width, and carrying
+  colour. It stays horizontal rather than becoming a bar to the left of the
+  text so that the rule, the heading, the note and the content all share one
+  left edge at every viewport — a marker in the gutter would collide with the
+  24px page padding on mobile.
+
+  Separation between sections is now the job of the top padding alone, which is
+  the honest way to do it: space, not a line.
 */}
-<section id={id} class="scroll-mt-20 border-t border-border/70 pt-10 pb-4">
-  <h2 class="text-heading">{title}</h2>
-  {note && <p class="mt-1.5 text-meta text-muted">{note}</p>}
-  <div class="mt-7">
+<section id={id} class="scroll-mt-24 pt-16 pb-2">
+  <div class="h-[3px] w-8 rounded-full bg-accent" aria-hidden="true"></div>
+  <h2 class="mt-4 text-heading">{title}</h2>
+  {note && <p class="mt-2 text-meta text-muted">{note}</p>}
+  <div class="mt-8">
     <slot />
   </div>
 </section>

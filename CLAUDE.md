@@ -65,6 +65,10 @@ npm run resume    # compile src/resume/resume.typ -> public/resume.pdf
   34rem. Apply it to multi-line prose only — never headings, chips, or labels.
 - **Images** go through `astro:assets` (`<Image />` / `getImage`). Exception:
   the hero canvas frame sequence, which is fetched directly.
+- **Brand assets.** `src/assets/brand/logo.jpg` is the ESM monogram used in the
+  header; `public/favicon.ico` is a multi-resolution icon covering 16→256, and
+  `apple-touch-icon.png` / `icon-192` / `icon-512` are generated from the same
+  logo. Originals live in `Images/` and are not what the site reads.
 - `public/resume.pdf` is generated. It is gitignored and must not be committed.
 
 ## Hard constraints
