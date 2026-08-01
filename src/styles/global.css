@@ -117,12 +117,26 @@
   --text-display--letter-spacing: -0.03em;
 
   /* -------------------------------------------------------------------------
-     Measure. `page` is the reading column, narrowed alongside the drop to 15px
-     body copy — a smaller face in the same width would have run past 78ch. It
-     IS the container, so text fills it edge to edge and the gutters are
-     symmetric by construction rather than by luck. `wide` is the hero visual.
+     Measure. One width for the whole page: the reading column now matches the
+     hero visual, so every left and right edge on the page lines up instead of
+     the hero card overhanging the text by 144px a side.
+
+     The cost is real and worth writing down. At 41rem the column measured
+     exactly 75ch; at 56rem it measures 104ch, which is past the range long-form
+     prose is comfortable in, and justified text pays the most for it because
+     wider lines open wider word spaces. `.prose-block` gets extra leading to
+     compensate — the longer the line, the more vertical separation the eye
+     needs to find the start of the next one.
+
+     Do not fix this by nesting a narrower max-width inside the column for
+     paragraphs. That reintroduces the asymmetric right-hand gutter this layout
+     was rebuilt to get rid of. If the measure has to come down, move
+     --container-page and let everything move with it.
+
+     The container IS the measure, so text fills it edge to edge and the gutters
+     stay symmetric by construction rather than by luck.
   ------------------------------------------------------------------------- */
-  --container-page: 41rem;
+  --container-page: 56rem;
   --container-wide: 56rem;
 }
 
@@ -203,6 +217,10 @@
     hyphens: auto;
     -webkit-hyphens: auto;
     text-wrap: auto;
+    /* Longer lines need more air between them, because the eye has further to
+       travel back and needs the next line's start to be unambiguous. This is
+       the compensation for the 104ch measure — see --container-page. */
+    line-height: 1.75;
   }
 
   /* A last line left alone at the bottom of a justified block reads as a bug.

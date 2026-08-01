@@ -1,7 +1,6 @@
 ---
 import SocialIcon from './SocialIcon.astro';
 import { cv } from '../data/cv';
-import { site } from '../data/site';
 
 const year = new Date().getFullYear();
 
@@ -41,15 +40,6 @@ const profiles = import.meta.env.DEV
             </a>
           </li>
         ))
-      }
-      {
-        site.resumeReady && (
-          <li class="ml-2">
-            <a href="/resume.pdf" class="transition-colors hover:text-text">
-              Résumé (PDF)
-            </a>
-          </li>
-        )
       }
     </ul>
   </div>

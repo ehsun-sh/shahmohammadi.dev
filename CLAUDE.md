@@ -62,13 +62,20 @@ Deploys happen on push to `main`. Nothing is published from a local machine.
   like each other: `subhead` for the entry title or skill category, `body` for
   its description, `meta` for dates, tags and notes. Do not give one section its
   own sizes.
-- **Two measures, both centred:** `max-w-page` (41rem) is the reading column and
-  is what everything textual uses; `max-w-wide` (56rem) is for the hero visual
-  and the nav bar only. Horizontal padding is `px-6` everywhere. Gutters are
-  symmetric because the measure *is* the container — do not nest a narrower
-  `max-w-*` inside `max-w-page`, which is what left the old layout with 396px of
-  dead space on the right. If body size changes, re-check the measure: `page`
-  was narrowed from 44rem when body dropped 17→15px to keep it under 75ch.
+- **One measure, centred.** `max-w-page` and `max-w-wide` are both 56rem:
+  `page` is the reading column, `wide` is the hero visual and the nav bar, and
+  they are equal on purpose so every left and right edge on the page lines up.
+  Horizontal padding is `px-6` everywhere. Gutters are symmetric because the
+  measure *is* the container — **never nest a narrower `max-w-*` inside
+  `max-w-page`**, not even to shorten paragraph lines. That is what left the old
+  layout with 396px of dead space on the right, and it is the one fix that must
+  not be reached for here. If the measure has to change, change
+  `--container-page` and let the whole page move with it.
+  This is a deliberate trade, not an oversight: 56rem puts body copy at **104ch**,
+  past the comfortable range for long-form prose, and justified text pays most
+  because wider lines open wider word spaces. `.prose-block` carries
+  `line-height: 1.75` to compensate. It was 41rem/75ch before; widening to match
+  the hero was an explicit design call.
 - **Body prose is justified** via the `.prose-block` class, which pairs
   `text-align: justify` with `hyphens: auto` and drops to ragged-left below
   34rem. Apply it to multi-line prose only — never headings, chips, or labels.
