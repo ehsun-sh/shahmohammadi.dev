@@ -57,8 +57,16 @@ jobs:
             || { echo "::error::Almarai TTFs missing — the résumé would silently fall back to a serif"; exit 1; }
           npm run resume
 
+      # `enablement` turns Pages on through the API if it is not on already.
+      # Without it the first run of a fresh repo fails here: the Source selector
+      # does not appear in Settings until a branch exists, so there is no way to
+      # enable Pages before the first push, and no way to push without the first
+      # run failing. This resolves that both ways round, and is a no-op once
+      # Pages is on.
       - name: Configure Pages
         uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - name: Build
         run: npm run build
