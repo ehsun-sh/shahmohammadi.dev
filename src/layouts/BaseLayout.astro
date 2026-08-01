@@ -2,39 +2,70 @@
 import '../styles/global.css';
 import Navigation from '../components/Navigation.astro';
 import Footer from '../components/Footer.astro';
+import Analytics from '../components/Analytics.astro';
 import { cv } from '../data/cv';
 
 interface Props {
   title: string;
   description: string;
-  /** Absolute or root-relative path to a social card. Generated in Phase 2. */
+  /** Root-relative path to a social card. Built by `src/pages/og.png.ts`. */
   ogImage?: string;
-  /** Set on long-form pages to constrain the reading measure. */
-  prose?: boolean;
 }
 
-const { title, description, ogImage } = Astro.props;
+const { title, description, ogImage = '/og.png' } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
 const fullTitle =
   title === cv.basics.name ? title : `${title} — ${cv.basics.name}`;
-const ogImageUrl = ogImage ? new URL(ogImage, Astro.site).href : undefined;
+const ogImageUrl = new URL(ogImage, Astro.site).href;
 
 // Recruiters google you before they read you. This is what shows up.
+// Placeholder profile URLs are filtered out — pointing sameAs at a 404 is worse
+// than omitting the property.
+const currentRole = cv.work.find((job) => job.endDate === null);
+
 const personSchema = {
   '@context': 'https://schema.org',
   '@type': 'Person',
+  '@id': `${cv.basics.url}/#person`,
   name: cv.basics.name,
   jobTitle: cv.basics.label,
   description: cv.basics.headline,
   url: cv.basics.url,
-  sameAs: cv.basics.profiles.map((p) => p.url),
+  image: new URL('/apple-touch-icon.png', Astro.site).href,
+  email: `mailto:${cv.basics.email}`,
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: cv.basics.location.city,
+    addressCountry: cv.basics.location.countryCode,
+  },
+  sameAs: cv.basics.profiles
+    .map((p) => p.url)
+    .filter((url) => !url.includes('TODO')),
   knowsAbout: cv.skills.flatMap((group) => group.items),
+  knowsLanguage: cv.languages.map((entry) => entry.language),
+  alumniOf: cv.education.map((entry) => ({
+    '@type': 'CollegeOrUniversity',
+    name: entry.institution,
+  })),
+  award: cv.awards.map((entry) => entry.title),
+  ...(currentRole && {
+    worksFor: { '@type': 'Organization', name: currentRole.company },
+  }),
   hasOccupation: {
     '@type': 'Occupation',
     name: cv.basics.label,
     occupationalCategory: '17-2072.00', // O*NET: Electronics Engineers
   },
+};
+
+const profilePageSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfilePage',
+  mainEntity: { '@id': `${cv.basics.url}/#person` },
+  url: canonical,
+  name: fullTitle,
+  description,
 };
 ---
 
@@ -62,16 +93,22 @@ const personSchema = {
     />
     <link rel="sitemap" href="/sitemap-index.xml" />
 
-    <meta property="og:type" content="website" />
+    <meta name="author" content={cv.basics.name} />
+    <meta property="og:type" content="profile" />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content={cv.basics.name} />
+    <meta property="og:locale" content="en_CA" />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta
-      name="twitter:card"
-      content={ogImageUrl ? 'summary_large_image' : 'summary'}
+      property="og:image:alt"
+      content={`${cv.basics.name} — ${cv.basics.label}`}
     />
-    {ogImageUrl && <meta property="og:image" content={ogImageUrl} />}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={ogImageUrl} />
 
     {/* Runs before first paint so the theme never flashes. `is:inline` keeps
         it out of the bundle — it must not be deferred. */}
@@ -94,8 +131,10 @@ const personSchema = {
 
     <script
       type="application/ld+json"
-      set:html={JSON.stringify(personSchema)}
+      set:html={JSON.stringify([personSchema, profilePageSchema])}
     />
+
+    <Analytics />
   </head>
 
   <body class="min-h-dvh flex flex-col">

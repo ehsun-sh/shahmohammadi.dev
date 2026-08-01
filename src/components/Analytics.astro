@@ -1,0 +1,35 @@
+---
+import { site } from '../data/site';
+
+/**
+ * Renders nothing unless `site.analytics` is configured, so the default build
+ * ships zero third-party requests. Both supported providers are cookieless and
+ * do not collect personal data, which is why there is no consent banner —
+ * if you swap in a provider that sets cookies, that stops being true and a
+ * banner becomes a legal requirement, not a style choice.
+ */
+const { provider, code } = site.analytics;
+const enabled = provider !== 'none' && code.length > 0;
+---
+
+{
+  enabled && provider === 'goatcounter' && (
+    <script
+      is:inline
+      data-goatcounter={`https://${code}.goatcounter.com/count`}
+      async
+      src="//gc.zgo.at/count.js"
+    />
+  )
+}
+
+{
+  enabled && provider === 'cloudflare' && (
+    <script
+      is:inline
+      defer
+      src="https://static.cloudflareinsights.com/beacon.min.js"
+      data-cf-beacon={JSON.stringify({ token: code })}
+    />
+  )
+}

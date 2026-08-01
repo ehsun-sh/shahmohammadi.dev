@@ -9,4 +9,21 @@ export const site = {
   projectsReady: false,
   /** Flip to true when /notes ships (Phase 7). */
   notesReady: false,
+
+  /**
+   * Privacy-friendly analytics. Off until you supply a site code, so no
+   * third-party script reaches a visitor by default and no cookie banner is
+   * needed. Both options below are cookieless and do not collect personal data.
+   *
+   *   goatcounter — sign up at goatcounter.com, then set `code` to your
+   *                 subdomain (the `<code>.goatcounter.com` part).
+   *   cloudflare  — Cloudflare Web Analytics, then set `code` to the token
+   *                 from the dashboard snippet.
+   *
+   * Set `provider` to 'none' to ship nothing.
+   */
+  analytics: {
+    provider: 'none' as 'none' | 'goatcounter' | 'cloudflare',
+    code: '',
+  },
 } as const;

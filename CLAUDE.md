@@ -6,6 +6,7 @@ to **shahmohammadi.dev** via GitHub Pages.
 **Plan and phase order live in [`Docs/ROADMAP.md`](Docs/ROADMAP.md). Read it
 before starting work.** `Docs/Portfolio_Architecture_Blueprint.pdf` is the
 original proposal and is partly superseded — the roadmap wins on conflicts.
+Repo, DNS and Pages setup is in [`Docs/DEPLOY.md`](Docs/DEPLOY.md).
 
 ## Stack
 
@@ -20,8 +21,11 @@ Node ≥ 22.12 required by Astro 7.
 npm run dev       # dev server
 npm run build     # static build to dist/
 npm run preview   # serve dist/ locally
+npm run check     # astro check — CI runs this before deploying
 npm run resume    # compile src/resume/resume.typ -> public/resume.pdf
 ```
+
+Deploys happen on push to `main`. Nothing is published from a local machine.
 
 ## Conventions
 

@@ -92,16 +92,20 @@ had the animation at Phase 3 of 5; that ordering risks never shipping.
 navigable shell. *(Build verified; content still placeholder.)*
 
 ### Phase 2 — CV landing page + ship
-- [ ] Landing page reads entirely from `cv.json`
-- [ ] **Static** hero (name, title, one-line positioning, two CTAs). No GSAP yet.
-- [ ] Sections: Experience, Technical Skills grid, Education, Featured Projects
-- [ ] SEO: JSON-LD `Person` + `hasOccupation`, per-page meta, OG image generated
-      at build time, `sitemap.xml`, `robots.txt`
-- [ ] Deploy workflow (`.github/workflows/deploy.yml`) with `npm ci`,
-      `permissions:` block, `upload-pages-artifact` + `deploy-pages`
-- [ ] DNS: `A`/`AAAA` apex records to GitHub Pages IPs, `CNAME` for `www`,
-      enable "Enforce HTTPS" after the cert issues
-- [ ] Analytics snippet
+- [x] Landing page reads entirely from `cv.json`
+- [x] **Static** hero (name, title, one-line positioning, CTAs). No GSAP yet.
+- [x] Sections: Experience, Skills, Projects, Education, Awards, Certifications
+- [x] SEO: JSON-LD `Person` + `ProfilePage`, per-page meta, `sitemap-index.xml`,
+      `robots.txt`, favicons and web manifest
+- [x] OG image generated at build time (satori + resvg, embedded Inter so the
+      PNG is identical on Windows and on the CI runner) at `/og.png`
+- [x] Deploy workflow (`.github/workflows/deploy.yml`): `npm ci`, type check,
+      `permissions:` block with OIDC, CNAME assertion, `upload-pages-artifact`
+      + `deploy-pages`
+- [x] Analytics component, off by default — set `site.analytics` to opt in
+- [ ] **Create the repo, push, and complete DNS.** See `Docs/DEPLOY.md`.
+- [ ] Fill the remaining `TODO`s in `cv.json` (LinkedIn and GitHub URLs, plus
+      any social profiles worth keeping)
 
 **Done when:** `https://shahmohammadi.dev` is live over HTTPS with a real CV.
 **This is the first shippable milestone. Do not skip past it.**
