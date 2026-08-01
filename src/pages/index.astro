@@ -111,16 +111,20 @@ const {
       </ol>
     </Section>
 
+    {/* Fifty-four skills as fifty-four bordered chips gave every item the same
+        visual weight, so the categories stopped doing their job and the whole
+        block read as texture. Laid out as a spec sheet instead: the category is
+        the anchor at full contrast, the items are quiet text behind it. */}
     <Section id="skills" title="Technical Skills">
-      <dl class="space-y-7">
+      <dl class="space-y-6">
         {
           skills.map((group) => (
-            <div class="sm:grid sm:grid-cols-[9.5rem_1fr] sm:gap-6">
-              <dt class="text-subhead">{group.category}</dt>
-              <dd class="mt-2 sm:mt-0.5">
-                <ul class="flex flex-wrap gap-1.5">
+            <div class="sm:grid sm:grid-cols-[9.5rem_1fr] sm:gap-7">
+              <dt class="text-subhead text-balance">{group.category}</dt>
+              <dd class="mt-1.5 sm:mt-0">
+                <ul class="flex flex-wrap items-baseline gap-x-1.5 text-muted">
                   {group.items.map((item) => (
-                    <li class="rounded-md bg-surface px-2.5 py-1 text-meta text-muted ring-1 ring-border/70 ring-inset">
+                    <li class="after:ml-1.5 after:text-border after:content-['·'] last:after:content-none">
                       {item}
                     </li>
                   ))}
