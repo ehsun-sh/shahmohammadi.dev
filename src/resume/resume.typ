@@ -87,20 +87,36 @@
 // `breakable: false` keeps the title with its description. Without it a page
 // break could land between them and strand a heading alone at the foot of a
 // page — which is exactly what happened to the first project entry.
+//
+// The title/note gap is set as the head block's `below`, not the note's
+// `above`: Typst collapses leading spacing at the start of a container, and the
+// note is the first thing in its own `[...]` group, so its `above` is dropped.
+//
+// Both numbers were solved from measured output rather than guessed. Spacing is
+// set between block frames, and a text frame runs cap-height to baseline — so
+// the visible gap lands about 8.7px (at 300ppi) under the spacing value, that
+// being how far the descenders of the line above hang past its frame. 0.47em
+// puts roughly 3px of daylight at 96dpi under the entry title.
+//
+// `below` on the entry is the gap to the bullets, and is deliberately the
+// larger of the two: the note describes the title, so it has to sit nearer to
+// it than to the list, or it reads as the first bullet.
 #let entry(title, meta, note: none) = block(
   breakable: false,
   above: 0.85em,
-  below: 0.35em,
+  below: 0.55em,
 )[
-  #grid(
-    columns: (1fr, auto),
-    column-gutter: 1em,
-    align: (left + bottom, right + bottom),
-    title,
-    text(size: 8.5pt, fill: muted)[#meta],
-  )
+  #block(below: 0.47em)[
+    #grid(
+      columns: (1fr, auto),
+      column-gutter: 1em,
+      align: (left + bottom, right + bottom),
+      title,
+      text(size: 8.5pt, fill: muted)[#meta],
+    )
+  ]
   #if note != none and note != "" [
-    #block(above: 0.32em, below: 0em, text(fill: muted)[#note])
+    #text(fill: muted)[#note]
   ]
 ]
 
@@ -149,15 +165,23 @@
 #let bar-width = 3.5pt
 #let bar-offset = 8pt + bar-width / 2
 
+// One value for both gaps, because the three lines are three different sizes
+// and the eye reads the whitespace, not the baselines. At 0.28/0.5em the
+// baselines were near enough evenly spaced (43px vs 45px at 300ppi) while the
+// visible gaps were 11px and 19px — the third line's smaller cap height leaves
+// a bigger hole above it for the same baseline distance. Equal spacers put the
+// whitespace at ~15px on both.
+#let head-gap = 0.39em
+
 #pad(left: -bar-offset)[
   #block(
     inset: (left: bar-offset),
     stroke: (left: bar-width + accent),
   )[
     #text(size: 20pt, weight: "bold", tracking: -0.015em)[#basics.name]
-    #v(0.28em, weak: true)
+    #v(head-gap, weak: true)
     #text(size: 10.5pt, fill: muted)[#basics.label]
-    #v(0.5em, weak: true)
+    #v(head-gap, weak: true)
     #text(size: 8.5pt, fill: muted)[
       #contact-items.join(text(fill: rule-color)[ · ])
     ]
