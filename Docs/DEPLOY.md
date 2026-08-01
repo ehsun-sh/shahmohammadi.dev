@@ -23,6 +23,24 @@ Repo → **Settings → Pages → Build and deployment → Source: GitHub Action
 Do not pick "Deploy from a branch". `.github/workflows/deploy.yml` publishes
 through `actions/deploy-pages`, and the branch option would fight it.
 
+**That selector does not exist until the repo has a branch.** On a brand new
+repo the Pages settings page shows only "Add domain", which looks like the
+option is missing. It is not — push first, then come back. The first workflow
+run will fail at *Configure Pages* until this is set; re-run it afterwards
+(`gh run rerun <id> --failed`) rather than pushing an empty commit.
+
+The workflow cannot do this for itself. `actions/configure-pages` takes an
+`enablement: true` input, but the default `GITHUB_TOKEN` is refused with
+*"Resource not accessible by integration"* — creating a Pages site needs
+repo-admin rights the workflow token does not carry.
+
+To skip the failed first run entirely, enable Pages from a real account before
+pushing:
+
+```bash
+gh api -X POST repos/ehsun-sh/shahmohammadi.dev/pages -f build_type=workflow
+```
+
 ## 3. DNS records at your registrar
 
 Two sets. The apex needs A and AAAA records because a CNAME is not legal at a
