@@ -45,7 +45,11 @@ zone apex; `www` gets a CNAME.
 
 | Type | Name | Value |
 |---|---|---|
-| CNAME | `www` | `<your-github-username>.github.io` |
+| CNAME | `www` | `ehsun-sh.github.io` |
+
+Note the value has no repo name and no trailing path — it is the *account*
+subdomain, not the project URL. Some panels also want a trailing dot
+(`ehsun-sh.github.io.`); add it only if the panel rejects the value without it.
 
 Add all four A records and all four AAAA records. GitHub load-balances across
 them; a partial set works until the one host you configured has a bad day.
