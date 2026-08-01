@@ -5,13 +5,10 @@ import logo from '../assets/brand/logo.jpg';
 import { cv } from '../data/cv';
 import { site } from '../data/site';
 
-// Anchors for now — dedicated pages get swapped in as their phases land, which
-// is what the site.*Ready flags gate. Nothing here may point at a 404.
-// Four is the ceiling: at the 640px breakpoint the name plus five labels came
-// to exactly the viewport width, with nothing left for a longer label or a
-// wider font fallback. Skills came out because it is one scroll from Experience
-// and is the only anchor here that is not a destination in its own right.
+// Dedicated pages replace their anchors as each phase lands, which is what the
+// site.*Ready flags gate. Nothing here may point at a 404.
 const links = [
+  { href: '/', label: 'Home', show: true },
   { href: '/#experience', label: 'Experience', show: true },
   { href: '/#projects', label: 'Projects', show: !site.projectsReady },
   { href: '/projects', label: 'Projects', show: site.projectsReady },
@@ -21,7 +18,15 @@ const links = [
   { href: '/contact', label: 'Contact', show: site.servicesReady },
 ].filter((link) => link.show);
 
-const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+// Both sides go through the same normalizer. Stripping the trailing slash
+// without the `|| '/'` fallback turns the root into an empty string, which
+// never matches the pathname and silently leaves Home unmarked.
+const normalize = (value: string) => value.replace(/\/+$/, '') || '/';
+
+const path = normalize(Astro.url.pathname);
+
+const isCurrent = (href: string) =>
+  !href.startsWith('/#') && normalize(href) === path;
 ---
 
 <header
@@ -29,15 +34,16 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
 >
   <nav
     aria-label="Main"
-    class="mx-auto flex h-14 max-w-wide items-center gap-6 px-6"
+    class="mx-auto flex h-14 max-w-wide items-center gap-4 px-6 md:gap-6"
   >
-    {/* The logo is the mark and the name is the label, so they are one link and
-        the image is decorative — giving it alt text would make a screen reader
-        announce the name twice. */}
+    {/* Logo and name are one link, and the image is decorative — alt text would
+        make a screen reader announce the name twice. The name is hidden below
+        md so the five labels fit at the 640px breakpoint, where the mark alone
+        still identifies the site; aria-label keeps the link named either way. */}
     <a
       href="/"
-      class="group flex items-center gap-2.5"
-      aria-current={path === '/' ? 'page' : undefined}
+      class="group flex shrink-0 items-center gap-2.5"
+      aria-label={cv.basics.name}
     >
       <Image
         src={logo}
@@ -49,22 +55,23 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
         class="size-[26px] rounded-[7px]"
       />
       <span
-        class="text-meta font-semibold transition-colors group-hover:text-accent"
+        class="hidden text-meta font-semibold transition-colors group-hover:text-accent md:inline"
       >
         {cv.basics.name}
       </span>
     </a>
 
     <ul class="ml-auto flex items-center gap-1">
-      {/* The anchor links do not fit beside the name at 375px, and this is a
-          single-column page where scrolling reaches everything anyway — so they
+      {/* The labels do not fit beside the mark at 375px, and this is a
+          single-column site where scrolling reaches everything anyway — so they
           drop out below sm rather than forcing the bar to scroll sideways. */}
       {
         links.map((link) => (
           <li class="hidden sm:block">
             <a
               href={link.href}
-              class="rounded-md px-2 py-1.5 text-meta text-muted transition-colors hover:text-text"
+              aria-current={isCurrent(link.href) ? 'page' : undefined}
+              class="rounded-md px-2 py-1.5 text-meta text-muted transition-colors hover:text-text aria-[current=page]:text-text"
             >
               {link.label}
             </a>
