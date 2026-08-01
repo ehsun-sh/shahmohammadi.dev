@@ -116,12 +116,15 @@ const {
         block read as texture. Laid out as a spec sheet instead: the category is
         the anchor at full contrast, the items are quiet text behind it. */}
     <Section id="skills" title="Technical Skills">
-      <dl class="space-y-6">
+      {/* Category on its own line with the items stacked under it, so the item
+          list gets the full column measure instead of the 25rem left over
+          beside a label column — and no category has to wrap. */}
+      <dl class="space-y-7">
         {
           skills.map((group) => (
-            <div class="sm:grid sm:grid-cols-[9.5rem_1fr] sm:gap-7">
-              <dt class="text-subhead text-balance">{group.category}</dt>
-              <dd class="mt-1 sm:mt-[3px]">
+            <div>
+              <dt class="text-subhead">{group.category}</dt>
+              <dd class="mt-2">
                 <ul class="flex flex-wrap items-baseline gap-x-1.5 gap-y-1 text-meta text-muted">
                   {group.items.map((item) => (
                     <li class="after:ml-1.5 after:text-border after:content-['·'] last:after:content-none">
