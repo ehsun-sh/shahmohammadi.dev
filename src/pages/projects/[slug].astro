@@ -1,0 +1,36 @@
+---
+import { render } from 'astro:content';
+import ProjectLayout from '../../layouts/ProjectLayout.astro';
+import { getProjectPages } from '../../lib/projects';
+
+/**
+ * Every project page on the site, built from this one file.
+ *
+ * Adding a project never touches code: put the entry in `cv.json` with a
+ * `slug`, drop `src/content/projects/<slug>.md` beside the others, and this
+ * route builds the page, wires its neighbours into the pager, and emits its
+ * social card. That is the whole reason the write-ups are a content
+ * collection rather than four hand-written `.astro` files.
+ */
+export async function getStaticPaths() {
+  const pages = await getProjectPages();
+
+  return pages.map((page, index) => ({
+    params: { slug: page.slug },
+    props: {
+      page,
+      // cv.json's order, which is also the résumé's, so "next project" means
+      // the same thing in both places.
+      prev: pages[index - 1] ?? null,
+      next: pages[index + 1] ?? null,
+    },
+  }));
+}
+
+const { page, prev, next } = Astro.props;
+const { Content } = await render(page.entry);
+---
+
+<ProjectLayout page={page} prev={prev} next={next}>
+  <Content />
+</ProjectLayout>

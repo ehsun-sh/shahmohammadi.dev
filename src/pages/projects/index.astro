@@ -1,0 +1,84 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import ProjectThumb from '../../components/ProjectThumb.astro';
+import { cv } from '../../data/cv';
+import { getLinkedSlugs } from '../../lib/projects';
+
+/**
+ * The full project list.
+ *
+ * It shows every entry in `cv.json`, not only the ones with a write-up — the
+ * list a visitor sees should be the same list the résumé carries. Entries
+ * whose write-up is not published yet simply are not links; nothing announces
+ * a page that does not exist.
+ *
+ * Picture-led two-column grid, unlike the landing page's picture-beside-text
+ * row. Same content, different job: there the projects are one section of a CV
+ * and must not outweigh Experience, here they are the entire page.
+ */
+const linked = await getLinkedSlugs();
+
+const standfirst =
+  'Hardware, firmware and optical systems I designed or led. Each write-up ' +
+  'covers the constraint that made the problem non-trivial, what was traded ' +
+  'away to solve it, and the measurements that settled the argument. No ' +
+  'schematics, layouts or firmware source — client and employer IP stays out.';
+---
+
+<BaseLayout title="Projects" description={standfirst}>
+  <div class="mx-auto max-w-page px-6 pb-4">
+    <PageHeader title="Projects" standfirst={standfirst} />
+
+    <ul class="mt-14 grid gap-x-8 gap-y-12 sm:grid-cols-2">
+      {
+        cv.projects.map((project) => {
+          const href =
+            project.slug && linked.has(project.slug)
+              ? `/projects/${project.slug}`
+              : null;
+
+          return (
+            <li class="group relative">
+              <ProjectThumb
+                image={project.image}
+                alt={project.imageAlt}
+                name={project.name}
+              />
+              <h2 class="mt-4 text-subhead">
+                {/* Only the title is the link, but its ::after covers the whole
+                    cell — so a click anywhere on the picture or the blurb works
+                    while the link is still announced as just the project name.
+                    Wrapping the lot in an <a> instead would read the summary
+                    and every tag aloud as part of the link. */}
+                {href ? (
+                  <a
+                    href={href}
+                    class="transition-colors after:absolute after:inset-0 group-hover:text-accent"
+                  >
+                    {project.name}
+                  </a>
+                ) : (
+                  project.name
+                )}
+              </h2>
+              <p class="mt-1 text-meta text-muted tabular-nums">
+                {project.year}
+              </p>
+              <p class="prose-block mt-2 text-muted">{project.summary}</p>
+              {project.tags.length > 0 && (
+                <ul class="mt-3 flex flex-wrap gap-1.5">
+                  {project.tags.map((tag) => (
+                    <li class="rounded-md border border-border px-2 py-0.5 text-meta text-muted">
+                      {tag}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
+</BaseLayout>

@@ -4,7 +4,12 @@ import Section from '../components/Section.astro';
 import HeroVisual from '../components/HeroVisual.astro';
 import ProjectThumb from '../components/ProjectThumb.astro';
 import { cv, cvHasPlaceholders, formatRange } from '../data/cv';
+import { getLinkedSlugs } from '../lib/projects';
 import { site } from '../data/site';
+
+// A project title links to its write-up only once that write-up is published.
+// `slug` alone is not enough — a draft has a slug and no page.
+const linkedProjects = await getLinkedSlugs();
 
 const {
   basics,
@@ -165,11 +170,12 @@ const {
                   image={project.image}
                   alt={project.imageAlt}
                   name={project.name}
+                  class="sm:w-40"
                 />
                 <div class="min-w-0 flex-1">
                   <div class="flex items-baseline justify-between gap-4">
                     <h3 class="text-subhead">
-                      {project.slug ? (
+                      {project.slug && linkedProjects.has(project.slug) ? (
                         <a
                           href={`/projects/${project.slug}`}
                           class="transition-colors hover:text-accent"
@@ -198,6 +204,16 @@ const {
               </li>
             ))}
           </ul>
+
+          {site.projectsReady && (
+            <a
+              href="/projects"
+              class="mt-8 inline-flex items-center gap-1.5 text-meta text-accent transition-colors hover:underline"
+            >
+              All projects
+              <span aria-hidden="true">&rarr;</span>
+            </a>
+          )}
         </Section>
       )
     }

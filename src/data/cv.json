@@ -260,7 +260,7 @@
     }
   ],
 
-  "_projects": "`image` is a filename inside src/assets/projects/ — not a path, not a URL. Read that folder's README before exporting: 1600×1000 (16:10), which is the same ratio as the hero. Null until the file exists; a name pointing at a missing file fails the build on purpose rather than shipping a blank frame.",
+  "_projects": "`image` is a filename inside src/assets/projects/ — not a path, not a URL. Read that folder's README before exporting: 1600×1000 (16:10), which is the same ratio as the hero. Null until the file exists; a name pointing at a missing file fails the build on purpose rather than shipping a blank frame. `slug` is the URL and the name of the write-up file: slug \"x\" requires src/content/projects/x.md to exist, or the build stops. These four fields are the whole résumé entry — resume.pdf prints name, year and summary from here, so the write-up's frontmatter deliberately cannot restate them.",
 
   "projects": [
     {
@@ -268,7 +268,7 @@
       "year": "2024",
       "summary": "Replaced coaxial cabling in MRI receive coils with optical fibre, improving SNR and cutting thermal effects. Designed an SDR to digitize and transmit coil signals at 63.875 MHz over fibre.",
       "tags": ["SDR", "Optical", "Medical"],
-      "slug": null,
+      "slug": "mri-optical-coil",
       "image": null,
       "imageAlt": ""
     },
@@ -277,7 +277,7 @@
       "year": "2017",
       "summary": "Modular WDM optical transmitter carrying multiple services and protocols over a single fibre, with SFP/XFP transceiver cards and an embedded Linux control plane.",
       "tags": ["WDM", "Embedded Linux", "Telecom"],
-      "slug": null,
+      "slug": "wdm-optical-transmitter",
       "image": null,
       "imageAlt": ""
     },
@@ -286,7 +286,7 @@
       "year": "2015",
       "summary": "4.25 Gbps SFP optical transceiver on a 4-layer Altium design. Prototyped and characterized ROSA/TOSA optics plus the amplification and laser-control ICs.",
       "tags": ["SFP", "High-speed PCB", "Optics"],
-      "slug": null,
+      "slug": "sfp-4g25-transceiver",
       "image": null,
       "imageAlt": ""
     },
@@ -295,7 +295,7 @@
       "year": "2013",
       "summary": "Three-phase motor protection built on PIC18F67K22 with an ADE7758 metering front end, providing real-time monitoring and fault logging.",
       "tags": ["PIC", "Power", "Industrial"],
-      "slug": null,
+      "slug": "motor-protection-relay",
       "image": null,
       "imageAlt": ""
     }

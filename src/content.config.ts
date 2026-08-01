@@ -4,48 +4,66 @@ import { glob } from 'astro/loaders';
 /**
  * Engineering project write-ups.
  *
- * The hardware block is what makes these pages worth reading for a technical
- * audience — keep it filled in. Per CLAUDE.md, none of this may include
- * employer schematics, Gerbers or layouts; block diagrams and reasoning only.
+ * One file per project, one template for all of them: `src/pages/projects/
+ * [slug].astro` builds a page from every non-draft file here, so a future
+ * project is a markdown file and nothing else. No page is ever hand-designed.
+ *
+ * **Name, year, summary and tags are deliberately absent.** They live in
+ * `cv.json`, because the résumé prints them and CLAUDE.md allows a fact to
+ * exist in exactly one place. The filename is the join: `mri-optical-coil.md`
+ * pairs with the cv.json entry whose `slug` is `mri-optical-coil`, and
+ * `src/lib/projects.ts` fails the build if either side is missing its partner.
+ * Ordering comes from the cv.json array too, so the site and the PDF can never
+ * disagree about which project comes first.
+ *
+ * What stays here is everything the résumé has no room for: what you owned,
+ * the spec table, the long-form reasoning. Per CLAUDE.md, none of it may
+ * include employer schematics, Gerbers or layouts — block diagrams, outcomes
+ * and reasoning only.
  */
 const projects = defineCollection({
-  loader: glob({ base: './src/content/projects', pattern: '**/*.{md,mdx}' }),
+  // `[^_]*` keeps `_template.md` out of the collection. The glob loader does
+  // not skip underscore-prefixed files on its own — verified by watching the
+  // build fail with `_template` reported as a write-up with no cv.json entry.
+  loader: glob({ base: './src/content/projects', pattern: '**/[^_]*.{md,mdx}' }),
   schema: ({ image }) =>
-    z.object({
-      title: z.string(),
-      summary: z.string().max(200),
-      date: z.coerce.date(),
-      status: z.enum(['shipped', 'prototype', 'in-progress', 'archived']),
-      role: z.string(),
-      cover: image().optional(),
-      coverAlt: z.string().optional(),
-      featured: z.boolean().default(false),
-      order: z.number().default(0),
-      draft: z.boolean().default(false),
+    z
+      .object({
+        /** What you personally owned. Be honest about scope on team projects —
+         *  an inflated claim is the one thing a technical interview finds. */
+        role: z.string(),
+        status: z.enum(['shipped', 'prototype', 'in-progress', 'archived']),
 
-      // Hardware specifics surfaced as a spec table on the project page.
-      hardware: z
-        .object({
-          mcu: z.string().optional(),
-          layers: z.number().int().min(1).max(32).optional(),
-          stackup: z.string().optional(),
-          dimensions: z.string().optional(),
-          powerBudget: z.string().optional(),
-          interfaces: z.array(z.string()).default([]),
-          certifications: z.array(z.string()).default([]),
-        })
-        .optional(),
+        cover: image().optional(),
+        coverAlt: z.string().optional(),
 
-      tags: z.array(z.string()).default([]),
-      links: z
-        .array(z.object({ label: z.string(), href: z.string().url() }))
-        .default([]),
-    })
-    // A cover image without alt text is an accessibility bug; fail the build.
-    .refine((d) => !d.cover || (d.coverAlt && d.coverAlt.length > 0), {
-      message: 'coverAlt is required when cover is set',
-      path: ['coverAlt'],
-    }),
+        /**
+         * The spec table. Free-form label/value pairs rather than fixed keys,
+         * because the projects here are not all the same kind of object: a
+         * transceiver is described by data rate, wavelength and reach, a relay
+         * by sampling rate and trip classes, and an `mcu`/`layers` schema would
+         * force both into a shape that fits neither.
+         *
+         * Keep labels consistent across projects anyway — see _template.md for
+         * the set already in use. Numbers belong here; adjectives do not.
+         */
+        specs: z
+          .array(z.object({ label: z.string(), value: z.string() }))
+          .default([]),
+
+        links: z
+          .array(z.object({ label: z.string(), href: z.string().url() }))
+          .default([]),
+
+        /** Draft pages render in `npm run dev` and are excluded from the build,
+         *  so an unfinished write-up can be reviewed without shipping it. */
+        draft: z.boolean().default(false),
+      })
+      // A cover image without alt text is an accessibility bug; fail the build.
+      .refine((d) => !d.cover || (d.coverAlt && d.coverAlt.length > 0), {
+        message: 'coverAlt is required when cover is set',
+        path: ['coverAlt'],
+      }),
 });
 
 /** Technical writing. Highest-credibility-per-hour content on the site. */

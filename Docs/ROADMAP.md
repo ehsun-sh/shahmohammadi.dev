@@ -149,13 +149,31 @@ before compiling. Almarai has no italic; the layout must not ask for one.
 ### Phase 5 — Project pages
 This phase carries the most weight with technical readers. Budget accordingly.
 
-- [ ] `ProjectLayout.astro` template
-- [ ] Per-project content: problem statement, architecture/block diagram, PCB
-      specs (layer count, stack-up, key ICs, power budget), design trade-offs
-      and *why*, validation data (scope captures, thermal images, EMC pre-scan),
-      "Rev A → Rev B: what changed and why"
-- [ ] Optimized images through `astro:assets`
-- [ ] First three projects: `hpm20`, `esp32-lte-tracker`, `poe-power-supply`
+**Q3 is answered:** all four projects in `cv.json` are NDA-clear and
+publishable (confirmed 2026-07-30).
+
+- [x] `ProjectLayout.astro` template — one template, no per-project pages
+- [x] `/projects` index and `/projects/[slug]` dynamic route, so a new project
+      is a markdown file and nothing else
+- [x] `src/lib/projects.ts` joins `cv.json` to the collection by slug, and
+      fails the build on an orphan on either side
+- [x] `.prose-doc` in `global.css` maps rendered markdown onto the six type
+      roles
+- [x] Optimized images through `astro:assets` — thumbnail on the CV and index,
+      the same file reused as the page cover until a dedicated crop exists
+- [x] Per-project social cards at `/og/projects/[slug].png`
+- [x] Four write-ups seeded from `Docs/Resume.MD`, all `draft: true`
+- [ ] **Fill the write-ups.** Every `TODO` marker needs a number, a part, or a
+      measurement from Ehsan. A published page containing `TODO` fails the
+      build, so this cannot ship half-done.
+- [ ] Four thumbnails into `src/assets/projects/` per that folder's README,
+      then set `image`/`imageAlt` in `cv.json`
+- [ ] Flip `site.projectsReady` once at least one write-up is `draft: false` —
+      that is what puts `/projects` in the nav and the "All projects" link on
+      the landing page
+
+The projects to publish are the four already in `cv.json`, not the blueprint's
+`hpm20` / `esp32-lte-tracker` / `poe-power-supply`, which do not exist here.
 
 **IP/NDA constraint:** do not publish employer schematics, Gerbers, or layouts.
 For work done under contract, publish block diagrams, outcomes, and the
@@ -233,7 +251,8 @@ Hard constraints:
 - **Q2 — Full-time vs freelance emphasis.** Current plan keeps the landing page
   recruiter-facing and freelance framing confined to `/services`. Revisit if the
   priority shifts.
-- **Q3 — Which projects are publishable** under existing NDAs. Blocks Phase 5.
+- ~~**Q3 — Which projects are publishable** under existing NDAs.~~ Answered
+  2026-07-30: all four are clear.
 - **Q4 — 3D board renders.** Are Altium 3D exports available for the Phase 6
   frame sequence, or do they need to be produced?
 - **Q5 — Phone number and repo visibility.** `src/data/cv.json` currently holds

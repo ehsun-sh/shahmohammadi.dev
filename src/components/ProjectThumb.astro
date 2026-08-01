@@ -1,44 +1,28 @@
 ---
 import { Image } from 'astro:assets';
-import type { ImageMetadata } from 'astro';
+import { resolveProjectImage } from '../lib/projectImages';
 
 /**
  * The picture beside a project entry, or the frame where one will go.
  *
- * `cv.json` can only hold a filename, and `<Image />` needs a real imported
- * asset so Astro can hash, resize and emit it. `import.meta.glob` with
- * `eager: true` bridges the two: every file in src/assets/projects/ is imported
- * at build time and looked up by name here. A plain `import(variable)` would
- * not work — the bundler has to see the set of candidates statically.
- *
- * A name that matches nothing throws rather than rendering an empty box. A
- * silent blank frame is the failure that survives review; a failed build is not.
+ * The filename-to-asset resolution — and the build error when a name matches
+ * nothing — lives in `src/lib/projectImages.ts`, shared with the cover on the
+ * project page so the two can never disagree about which file is which.
  */
-const modules = import.meta.glob<{ default: ImageMetadata }>(
-  '../assets/projects/*.{jpg,jpeg,png,webp,avif}',
-  { eager: true },
-);
 
 interface Props {
   image: string | null;
   alt: string;
   /** Project name, used to describe the placeholder while the image is absent. */
   name: string;
+  /** The caller owns the width — beside a CV entry it is a fixed 160px, in the
+   *  index grid it fills its column. The ratio is not negotiable either way. */
   class?: string;
 }
 
 const { image, alt, name, class: className } = Astro.props;
 
-const resolved = image
-  ? modules[`../assets/projects/${image}`]?.default
-  : undefined;
-
-if (image && !resolved) {
-  throw new Error(
-    `cv.json points project "${name}" at src/assets/projects/${image}, which does not exist. ` +
-      `Available: ${Object.keys(modules).map((k) => k.split('/').pop()).join(', ') || '(none yet)'}`,
-  );
-}
+const resolved = resolveProjectImage(image, name);
 
 // 16:10, the same ratio as the hero visual, so the two never disagree about
 // what shape a picture on this site is.
@@ -46,7 +30,7 @@ const RATIO = '16 / 10';
 ---
 
 <div
-  class:list={['w-full shrink-0 sm:w-40', className]}
+  class:list={['w-full shrink-0', className]}
   style={`aspect-ratio: ${RATIO}`}
 >
   {

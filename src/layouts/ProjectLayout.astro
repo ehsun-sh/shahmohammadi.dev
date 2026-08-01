@@ -1,0 +1,196 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from './BaseLayout.astro';
+import Section from '../components/Section.astro';
+import { resolveProjectImage } from '../lib/projectImages';
+import { STATUS_LABEL, type ProjectPage } from '../lib/projects';
+
+/**
+ * The one template every project page renders through.
+ *
+ * There is no per-project design and there must never be one: a future project
+ * is a markdown file in `src/content/projects/`, and this file decides what it
+ * looks like. Anything that would tempt you to special-case a project belongs
+ * in the schema as a field instead.
+ *
+ * Reading order is deliberate — title, one-sentence summary, picture, spec
+ * table, then the long form. A technical reader decides whether to keep going
+ * somewhere in the first three, and the spec table is what they check before
+ * committing to the prose. The reasoning is the payoff, not the hook.
+ */
+
+interface Props {
+  page: ProjectPage;
+  /** Neighbours in cv.json order, for the footer pager. Null at the ends. */
+  prev: ProjectPage | null;
+  next: ProjectPage | null;
+}
+
+const { page, prev, next } = Astro.props;
+const { cv: project, entry } = page;
+const { role, status, cover, coverAlt, specs, links } = entry.data;
+
+// A dedicated cover is better cropped for the full measure, but demanding two
+// pictures per project is how projects end up with none. The thumbnail is
+// exported at 1600px, which covers an 896px column, so it stands in.
+const image = cover ?? resolveProjectImage(project.image, project.name);
+const imageAlt = cover ? (coverAlt ?? '') : project.imageAlt;
+
+// Role leads the table because "what did you actually do" is the first thing a
+// technical reader wants settled — especially on team projects.
+const rows = [{ label: 'Role', value: role }, ...specs];
+---
+
+<BaseLayout
+  title={project.name}
+  description={project.summary}
+  ogImage={`/og/projects/${page.slug}.png`}
+>
+  <div class="mx-auto max-w-page px-6 pb-4">
+    {
+      page.draft && (
+        /* Only ever visible in `npm run dev` — the build drops draft pages
+           entirely, so this banner cannot reach a visitor. */
+        <p class="mt-8 rounded-lg border border-dashed border-border bg-surface px-4 py-2.5 text-meta text-muted">
+          Draft — excluded from the build. Set <code class="font-mono">draft:
+          false</code> in the frontmatter to publish.
+        </p>
+      )
+    }
+
+    <nav class="pt-12 sm:pt-16" aria-label="Breadcrumb">
+      <a
+        href="/projects"
+        class="inline-flex items-center gap-1.5 text-meta text-muted transition-colors hover:text-text"
+      >
+        <span aria-hidden="true">&larr;</span>
+        All projects
+      </a>
+    </nav>
+
+    <header class="mt-7">
+      <h1 class="text-display">{project.name}</h1>
+      <p class="prose-block mt-5 text-lead text-muted">{project.summary}</p>
+      <p class="mt-6 text-meta text-muted">
+        <span class="tabular-nums">{project.year}</span>
+        <span aria-hidden="true"> · </span>
+        {STATUS_LABEL[status]}
+      </p>
+      {
+        project.tags.length > 0 && (
+          <ul class="mt-5 flex flex-wrap gap-1.5">
+            {project.tags.map((tag) => (
+              <li class="rounded-md border border-border px-2 py-0.5 text-meta text-muted">
+                {tag}
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </header>
+
+    {
+      image && (
+        /* The cover is the largest thing above the fold on this page, so it is
+           the LCP element — eager and high priority, unlike every other image
+           on the site, which is lazy. */
+        <Image
+          src={image}
+          alt={imageAlt}
+          widths={[640, 896, 1792]}
+          sizes="(min-width: 56rem) 896px, 100vw"
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+          class="mt-12 w-full rounded-xl border border-border object-cover"
+          style="aspect-ratio: 16 / 10"
+        />
+      )
+    }
+
+    {
+      rows.length > 0 && (
+        <Section id="specifications" title="Specifications">
+          {/* A spec sheet is read down a column, not across a card. Hairline
+              per row, label in the meta role, value in body — the same two
+              roles the Skills list uses, so the two blocks look related. */}
+          <dl class="border-t border-border">
+            {rows.map((row) => (
+              <div class="grid gap-1 border-b border-border py-3 sm:grid-cols-[11rem_1fr] sm:gap-6">
+                <dt class="text-meta text-muted">{row.label}</dt>
+                <dd class="min-w-0">{row.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </Section>
+      )
+    }
+
+    {/* The write-up itself. Its headings arrive from markdown as bare tags, so
+        `.prose-doc` styles them — onto the same six type roles, which is why an
+        <h2> here matches a section title above it exactly. */}
+    <article class="prose-doc mt-16">
+      <slot />
+    </article>
+
+    {
+      links.length > 0 && (
+        <Section id="links" title="Links">
+          <ul class="space-y-2.5">
+            {links.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  rel="noopener"
+                  class="text-accent transition-colors hover:underline"
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )
+    }
+
+    {
+      (prev || next) && (
+        <nav
+          class="mt-16 grid gap-6 border-t border-border pt-8 sm:grid-cols-2"
+          aria-label="More projects"
+        >
+          {/* `col-start-2` keeps a lone "next" on the right where it belongs,
+              rather than sliding into the empty first column.
+
+              The aria-label is not decoration: the two spans run together in
+              the accessible name as "PreviousOptical Transmitter System with
+              WDM", because a block-level child does not insert a space. */}
+          {prev && (
+            <a
+              href={`/projects/${prev.slug}`}
+              class="group"
+              aria-label={`Previous project: ${prev.cv.name}`}
+            >
+              <span class="text-meta text-muted">Previous</span>
+              <span class="mt-1 block text-subhead transition-colors group-hover:text-accent">
+                {prev.cv.name}
+              </span>
+            </a>
+          )}
+          {next && (
+            <a
+              href={`/projects/${next.slug}`}
+              class="group sm:col-start-2 sm:text-right"
+              aria-label={`Next project: ${next.cv.name}`}
+            >
+              <span class="text-meta text-muted">Next</span>
+              <span class="mt-1 block text-subhead transition-colors group-hover:text-accent">
+                {next.cv.name}
+              </span>
+            </a>
+          )}
+        </nav>
+      )
+    }
+  </div>
+</BaseLayout>
