@@ -1,0 +1,27 @@
+---
+// The ESM monogram, inlined rather than served as an <img>.
+//
+// Inlining is what lets the mark inherit `currentColor`, so it takes the header
+// text colour in both themes and picks up the accent on hover with the name
+// beside it — an <img> would need two files and a media query to do the same.
+// It also costs no request and stays sharp at any size.
+//
+// The artwork itself lives in one place, src/assets/brand/logo.svg; `?raw`
+// pulls its contents in at build time so the path data is never duplicated here.
+import logoSvg from '../assets/brand/logo.svg?raw';
+
+interface Props {
+  /** Tailwind sizing classes, e.g. "size-[26px]". */
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+
+// Strip the authoring comment and inject the sizing class into the <svg> tag.
+const markup = logoSvg
+  .replace(/<!--[\s\S]*?-->/g, '')
+  .trim()
+  .replace('<svg ', `<svg class="${className ?? ''}" aria-hidden="true" focusable="false" `);
+---
+
+<Fragment set:html={markup} />

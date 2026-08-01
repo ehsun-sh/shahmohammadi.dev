@@ -1,0 +1,18 @@
+<!--
+  ESM monogram. The one copy of this artwork in the repo.
+
+  Two deliberate differences from the CorelDRAW export in images/Logo.svg:
+  the white hexagon plate and the empty bounding rect are gone, and the mark
+  fills with `currentColor`. The plate was never visible — the dark monogram
+  covers it completely — but it turned the counters white, which pinned the
+  mark to a light background. Dropping it makes the counters real holes, so
+  the mark reads on any surface and follows the theme instead of fighting it.
+
+  Consumers: src/components/BrandMark.astro (inlined), scripts/make-icons.mjs
+  (rasterised to the favicon set), src/lib/og.ts (social cards).
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd">
+  <path d="M651.87 856.37l-0.21 -618.81 35.72 17.51c8.95,33.68 2.64,238.06 2.64,288.73 0,48.38 -6.25,260.67 1.75,289.54l76.25 -44.03 -0.57 -485.79 37.95 22 0.01 442.21 78.26 -45.19 -1.09 -445.12 -310.64 -178.39 1.39 752.63c-0.08,7.35 -1.81,44.24 -1.39,50.86l79.93 -46.15z"/>
+  <polygon points="342.91,539.44 457.73,540.23 459.04,832 421.01,812.46 419.93,580.12 344.14,580.14 344.89,858.12 497.12,945.72 534.71,924.02 536.42,462.36 422.83,462.16 420.6,189.22 457.84,170.62 460.93,424.82 534.35,423.78 535.57,78.03 494.91,54.55 343,142.25 "/>
+  <polygon points="301.43,832.55 304.27,613.71 225.73,567.95 225.86,697.91 188.02,675.25 188.02,539.15 304.4,539.15 304.4,460.77 189.23,459.78 188.41,323.97 226.21,303.54 225.86,433.74 304.47,389.38 303.76,164.9 111.84,276.19 110.58,722.55 "/>
+</svg>

@@ -9,6 +9,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
+    "icons": "node scripts/make-icons.mjs",
     "resume": "typst compile src/resume/resume.typ public/resume.pdf --root . --ignore-system-fonts --font-path node_modules/@expo-google-fonts/almarai"
   },
   "dependencies": {

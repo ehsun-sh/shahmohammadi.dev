@@ -44,7 +44,7 @@ const font = (weight: 400 | 600 | 700) =>
     `inter-latin-${weight}-normal.woff`,
   );
 
-const LOGO = fromRoot('src', 'assets', 'brand', 'logo.jpg');
+const LOGO = fromRoot('src', 'assets', 'brand', 'logo.svg');
 
 let cached: { fonts: Awaited<ReturnType<typeof loadFonts>>; logo: string } | null =
   null;
@@ -62,10 +62,19 @@ async function loadFonts() {
 
 async function assets() {
   if (!cached) {
-    const [fonts, logoBuffer] = await Promise.all([loadFonts(), fs.readFile(LOGO)]);
+    const [fonts, logoSvg] = await Promise.all([
+      loadFonts(),
+      fs.readFile(LOGO, 'utf8'),
+    ]);
+    // The mark ships as `currentColor`, which means nothing to an <img>: Satori
+    // would draw it black. The card is a fixed light surface, so the colour is
+    // resolved here to the same ink the title uses.
+    const resolved = logoSvg
+      .replace(/<!--[\s\S]*?-->/g, '')
+      .replace('currentColor', COLOR.text);
     cached = {
       fonts,
-      logo: `data:image/jpeg;base64,${logoBuffer.toString('base64')}`,
+      logo: `data:image/svg+xml;base64,${Buffer.from(resolved).toString('base64')}`,
     };
   }
   return cached;
@@ -110,13 +119,10 @@ export async function renderOgImage({
             style: { display: 'flex', alignItems: 'center', gap: '20px' },
             children: [
               {
+                // No border radius any more — the hexagon silhouette is the
+                // shape, so there is no plate left to round off.
                 type: 'img',
-                props: {
-                  src: logo,
-                  width: 64,
-                  height: 64,
-                  style: { borderRadius: '16px' },
-                },
+                props: { src: logo, width: 64, height: 64 },
               },
               {
                 type: 'div',

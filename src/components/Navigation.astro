@@ -1,7 +1,6 @@
 ---
-import { Image } from 'astro:assets';
 import ThemeToggle from './ThemeToggle.astro';
-import logo from '../assets/brand/logo.jpg';
+import BrandMark from './BrandMark.astro';
 import { cv } from '../data/cv';
 import { site } from '../data/site';
 
@@ -36,29 +35,23 @@ const isCurrent = (href: string) =>
     aria-label="Main"
     class="mx-auto flex h-14 max-w-wide items-center gap-4 px-6 lg:gap-6"
   >
-    {/* Logo and name are one link, and the image is decorative — alt text would
-        make a screen reader announce the name twice. The name only appears at
-        lg: with six labels, showing it from md left 35px of slack at 768px,
-        which one longer label or a wider font fallback would have eaten. The
-        mark alone identifies the site below that, and aria-label keeps the link
-        named at every width. */}
+    {/* Mark and name are one link, and the mark is decorative — it is the same
+        word as the name beside it, so labelling it would make a screen reader
+        say the name twice. The name only appears at lg: with six labels,
+        showing it from md left 35px of slack at 768px, which one longer label
+        or a wider font fallback would have eaten. The mark alone identifies the
+        site below that, and aria-label keeps the link named at every width.
+
+        Both halves inherit one colour and shift to the accent together on
+        hover, which is what makes them read as a single lockup rather than an
+        icon that happens to sit beside some text. */}
     <a
       href="/"
-      class="group flex shrink-0 items-center gap-2.5"
+      class="group flex shrink-0 items-center gap-2.5 transition-colors hover:text-accent"
       aria-label={cv.basics.name}
     >
-      <Image
-        src={logo}
-        alt=""
-        width={26}
-        height={26}
-        densities={[1, 2]}
-        loading="eager"
-        class="size-[26px] rounded-[7px]"
-      />
-      <span
-        class="hidden text-meta font-semibold transition-colors group-hover:text-accent lg:inline"
-      >
+      <BrandMark class="size-[26px]" />
+      <span class="hidden text-meta font-semibold lg:inline">
         {cv.basics.name}
       </span>
     </a>
