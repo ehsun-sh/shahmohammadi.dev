@@ -12,8 +12,15 @@
 //   - ATS-parseable: real selectable text, ordinary section headings, no icon
 //     fonts, no text baked into graphics, no multi-column body that a parser
 //     would read across.
-//   - Embedded fonts only, so the PDF a CI runner produces matches the one
-//     compiled locally.
+//   - The font must resolve to the same faces on the CI runner as it does
+//     locally, or a layout approved here ships subtly different.
+//
+// Typst embeds only four faces and none of them is a proportional sans, so
+// Almarai is sourced through npm (@expo-google-fonts/almarai, OFL) and passed
+// in with --font-path. That keeps the TTFs out of the repo and pinned by
+// package-lock, and --ignore-system-fonts keeps whatever happens to be
+// installed on a machine from leaking in. Almarai ships no italic — the
+// layout must not ask for one, or Typst will synthesise a slant.
 
 #let cv = json("/src/data/cv.json")
 #let basics = cv.basics
@@ -21,6 +28,9 @@
 #let ink = rgb("#1d1d1f")
 #let muted = rgb("#5c5c60")
 #let rule-color = rgb("#c8c8cd")
+// The one colour in the document, and the same --color-accent-solid the site
+// fills its primary button with. It has exactly one job here: the header bar.
+#let accent = rgb("#0071e3")
 
 #set document(
   title: basics.name + " — " + basics.label,
@@ -29,8 +39,8 @@
 )
 
 #set page(paper: "us-letter", margin: (x: 0.62in, top: 0.58in, bottom: 0.5in))
-#set text(font: "Libertinus Serif", size: 10pt, fill: ink, lang: "en")
-#set par(justify: true, leading: 0.6em, spacing: 0.62em)
+#set text(font: "Almarai", size: 9.5pt, fill: ink, lang: "en")
+#set par(justify: true, leading: 0.62em, spacing: 0.62em)
 #show link: set text(fill: ink)
 
 // ---------------------------------------------------------------- helpers ---
@@ -67,7 +77,7 @@
 #let section(title) = {
   block(
     above: 0.95em, below: 0.25em, sticky: true,
-    text(size: 9.5pt, weight: "bold", tracking: 0.08em)[#upper(title)],
+    text(size: 9pt, weight: "bold", tracking: 0.09em)[#upper(title)],
   )
   rule(sticky: true)
 }
@@ -87,7 +97,7 @@
     column-gutter: 1em,
     align: (left + bottom, right + bottom),
     title,
-    text(size: 9pt, fill: muted)[#meta],
+    text(size: 8.5pt, fill: muted)[#meta],
   )
   #if note != none and note != "" [
     #block(above: 0.32em, below: 0em, text(fill: muted)[#note])
@@ -103,14 +113,6 @@
 )
 
 // -------------------------------------------------------------------- head ---
-
-#block(spacing: 0pt)[
-  #text(size: 21pt, weight: "bold", tracking: -0.02em)[#basics.name]
-  #v(0.2em, weak: true)
-  #text(size: 11pt, fill: muted)[#basics.label]
-]
-
-#v(0.5em, weak: true)
 
 // Contact line. Placeholder profile URLs are filtered out — a résumé that
 // links to github.com/TODO is worse than one that links nowhere.
@@ -133,11 +135,36 @@
   link(basics.url, basics.url.replace("https://", "")),
 ) + profile-links
 
-#text(size: 9pt, fill: muted)[
-  #contact-items.join(text(fill: rule-color)[ · ])
+// Name, role and contact line share one accent bar.
+//
+// The bar is a left stroke on the block rather than a filled cell beside it,
+// because a stroke spans exactly the height of the thing it is attached to. A
+// rect sized `height: 100%` in an auto grid row resolves against the page, not
+// the row, which drew a bar down the whole of page 1.
+//
+// The block is then pulled into the left margin by half the stroke plus the
+// gap, so the header text keeps the same left edge as every section below it.
+// Indenting the header instead would break the spine the whole document reads
+// against, and the bar is a marginal mark either way.
+#let bar-width = 3.5pt
+#let bar-offset = 8pt + bar-width / 2
+
+#pad(left: -bar-offset)[
+  #block(
+    inset: (left: bar-offset),
+    stroke: (left: bar-width + accent),
+  )[
+    #text(size: 20pt, weight: "bold", tracking: -0.015em)[#basics.name]
+    #v(0.28em, weak: true)
+    #text(size: 10.5pt, fill: muted)[#basics.label]
+    #v(0.5em, weak: true)
+    #text(size: 8.5pt, fill: muted)[
+      #contact-items.join(text(fill: rule-color)[ · ])
+    ]
+  ]
 ]
 
-#rule(above: 0.7em, below: 0.55em)
+#rule(above: 0.8em, below: 0.55em)
 
 #par(justify: true)[#basics.summary]
 

@@ -136,11 +136,15 @@ navigable shell. *(Build verified; content still placeholder.)*
 **Done when:** editing one field in `cv.json` changes both the site and the PDF
 on the next push. ✅
 
-**Font note:** the template pins `Libertinus Serif` and both the script and CI
-pass `--ignore-system-fonts`. Typst embeds only four faces — Libertinus Serif,
-New Computer Modern, New Computer Modern Math and DejaVu Sans Mono. Anything
-else would resolve differently on the Ubuntu runner than on a local machine, so
-a layout approved locally could ship subtly different. Do not remove that flag.
+**Font note:** Typst embeds only four faces — Libertinus Serif, New Computer
+Modern, New Computer Modern Math and DejaVu Sans Mono — and none of them is a
+proportional sans. The résumé is set in **Almarai**, sourced through npm
+(`@expo-google-fonts/almarai`, OFL) so `package-lock` pins it and no binary is
+committed, and passed to Typst with `--font-path`. Both the script and CI keep
+`--ignore-system-fonts`: without it whatever is installed on a machine leaks in
+and a layout approved locally ships subtly different from the runner's. Typst
+warns rather than fails on an unresolvable family, so CI asserts the TTF exists
+before compiling. Almarai has no italic; the layout must not ask for one.
 
 ### Phase 5 — Project pages
 This phase carries the most weight with technical readers. Budget accordingly.

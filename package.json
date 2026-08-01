@@ -9,7 +9,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "resume": "typst compile src/resume/resume.typ public/resume.pdf --root . --ignore-system-fonts"
+    "resume": "typst compile src/resume/resume.typ public/resume.pdf --root . --ignore-system-fonts --font-path node_modules/@expo-google-fonts/almarai"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",
@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "@expo-google-fonts/almarai": "0.4.1",
     "typescript": "^6.0.3"
   }
 }

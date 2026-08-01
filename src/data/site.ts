@@ -14,7 +14,7 @@ export const site = {
    * to; they email you the key). Until it is set, /contact shows the direct
    * channels only rather than a form that silently fails.
    */
-  web3formsKey: '',
+  web3formsKey: '01525581-4ba4-4749-87e2-63cd1fc140a5',
   /** Flip to true when /projects has at least one non-draft entry (Phase 5). */
   projectsReady: false,
   /** Flip to true when /notes ships (Phase 7). */

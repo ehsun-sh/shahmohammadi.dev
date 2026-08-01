@@ -47,8 +47,15 @@ jobs:
 
       # Must run before the Astro build: it writes into public/, which Astro
       # copies into dist/ as part of that build.
+      #
+      # The font check is not paranoia. Typst treats an unresolvable family as a
+      # warning and silently falls back, so a missing package would produce a
+      # perfectly valid PDF set in the wrong typeface rather than a failed build.
       - name: Build résumé PDF
-        run: npm run resume
+        run: |
+          test -s node_modules/@expo-google-fonts/almarai/400Regular/Almarai_400Regular.ttf \
+            || { echo "::error::Almarai TTFs missing — the résumé would silently fall back to a serif"; exit 1; }
+          npm run resume
 
       - name: Configure Pages
         uses: actions/configure-pages@v5

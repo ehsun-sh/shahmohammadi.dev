@@ -132,6 +132,25 @@ export const cv: CV = parsed.data;
 /** True while any TODO placeholder remains, so the UI can warn during dev. */
 export const cvHasPlaceholders = JSON.stringify(parsed.data).includes('TODO');
 
+/**
+ * "Toronto, Ontario, Canada".
+ *
+ * `cv.json` stores an ISO code because schema.org's `addressCountry` wants one,
+ * and that is the only place the raw code belongs. Anywhere a human reads it,
+ * use this. src/resume/resume.typ carries its own copy of the map because Typst
+ * cannot import TypeScript — keep the two in step.
+ */
+const COUNTRY_NAMES: Record<string, string> = {
+  CA: 'Canada',
+  IR: 'Iran',
+  US: 'United States',
+};
+
+export const locationLabel = [
+  cv.basics.location.city,
+  COUNTRY_NAMES[cv.basics.location.countryCode] ?? cv.basics.location.countryCode,
+].join(', ');
+
 /** "Jan 2023 — Present" */
 export function formatRange(start: string, end: string | null): string {
   return `${formatMonth(start)} — ${end ? formatMonth(end) : 'Present'}`;

@@ -4,7 +4,7 @@ import PageHeader from '../components/PageHeader.astro';
 import Section from '../components/Section.astro';
 import ContactForm from '../components/ContactForm.astro';
 import SocialIcon from '../components/SocialIcon.astro';
-import { cv } from '../data/cv';
+import { cv, locationLabel } from '../data/cv';
 import { site } from '../data/site';
 
 const { basics } = cv;
@@ -83,7 +83,7 @@ const profiles = (
       </ul>
 
       <p class="mt-8 text-meta text-muted">
-        Based in {basics.location.city}, {basics.location.countryCode}
+        Based in {locationLabel}
         {basics.location.remote && ' · Working remotely with teams anywhere'}
       </p>
     </Section>
