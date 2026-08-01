@@ -1,0 +1,97 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import Section from '../components/Section.astro';
+import { cv } from '../data/cv';
+
+const { services, basics } = cv;
+
+const description = `${basics.name} takes embedded electronic products from schematic to production — PCB design, firmware, optical link design and EMC pre-compliance.`;
+---
+
+{/*
+  Client-facing. The landing page stays recruiter-facing and free of any
+  freelance pitch, which is why this lives on its own URL: the same site can be
+  handed to a hiring manager or to a prospect without one undercutting the
+  other, and this link can be sent on its own.
+*/}
+<BaseLayout title="Services" description={description} ogImage="/og/services.png">
+  <div class="mx-auto max-w-page px-6 pb-4">
+    <PageHeader title="Services" standfirst={services.intro}>
+      <div class="mt-8 flex flex-wrap items-center gap-x-3 gap-y-4">
+        <a href="/contact" class="btn btn-primary">Start a conversation</a>
+      </div>
+      {
+        basics.availability.open && basics.availability.note && (
+          <p class="mt-6 flex items-center gap-2.5 text-meta text-muted">
+            <span class="status-dot" aria-hidden="true" />
+            {basics.availability.note}
+          </p>
+        )
+      }
+    </PageHeader>
+
+    <Section id="what-i-do" title="What I do">
+      <div class="space-y-10">
+        {
+          services.offerings.map((offering) => (
+            <article>
+              <h3 class="text-subhead">{offering.title}</h3>
+              <p class="prose-block mt-2 text-muted">{offering.description}</p>
+              {offering.deliverables.length > 0 && (
+                <p class="mt-3 text-meta text-muted">
+                  <span class="text-text">Deliverables — </span>
+                  <span>{offering.deliverables.join(' · ')}</span>
+                </p>
+              )}
+            </article>
+          ))
+        }
+      </div>
+    </Section>
+
+    <Section
+      id="engagement"
+      title="How we work together"
+      note="Pick whichever fits the shape of the problem; it can change between phases."
+    >
+      <dl class="space-y-6">
+        {
+          services.engagement.map((model) => (
+            <div>
+              <dt class="text-subhead">{model.model}</dt>
+              <dd class="prose-block mt-1.5 text-muted">{model.fit}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </Section>
+
+    <Section
+      id="before-we-start"
+      title="Before we start"
+      note="None of this has to be finished or formal — rough is genuinely fine, and gaps are part of what I help close."
+    >
+      <ul class="space-y-2">
+        {
+          services.beforeWeStart.map((item) => (
+            <li class="relative pl-5 text-muted before:absolute before:top-[0.62em] before:left-0 before:size-1.5 before:rounded-full before:bg-border">
+              {item}
+            </li>
+          ))
+        }
+      </ul>
+    </Section>
+
+    <Section id="next" title="Next step">
+      <p class="prose-block text-muted">
+        Send a short description of the product and where it is stuck. I will
+        reply with whether I am the right person for it, a rough shape for the
+        work, and a quote — or a pointer to someone better suited.
+      </p>
+      <div class="mt-7">
+        <a href="/contact" class="btn btn-primary">Get in touch</a>
+      </div>
+    </Section>
+  </div>
+</BaseLayout>

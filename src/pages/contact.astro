@@ -1,0 +1,91 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import Section from '../components/Section.astro';
+import ContactForm from '../components/ContactForm.astro';
+import SocialIcon from '../components/SocialIcon.astro';
+import { cv } from '../data/cv';
+import { site } from '../data/site';
+
+const { basics } = cv;
+
+// A form with no access key posts into a void, so it is simply not rendered —
+// the direct channels below are always the reliable path anyway.
+const formEnabled = site.web3formsKey.length > 0;
+
+const profiles = (
+  import.meta.env.DEV
+    ? basics.profiles
+    : basics.profiles.filter((profile) => !profile.url.includes('TODO'))
+).filter((profile) =>
+  ['LinkedIn', 'GitHub', 'Upwork'].includes(profile.network),
+);
+---
+
+<BaseLayout
+  title="Contact"
+  description={`Get in touch with ${basics.name} about embedded hardware, PCB design, firmware or optical systems work.`}
+  ogImage="/og/contact.png"
+>
+  <div class="mx-auto max-w-page px-6 pb-4">
+    <PageHeader
+      title="Contact"
+      standfirst="Tell me what you are building and where it is stuck. I read everything and reply to anything I can genuinely help with."
+    >
+      {
+        basics.availability.open && basics.availability.note && (
+          <p class="mt-6 flex items-center gap-2.5 text-meta text-muted">
+            <span class="status-dot" aria-hidden="true" />
+            {basics.availability.note}
+          </p>
+        )
+      }
+    </PageHeader>
+
+    {
+      formEnabled && (
+        <Section id="message" title="Send a message">
+          <ContactForm />
+        </Section>
+      )
+    }
+
+    <Section
+      id="direct"
+      title={formEnabled ? 'Or reach me directly' : 'Reach me directly'}
+    >
+      <ul class="space-y-4">
+        <li>
+          <a
+            href={`mailto:${basics.email}`}
+            class="text-subhead transition-colors hover:text-accent"
+          >
+            {basics.email}
+          </a>
+          <p class="text-meta text-muted">
+            Best for project enquiries and anything with an attachment.
+          </p>
+        </li>
+        {
+          profiles.map((profile) => (
+            <li>
+              <a
+                href={profile.url}
+                rel="me noopener"
+                class="inline-flex items-center gap-2 text-subhead transition-colors hover:text-accent"
+              >
+                <SocialIcon network={profile.network} class="size-4" />
+                {profile.network}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+
+      <p class="mt-8 text-meta text-muted">
+        Based in {basics.location.city}, {basics.location.countryCode}
+        {basics.location.remote && ' · Working remotely with teams anywhere'}
+      </p>
+    </Section>
+  </div>
+</BaseLayout>

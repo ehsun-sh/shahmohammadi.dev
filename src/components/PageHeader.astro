@@ -1,0 +1,19 @@
+---
+interface Props {
+  title: string;
+  /** One or two sentences. Sits at lead size, like the hero standfirst. */
+  standfirst?: string;
+}
+
+const { title, standfirst } = Astro.props;
+---
+
+<header class="pt-16 pb-2 sm:pt-24">
+  <h1 class="text-display">{title}</h1>
+  {
+    standfirst && (
+      <p class="prose-block mt-5 text-lead text-muted">{standfirst}</p>
+    )
+  }
+  <slot />
+</header>

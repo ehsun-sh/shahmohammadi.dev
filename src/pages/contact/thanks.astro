@@ -1,0 +1,37 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import { cv } from '../../data/cv';
+
+// Where Web3Forms sends visitors whose browser posted the form without
+// JavaScript. With JS the success message appears in place and nobody lands
+// here — but the no-JS path still needs somewhere real to arrive.
+---
+
+<BaseLayout
+  title="Message sent"
+  description="Your message has been sent."
+>
+  <div class="mx-auto max-w-page px-6 pb-4">
+    <PageHeader
+      title="Message sent"
+      standfirst="Thanks — it reached me. I will reply as soon as I have read it properly."
+    >
+      <p class="mt-6 text-meta text-muted">
+        If you do not hear back within a few days, email
+        <a
+          href={`mailto:${cv.basics.email}`}
+          class="text-text transition-colors hover:text-accent"
+        >
+          {cv.basics.email}
+        </a>
+        directly — it means something went wrong on my end.
+      </p>
+
+      <div class="mt-9 flex flex-wrap gap-3">
+        <a href="/" class="btn btn-primary">Back to the homepage</a>
+        <a href="/services" class="btn btn-secondary">Services</a>
+      </div>
+    </PageHeader>
+  </div>
+</BaseLayout>

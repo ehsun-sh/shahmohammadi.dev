@@ -1,0 +1,131 @@
+---
+import { site } from '../data/site';
+
+/**
+ * Web3Forms. Chosen because GitHub Pages has no server to post to.
+ *
+ * Works without JavaScript: the form is a plain POST and `redirect` sends the
+ * visitor to /contact/thanks. JavaScript upgrades it to a fetch so the page
+ * does not navigate and errors can be shown in place — but the no-JS path is
+ * the one that has to work, not the fallback.
+ */
+const { web3formsKey } = site;
+const fieldClass =
+  'w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-body transition-colors placeholder:text-muted/70 focus:border-accent focus:outline-none';
+---
+
+<form
+  data-contact-form
+  action="https://api.web3forms.com/submit"
+  method="POST"
+  class="space-y-5"
+>
+  <input type="hidden" name="access_key" value={web3formsKey} />
+  <input type="hidden" name="subject" value="New message from shahmohammadi.dev" />
+  <input type="hidden" name="from_name" value="shahmohammadi.dev" />
+  <input type="hidden" name="redirect" value="https://shahmohammadi.dev/contact/thanks" />
+
+  {/* Honeypot. Real people never see it; bots fill everything they find. */}
+  <input
+    type="checkbox"
+    name="botcheck"
+    class="hidden"
+    style="display:none"
+    tabindex="-1"
+    autocomplete="off"
+    aria-hidden="true"
+  />
+
+  <div class="grid gap-5 sm:grid-cols-2">
+    <div>
+      <label for="name" class="block text-meta font-medium">Name</label>
+      <input
+        id="name"
+        name="name"
+        type="text"
+        required
+        autocomplete="name"
+        class={`mt-1.5 ${fieldClass}`}
+      />
+    </div>
+    <div>
+      <label for="email" class="block text-meta font-medium">Email</label>
+      <input
+        id="email"
+        name="email"
+        type="email"
+        required
+        autocomplete="email"
+        class={`mt-1.5 ${fieldClass}`}
+      />
+    </div>
+  </div>
+
+  <div>
+    <label for="message" class="block text-meta font-medium">
+      What are you building?
+    </label>
+    <p id="message-hint" class="mt-1 text-meta text-muted">
+      Product, current stage, and where it is stuck. A paragraph is plenty.
+    </p>
+    <textarea
+      id="message"
+      name="message"
+      rows="6"
+      required
+      aria-describedby="message-hint"
+      class={`mt-2 resize-y ${fieldClass}`}></textarea>
+  </div>
+
+  <div class="flex flex-wrap items-center gap-4">
+    <button type="submit" class="btn btn-primary" data-submit>Send message</button>
+    <p
+      data-status
+      role="status"
+      aria-live="polite"
+      class="text-meta text-muted empty:hidden"
+    >
+    </p>
+  </div>
+</form>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
+  const status = form?.querySelector<HTMLParagraphElement>('[data-status]');
+  const submit = form?.querySelector<HTMLButtonElement>('[data-submit]');
+
+  if (form && status && submit) {
+    const idleLabel = submit.textContent;
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      submit.disabled = true;
+      submit.textContent = 'Sending…';
+      status.textContent = '';
+      status.classList.remove('text-accent');
+
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          headers: { Accept: 'application/json' },
+          body: new FormData(form),
+        });
+
+        if (!response.ok) throw new Error(String(response.status));
+
+        form.reset();
+        status.textContent = 'Sent — I will get back to you shortly.';
+        status.classList.add('text-accent');
+        submit.textContent = idleLabel;
+        submit.disabled = false;
+      } catch {
+        // Never strand the visitor: name the failure and give them the
+        // address, so a broken form does not mean a lost message.
+        status.textContent =
+          'That did not send. Please email ehsun.ca@gmail.com directly.';
+        submit.textContent = idleLabel;
+        submit.disabled = false;
+      }
+    });
+  }
+</script>

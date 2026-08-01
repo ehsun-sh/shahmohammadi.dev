@@ -7,14 +7,18 @@ import { site } from '../data/site';
 
 // Anchors for now — dedicated pages get swapped in as their phases land, which
 // is what the site.*Ready flags gate. Nothing here may point at a 404.
+// Four is the ceiling: at the 640px breakpoint the name plus five labels came
+// to exactly the viewport width, with nothing left for a longer label or a
+// wider font fallback. Skills came out because it is one scroll from Experience
+// and is the only anchor here that is not a destination in its own right.
 const links = [
   { href: '/#experience', label: 'Experience', show: true },
-  { href: '/#skills', label: 'Skills', show: true },
   { href: '/#projects', label: 'Projects', show: !site.projectsReady },
   { href: '/projects', label: 'Projects', show: site.projectsReady },
   { href: '/services', label: 'Services', show: site.servicesReady },
   { href: '/notes', label: 'Notes', show: site.notesReady },
   { href: '/resume.pdf', label: 'Résumé', show: site.resumeReady },
+  { href: '/contact', label: 'Contact', show: site.servicesReady },
 ].filter((link) => link.show);
 
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';

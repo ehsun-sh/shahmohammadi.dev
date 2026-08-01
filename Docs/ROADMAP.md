@@ -110,12 +110,16 @@ navigable shell. *(Build verified; content still placeholder.)*
 **Done when:** `https://shahmohammadi.dev` is live over HTTPS with a real CV.
 **This is the first shippable milestone. Do not skip past it.**
 
-### Phase 3 — Services + Contact
-- [ ] `/services` per the content requirements above
-- [ ] `/contact` with Web3Forms, honeypot field, success/error states
-- [ ] Direct channels: email (obfuscated or form-only to limit scraping),
-      LinkedIn, GitHub
-- [ ] Availability line wired to a single field in `cv.json`
+### Phase 3 — Services + Contact ✅
+- [x] `/services` per the content requirements above, driven by `cv.json`
+- [x] `/contact` with Web3Forms, honeypot, inline success/error, and a working
+      no-JS path that posts and lands on `/contact/thanks`
+- [x] Direct channels: email, LinkedIn, GitHub, Upwork
+- [x] Availability line wired to `basics.availability` in `cv.json`, shown on
+      the landing page, `/services` and `/contact`
+- [x] Per-page OG cards at `/og/services.png` and `/og/contact.png`
+- [ ] **Set `site.web3formsKey`.** Until then `/contact` shows direct channels
+      only and no form. Free key at web3forms.com.
 
 ### Phase 4 — PDF pipeline
 - [ ] `src/resume/resume.typ` reading `../data/cv.json` via `json()`

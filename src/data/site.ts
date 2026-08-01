@@ -4,7 +4,17 @@ export const site = {
    *  résumé link is hidden rather than pointing at a 404. */
   resumeReady: false,
   /** Flip to true when /services and /contact ship (Phase 3). */
-  servicesReady: false,
+  servicesReady: true,
+
+  /**
+   * Web3Forms access key for the contact form. This key is designed to live in
+   * client HTML — it is not a secret and belongs in the repo.
+   *
+   * Get one free at web3forms.com (enter the address you want mail delivered
+   * to; they email you the key). Until it is set, /contact shows the direct
+   * channels only rather than a form that silently fails.
+   */
+  web3formsKey: '',
   /** Flip to true when /projects has at least one non-draft entry (Phase 5). */
   projectsReady: false,
   /** Flip to true when /notes ships (Phase 7). */
