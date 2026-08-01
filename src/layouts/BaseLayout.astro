@@ -43,7 +43,11 @@ const personSchema = {
     .map((p) => p.url)
     .filter((url) => !url.includes('TODO')),
   knowsAbout: cv.skills.flatMap((group) => group.items),
-  knowsLanguage: cv.languages.map((entry) => entry.language),
+  // Omitted rather than emitted empty when cv.json carries no languages —
+  // `"knowsLanguage": []` is a claim to know none, not an absence of a claim.
+  ...(cv.languages.length > 0 && {
+    knowsLanguage: cv.languages.map((entry) => entry.language),
+  }),
   alumniOf: cv.education.map((entry) => ({
     '@type': 'CollegeOrUniversity',
     name: entry.institution,

@@ -300,28 +300,11 @@
     }
   ],
 
-  "certificates": [
-    {
-      "name": "Agile Foundations",
-      "issuer": "PMI",
-      "date": "2024-02"
-    },
-    {
-      "name": "C Programming for Embedded Applications",
-      "issuer": "LinkedIn",
-      "date": "2024-01"
-    },
-    {
-      "name": "Git Command Line for Beginners",
-      "issuer": "Udemy",
-      "date": "2023-10"
-    }
-  ],
+  "_certificates": "Empty on purpose. The site and resume.typ both guard on length, so an empty array removes the section from the website and the PDF at once — put entries back here and both return. Removed 2026-08-01: introductory course certificates read as junior signals on a senior CV, and the Khwarizmi Award in `awards` is the credential that carries weight.",
+  "certificates": [],
 
-  "languages": [
-    { "language": "Persian", "fluency": "Native" },
-    { "language": "English", "fluency": "Professional working proficiency" }
-  ],
+  "_languages": "Empty on purpose, same mechanism as certificates. English is assumed for a Toronto-market CV and was not earning its section.",
+  "languages": [],
 
   "services": {
     "intro": "I work with hardware teams and product companies that need a connected electronic product taken from concept to something a contract manufacturer can actually build — and with telecom operators that need the optical layer designed or debugged.",
