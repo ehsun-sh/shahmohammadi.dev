@@ -87,13 +87,16 @@
      hierarchy, weight and space do their share, which is why `body` and
      `subhead` share a size and differ in weight.
   ------------------------------------------------------------------------- */
-  --text-meta: 0.875rem;              /* 14px — dates, chips, footer */
+  --text-meta: 0.875rem;              /* 14px — dates, tags, notes, chrome */
   --text-meta--line-height: 1.45;
 
-  --text-body: 1.0625rem;             /* 17px — all prose */
-  --text-body--line-height: 1.65;
+  /* 15px, and it is the size of *every* description on the site: job
+     summaries, highlights, project blurbs, skill items, degree lines. One size
+     for supporting content is what makes the sections look like each other. */
+  --text-body: 0.9375rem;             /* 15px — all prose and list content */
+  --text-body--line-height: 1.6;
 
-  --text-subhead: 1.0625rem;          /* 17px — entry titles */
+  --text-subhead: 1.0625rem;          /* 17px — entry titles and skill groups */
   --text-subhead--line-height: 1.4;
   --text-subhead--font-weight: 600;
 
@@ -105,8 +108,8 @@
   --text-heading--font-weight: 600;
   --text-heading--letter-spacing: -0.021em;
 
-  --text-lead: 1.375rem;              /* 22px — hero standfirst */
-  --text-lead--line-height: 1.55;
+  --text-lead: 1.25rem;               /* 20px — hero standfirst */
+  --text-lead--line-height: 1.5;
 
   --text-display: clamp(2.5rem, 7vw, 3.5rem);
   --text-display--line-height: 1.05;
@@ -114,12 +117,12 @@
   --text-display--letter-spacing: -0.03em;
 
   /* -------------------------------------------------------------------------
-     Measure. `page` is the reading column: at 17px it lands around 68ch, inside
-     the 65–75ch band, and it IS the container — so text fills it edge to edge
-     and the left and right gutters are symmetric by construction rather than by
-     luck. `wide` exists only for the hero visual.
+     Measure. `page` is the reading column, narrowed alongside the drop to 15px
+     body copy — a smaller face in the same width would have run past 78ch. It
+     IS the container, so text fills it edge to edge and the gutters are
+     symmetric by construction rather than by luck. `wide` is the hero visual.
   ------------------------------------------------------------------------- */
-  --container-page: 44rem;
+  --container-page: 41rem;
   --container-wide: 56rem;
 }
 

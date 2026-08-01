@@ -54,16 +54,21 @@ Deploys happen on push to `main`. Nothing is published from a local machine.
   and icons; `--color-accent-solid` is for filled surfaces and stays the darker
   blue in both themes, because white on the light dark-mode accent is only
   3.0:1. Never fill a button with `--color-accent`.
-- **Six type roles, no arbitrary sizes.** `text-meta` (14) · `text-body` (17) ·
-  `text-subhead` (17/600) · `text-heading` (18/600) · `text-lead` (22) ·
+- **Six type roles, no arbitrary sizes.** `text-meta` (14) · `text-body` (15) ·
+  `text-subhead` (17/600) · `text-heading` (24/600) · `text-lead` (20) ·
   `text-display` (clamp). Never write `text-[15px]` or reach for Tailwind's
   default `text-sm`/`text-xl` ramp — it bypasses the scale.
-- **Two measures, both centred:** `max-w-page` (44rem) is the reading column and
+- **Every section uses the same three roles**, which is what makes them look
+  like each other: `subhead` for the entry title or skill category, `body` for
+  its description, `meta` for dates, tags and notes. Do not give one section its
+  own sizes.
+- **Two measures, both centred:** `max-w-page` (41rem) is the reading column and
   is what everything textual uses; `max-w-wide` (56rem) is for the hero visual
   and the nav bar only. Horizontal padding is `px-6` everywhere. Gutters are
   symmetric because the measure *is* the container — do not nest a narrower
   `max-w-*` inside `max-w-page`, which is what left the old layout with 396px of
-  dead space on the right.
+  dead space on the right. If body size changes, re-check the measure: `page`
+  was narrowed from 44rem when body dropped 17→15px to keep it under 75ch.
 - **Body prose is justified** via the `.prose-block` class, which pairs
   `text-align: justify` with `hyphens: auto` and drops to ragged-left below
   34rem. Apply it to multi-line prose only — never headings, chips, or labels.
