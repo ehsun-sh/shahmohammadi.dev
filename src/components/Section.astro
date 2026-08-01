@@ -10,23 +10,15 @@ const { id, title, note } = Astro.props;
 ---
 
 {/*
-  The rule sits under the heading now, full width — the shape a printed CV or a
-  spec sheet uses, where the line closes the heading rather than floating above
-  it as a separate mark.
-
-  The first 40px of it are accent. A full-width coloured rule on every section
-  would be loud, and a plain hairline would drop the only colour in this part of
-  the page; a short segment sitting proud of the hairline keeps the accent as a
-  detail you notice on the second pass rather than the first.
+  The rule sits under the heading, full width — the shape a printed CV or a spec
+  sheet uses, where the line closes the heading rather than floating above it as
+  a separate mark. Plain hairline: colour is spent on the primary action, the
+  availability dot and the hero, and a marker on every section would dilute it.
 */}
 <section id={id} class="scroll-mt-24 pt-16 pb-2">
   <h2 class="text-heading">{title}</h2>
 
-  <div class="relative mt-3.5 h-px w-full bg-border" aria-hidden="true">
-    <span
-      class="absolute -top-px left-0 h-[3px] w-10 rounded-full bg-accent"
-    ></span>
-  </div>
+  <div class="mt-3.5 h-px w-full bg-border" aria-hidden="true"></div>
 
   {note && <p class="mt-4 text-meta text-muted">{note}</p>}
 

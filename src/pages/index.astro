@@ -121,8 +121,8 @@ const {
           skills.map((group) => (
             <div class="sm:grid sm:grid-cols-[9.5rem_1fr] sm:gap-7">
               <dt class="text-subhead text-balance">{group.category}</dt>
-              <dd class="mt-1.5 sm:mt-0">
-                <ul class="flex flex-wrap items-baseline gap-x-1.5 text-muted">
+              <dd class="mt-1 sm:mt-[3px]">
+                <ul class="flex flex-wrap items-baseline gap-x-1.5 gap-y-1 text-meta text-muted">
                   {group.items.map((item) => (
                     <li class="after:ml-1.5 after:text-border after:content-['·'] last:after:content-none">
                       {item}
