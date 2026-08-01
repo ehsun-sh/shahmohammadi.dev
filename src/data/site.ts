@@ -1,8 +1,8 @@
 /** Feature flags for phases that are not finished yet. */
 export const site = {
-  /** Flip to true once the Typst pipeline lands (Phase 4). Until then the
-   *  résumé link is hidden rather than pointing at a 404. */
-  resumeReady: false,
+  /** The Typst pipeline builds public/resume.pdf on every deploy (Phase 4).
+   *  The download link and the primary hero CTA are gated on this. */
+  resumeReady: true,
   /** Flip to true when /services and /contact ship (Phase 3). */
   servicesReady: true,
 

@@ -9,7 +9,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "resume": "typst compile src/resume/resume.typ public/resume.pdf --root ."
+    "resume": "typst compile src/resume/resume.typ public/resume.pdf --root . --ignore-system-fonts"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",

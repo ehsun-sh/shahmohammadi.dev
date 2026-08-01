@@ -34,12 +34,14 @@ const isCurrent = (href: string) =>
 >
   <nav
     aria-label="Main"
-    class="mx-auto flex h-14 max-w-wide items-center gap-4 px-6 md:gap-6"
+    class="mx-auto flex h-14 max-w-wide items-center gap-4 px-6 lg:gap-6"
   >
     {/* Logo and name are one link, and the image is decorative — alt text would
-        make a screen reader announce the name twice. The name is hidden below
-        md so the five labels fit at the 640px breakpoint, where the mark alone
-        still identifies the site; aria-label keeps the link named either way. */}
+        make a screen reader announce the name twice. The name only appears at
+        lg: with six labels, showing it from md left 35px of slack at 768px,
+        which one longer label or a wider font fallback would have eaten. The
+        mark alone identifies the site below that, and aria-label keeps the link
+        named at every width. */}
     <a
       href="/"
       class="group flex shrink-0 items-center gap-2.5"
@@ -55,7 +57,7 @@ const isCurrent = (href: string) =>
         class="size-[26px] rounded-[7px]"
       />
       <span
-        class="hidden text-meta font-semibold transition-colors group-hover:text-accent md:inline"
+        class="hidden text-meta font-semibold transition-colors group-hover:text-accent lg:inline"
       >
         {cv.basics.name}
       </span>

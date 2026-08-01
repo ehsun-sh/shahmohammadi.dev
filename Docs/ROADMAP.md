@@ -121,16 +121,26 @@ navigable shell. *(Build verified; content still placeholder.)*
 - [ ] **Set `site.web3formsKey`.** Until then `/contact` shows direct channels
       only and no form. Free key at web3forms.com.
 
-### Phase 4 — PDF pipeline
-- [ ] `src/resume/resume.typ` reading `../data/cv.json` via `json()`
-- [ ] Print-appropriate layout (1–2 pages, ATS-parseable text, no icon fonts)
-- [ ] CI step with `typst-community/setup-typst`, output to `public/resume.pdf`
-      **before** the Astro build so it is copied into `dist/`
-- [ ] `public/resume.pdf` added to `.gitignore` (generated, never committed)
-- [ ] Local `npm run resume` script so the PDF can be checked without pushing
+### Phase 4 — PDF pipeline ✅
+- [x] `src/resume/resume.typ` reading `/src/data/cv.json` via Typst's `json()`
+- [x] Print layout: US Letter, two pages, ATS-parseable selectable text, no
+      icon fonts, no text baked into graphics
+- [x] CI step with `typst-community/setup-typst@v5` pinned to Typst 0.15.1,
+      running **before** the Astro build so `public/resume.pdf` is copied into
+      `dist/`, plus a step asserting the PDF actually landed there
+- [x] `public/resume.pdf` gitignored (generated, never committed)
+- [x] `npm run resume` for local preview
+- [x] `site.resumeReady` on — the download link is now the primary hero CTA and
+      "Get in touch" steps back to secondary
 
 **Done when:** editing one field in `cv.json` changes both the site and the PDF
-on the next push.
+on the next push. ✅
+
+**Font note:** the template pins `Libertinus Serif` and both the script and CI
+pass `--ignore-system-fonts`. Typst embeds only four faces — Libertinus Serif,
+New Computer Modern, New Computer Modern Math and DejaVu Sans Mono. Anything
+else would resolve differently on the Ubuntu runner than on a local machine, so
+a layout approved locally could ship subtly different. Do not remove that flag.
 
 ### Phase 5 — Project pages
 This phase carries the most weight with technical readers. Budget accordingly.

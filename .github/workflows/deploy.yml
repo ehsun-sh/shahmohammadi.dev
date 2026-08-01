@@ -37,6 +37,19 @@ jobs:
       - name: Type check
         run: npm run check
 
+      # Pinned to the version the layout was proofed against. Typst's own
+      # renderer changes between releases, and this PDF is a document someone
+      # applies for a job with — it should not shift under it.
+      - name: Set up Typst
+        uses: typst-community/setup-typst@v5
+        with:
+          typst-version: 0.15.1
+
+      # Must run before the Astro build: it writes into public/, which Astro
+      # copies into dist/ as part of that build.
+      - name: Build résumé PDF
+        run: npm run resume
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
@@ -50,6 +63,13 @@ jobs:
         run: |
           test -f dist/CNAME || { echo "::error::dist/CNAME missing"; exit 1; }
           echo "CNAME -> $(cat dist/CNAME)"
+
+      # The site links to /resume.pdf unconditionally once site.resumeReady is
+      # on, so a missing PDF is a broken download button on a live page.
+      - name: Verify the résumé made it into the build
+        run: |
+          test -s dist/resume.pdf || { echo "::error::dist/resume.pdf missing or empty"; exit 1; }
+          echo "resume.pdf -> $(stat -c%s dist/resume.pdf) bytes"
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
