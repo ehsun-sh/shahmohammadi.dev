@@ -1,0 +1,74 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+/**
+ * The picture beside a project entry, or the frame where one will go.
+ *
+ * `cv.json` can only hold a filename, and `<Image />` needs a real imported
+ * asset so Astro can hash, resize and emit it. `import.meta.glob` with
+ * `eager: true` bridges the two: every file in src/assets/projects/ is imported
+ * at build time and looked up by name here. A plain `import(variable)` would
+ * not work — the bundler has to see the set of candidates statically.
+ *
+ * A name that matches nothing throws rather than rendering an empty box. A
+ * silent blank frame is the failure that survives review; a failed build is not.
+ */
+const modules = import.meta.glob<{ default: ImageMetadata }>(
+  '../assets/projects/*.{jpg,jpeg,png,webp,avif}',
+  { eager: true },
+);
+
+interface Props {
+  image: string | null;
+  alt: string;
+  /** Project name, used to describe the placeholder while the image is absent. */
+  name: string;
+  class?: string;
+}
+
+const { image, alt, name, class: className } = Astro.props;
+
+const resolved = image
+  ? modules[`../assets/projects/${image}`]?.default
+  : undefined;
+
+if (image && !resolved) {
+  throw new Error(
+    `cv.json points project "${name}" at src/assets/projects/${image}, which does not exist. ` +
+      `Available: ${Object.keys(modules).map((k) => k.split('/').pop()).join(', ') || '(none yet)'}`,
+  );
+}
+
+// 16:10, the same ratio as the hero visual, so the two never disagree about
+// what shape a picture on this site is.
+const RATIO = '16 / 10';
+---
+
+<div
+  class:list={['w-full shrink-0 sm:w-40', className]}
+  style={`aspect-ratio: ${RATIO}`}
+>
+  {
+    resolved ? (
+      <Image
+        src={resolved}
+        alt={alt}
+        widths={[160, 320, 640]}
+        sizes="(min-width: 640px) 160px, 100vw"
+        loading="lazy"
+        decoding="async"
+        class="size-full rounded-lg border border-border object-cover"
+      />
+    ) : (
+      /* Not a broken-image icon and not invisible: a deliberate empty frame,
+         so the row keeps its shape and the gap reads as "picture pending"
+         rather than as a layout bug. aria-hidden because there is nothing to
+         describe yet — the project title already names the entry. */
+      <div
+        class="size-full rounded-lg border border-dashed border-border bg-surface"
+        aria-hidden="true"
+      />
+    )
+  }
+</div>

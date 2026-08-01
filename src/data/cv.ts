@@ -57,6 +57,14 @@ const projectEntry = z.object({
   summary: z.string(),
   tags: z.array(z.string()).default([]),
   slug: z.string().nullable().default(null),
+  /** Filename inside src/assets/projects/, not a path and not a URL. The file
+   *  has to exist there so `astro:assets` can hash and resize it at build
+   *  time; anything else is a broken image nobody notices. Null renders the
+   *  placeholder frame. See that folder's README for the export spec. */
+  image: z.string().nullable().default(null),
+  /** What the picture shows, for someone who cannot see it. Leave empty only
+   *  if the image is pure decoration, which for a project shot it is not. */
+  imageAlt: z.string().default(''),
 });
 
 const award = z.object({

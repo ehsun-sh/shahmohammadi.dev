@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Section from '../components/Section.astro';
 import HeroVisual from '../components/HeroVisual.astro';
+import ProjectThumb from '../components/ProjectThumb.astro';
 import { cv, cvHasPlaceholders, formatRange } from '../data/cv';
 import { site } from '../data/site';
 
@@ -146,36 +147,54 @@ const {
           title="Selected Projects"
           note="Full write-ups are landing here as they are cleared for publication."
         >
+          {/* Picture beside the text from sm up, stacked below it. A 160px
+              thumbnail next to a 375px screen would leave the summary about
+              29ch wide, which is unreadable — so the row turns into a column
+              instead of shrinking the text. `min-w-0` on the text side stops a
+              long unbroken token from pushing the thumbnail off its width.
+
+              `sm:items-start` is load-bearing: a flex row stretches its
+              children to the tallest one, which overrode the thumbnail's
+              aspect-ratio and rendered it 160×123 instead of 160×100. It also
+              pins the picture to the title rather than letting it grow with a
+              longer summary. */}
           <ul class="space-y-8">
             {projects.map((project) => (
-              <li>
-                <div class="flex items-baseline justify-between gap-4">
-                  <h3 class="text-subhead">
-                    {project.slug ? (
-                      <a
-                        href={`/projects/${project.slug}`}
-                        class="transition-colors hover:text-accent"
-                      >
-                        {project.name}
-                      </a>
-                    ) : (
-                      project.name
-                    )}
-                  </h3>
-                  <span class="shrink-0 text-meta text-muted tabular-nums">
-                    {project.year}
-                  </span>
+              <li class="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-5">
+                <ProjectThumb
+                  image={project.image}
+                  alt={project.imageAlt}
+                  name={project.name}
+                />
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-baseline justify-between gap-4">
+                    <h3 class="text-subhead">
+                      {project.slug ? (
+                        <a
+                          href={`/projects/${project.slug}`}
+                          class="transition-colors hover:text-accent"
+                        >
+                          {project.name}
+                        </a>
+                      ) : (
+                        project.name
+                      )}
+                    </h3>
+                    <span class="shrink-0 text-meta text-muted tabular-nums">
+                      {project.year}
+                    </span>
+                  </div>
+                  <p class="prose-block mt-2 text-muted">{project.summary}</p>
+                  {project.tags.length > 0 && (
+                    <ul class="mt-3 flex flex-wrap gap-1.5">
+                      {project.tags.map((tag) => (
+                        <li class="rounded-md border border-border px-2 py-0.5 text-meta text-muted">
+                          {tag}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
-                <p class="prose-block mt-2 text-muted">{project.summary}</p>
-                {project.tags.length > 0 && (
-                  <ul class="mt-3 flex flex-wrap gap-1.5">
-                    {project.tags.map((tag) => (
-                      <li class="rounded-md border border-border px-2 py-0.5 text-meta text-muted">
-                        {tag}
-                      </li>
-                    ))}
-                  </ul>
-                )}
               </li>
             ))}
           </ul>

@@ -260,34 +260,44 @@
     }
   ],
 
+  "_projects": "`image` is a filename inside src/assets/projects/ — not a path, not a URL. Read that folder's README before exporting: 1600×1000 (16:10), which is the same ratio as the hero. Null until the file exists; a name pointing at a missing file fails the build on purpose rather than shipping a blank frame.",
+
   "projects": [
     {
       "name": "MRI Radio Coil with Optical Transmission",
       "year": "2024",
       "summary": "Replaced coaxial cabling in MRI receive coils with optical fibre, improving SNR and cutting thermal effects. Designed an SDR to digitize and transmit coil signals at 63.875 MHz over fibre.",
       "tags": ["SDR", "Optical", "Medical"],
-      "slug": null
+      "slug": null,
+      "image": null,
+      "imageAlt": ""
     },
     {
       "name": "Optical Transmitter System with WDM",
       "year": "2017",
       "summary": "Modular WDM optical transmitter carrying multiple services and protocols over a single fibre, with SFP/XFP transceiver cards and an embedded Linux control plane.",
       "tags": ["WDM", "Embedded Linux", "Telecom"],
-      "slug": null
+      "slug": null,
+      "image": null,
+      "imageAlt": ""
     },
     {
       "name": "SFP 4.25G Transceiver Design",
       "year": "2015",
       "summary": "4.25 Gbps SFP optical transceiver on a 4-layer Altium design. Prototyped and characterized ROSA/TOSA optics plus the amplification and laser-control ICs.",
       "tags": ["SFP", "High-speed PCB", "Optics"],
-      "slug": null
+      "slug": null,
+      "image": null,
+      "imageAlt": ""
     },
     {
       "name": "Digital Motor Protection Relay",
       "year": "2013",
       "summary": "Three-phase motor protection built on PIC18F67K22 with an ADE7758 metering front end, providing real-time monitoring and fault logging.",
       "tags": ["PIC", "Power", "Industrial"],
-      "slug": null
+      "slug": null,
+      "image": null,
+      "imageAlt": ""
     }
   ],
 
