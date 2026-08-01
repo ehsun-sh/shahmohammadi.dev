@@ -90,7 +90,7 @@ const rows = [{ label: 'Role', value: role }, ...specs];
     </header>
 
     {
-      image && (
+      image ? (
         /* The cover is the largest thing above the fold on this page, so it is
            the LCP element — eager and high priority, unlike every other image
            on the site, which is lazy. */
@@ -105,6 +105,30 @@ const rows = [{ label: 'Role', value: role }, ...specs];
           class="mt-12 w-full rounded-xl border border-border object-cover"
           style="aspect-ratio: 16 / 10"
         />
+      ) : (
+        import.meta.env.DEV && (
+          /* Dev only, unlike the dashed frame on the CV list, which ships.
+             Size decides it: at 160px a placeholder is a design element that
+             holds the row's shape, but at 896×560 it is a hole halfway down
+             the page. A published project with no picture is better off going
+             straight from the tags to the spec table.
+
+             Kept visible while writing so the slot, its exact ratio and the
+             filename it wants are all in front of you on the page itself. */
+          <div
+            class="mt-12 flex w-full flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-border bg-surface text-center"
+            style="aspect-ratio: 16 / 10"
+          >
+            <p class="text-subhead text-muted">Cover image</p>
+            <p class="text-meta text-muted">
+              16:10 · 1600 × 1000 · set <code class="font-mono">image</code> on
+              this project in <code class="font-mono">cv.json</code>
+            </p>
+            <p class="text-meta text-muted">
+              Dev only — this frame is not in the build.
+            </p>
+          </div>
+        )
       )
     }
 
