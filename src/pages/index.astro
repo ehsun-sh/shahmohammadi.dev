@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Section from '../components/Section.astro';
 import HeroVisual from '../components/HeroVisual.astro';
+import ProfileCard from '../components/ProfileCard.astro';
 import ProjectThumb from '../components/ProjectThumb.astro';
 import { cv, cvHasPlaceholders, formatRange } from '../data/cv';
 import { getLinkedSlugs } from '../lib/projects';
@@ -23,7 +24,7 @@ const {
 } = cv;
 ---
 
-<BaseLayout title={basics.name} description={basics.headline}>
+<BaseLayout title={basics.name} description={basics.headline} shell="wide">
   {
     import.meta.env.DEV && cvHasPlaceholders && (
       <p class="border-b border-border bg-surface px-6 py-2 text-center text-meta text-muted">
@@ -33,281 +34,280 @@ const {
     )
   }
 
-  {/* Every plate on this page is one card in one stack, 20px apart. The hero
-      is the first of them rather than a full-bleed band above them, because a
-      band would have announced a marketing page and this one is a CV.
+  {/* Two columns above `lg`, one below it, and the container swaps with them:
+      `max-w-page` when the rail is stacked so a 1023px viewport does not render
+      a 970px line, `max-w-wide` once the rail takes 20rem of it back. The two
+      widths are chosen so the main column measures the same either way — see
+      the note on --container-page.
 
-      `space-y-5` owns all the vertical rhythm between sections; Section itself
-      carries none. One place to change the gap. */}
-  <div class="mx-auto max-w-page space-y-5 px-6 pt-6 pb-8">
-    {/* Identity card. The scroll-driven sequence replaces HeroVisual in Phase
-        6; name, title and CTAs sit above it and are never gated behind an
-        animation. */}
-    <section class="card sm:p-8">
-      <h1 class="text-display">{basics.name}</h1>
-      <p class="mt-2 text-lead text-muted">{basics.label}</p>
-      <p class="prose-block mt-5">{basics.headline}</p>
+      `items-start` is load-bearing. A grid stretches its children to the tallest
+      row by default, which would make the rail as tall as the whole CV and
+      leave `position: sticky` nothing to travel inside. */}
+  <div class="mx-auto max-w-page px-6 pt-6 pb-8 lg:max-w-wide">
+    <div
+      class="grid gap-5 lg:grid-cols-[var(--container-rail)_minmax(0,1fr)] lg:items-start"
+    >
+      {/* First in the source, and therefore first on a phone: who this is
+          before what they have done. `top-20` is the 56px nav plus the same
+          24px of ground the page opens with. */}
+      <aside class="lg:sticky lg:top-20">
+        <ProfileCard />
+      </aside>
 
-      {/* Whichever action matters most is the filled one. Until the résumé
-          pipeline ships (Phase 4), that is the contact link. */}
-      <div class="mt-7 flex flex-wrap items-center gap-x-3 gap-y-3">
-        {
-          site.resumeReady && (
-            <a href="/resume.pdf" class="btn btn-primary">
-              Download résumé
-            </a>
-          )
-        }
-        <a
-          href="/contact"
-          class:list={['btn', site.resumeReady ? 'btn-secondary' : 'btn-primary']}
-        >
-          Get in touch
-        </a>
-      </div>
+      <div class="space-y-5">
+        {/* No title on this one. It is the claim the rest of the page is
+            evidence for, and a heading above it would only name it. The
+            scroll-driven sequence replaces HeroVisual in Phase 6. */}
+        <section class="card">
+          <p class="prose-block text-lead">{basics.headline}</p>
+          <HeroVisual class="mt-5" />
+        </section>
 
-      {
-        basics.availability.open && basics.availability.note && (
-          <p class="mt-6 flex items-center gap-2.5 text-meta text-muted">
-            <span class="status-dot" aria-hidden="true" />
-            {basics.availability.note}
-          </p>
-        )
-      }
+        <Section id="about" title="About">
+          <p class="prose-block">{basics.summary}</p>
+        </Section>
 
-      {/* Inside the identity card rather than beside it: the visual is a claim
-          about the work, and it belongs to the sentence above it. Only its
-          hairline ring separates it from the card, since both are white. */}
-      <HeroVisual class="mt-8" />
-    </section>
-    <Section id="about" title="About">
-      <p class="prose-block text-muted">{basics.summary}</p>
-    </Section>
-
-    <Section id="experience" title="Experience">
-      {/* 32px, down from 44. The card edge already tells the eye where the
-          section starts and stops, so the gaps inside it only have to separate
-          one job from the next — they are no longer also standing in for a
-          section break. */}
-      <ol class="space-y-8">
-        {
-          work.map((job) => (
-            <li>
-              <h3 class="text-subhead">
-                {job.position}
-                <span class="font-normal text-muted"> · {job.company}</span>
-              </h3>
-              <p class="mt-1 text-meta text-muted tabular-nums">
-                {formatRange(job.startDate, job.endDate)}
-                {job.location && <span> · {job.location}</span>}
-              </p>
-              {job.summary && (
-                <p class="prose-block mt-2 text-muted">{job.summary}</p>
-              )}
-              {job.highlights.length > 0 && (
-                <ul class="mt-3.5 space-y-2">
-                  {job.highlights.map((highlight) => (
-                    <li class="prose-block relative pl-5 text-muted before:absolute before:left-0 before:top-[0.72em] before:size-1.5 before:rounded-full before:bg-border">
-                      {highlight}
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {job.stack.length > 0 && (
-                <ul class="mt-4 flex flex-wrap gap-1.5">
-                  {job.stack.map((item) => (
-                    <li class="tag">{item}</li>
-                  ))}
-                </ul>
-              )}
-            </li>
-          ))
-        }
-      </ol>
-    </Section>
-
-    {/* Fifty-four skills as fifty-four bordered chips gave every item the same
-        visual weight, so the categories stopped doing their job and the whole
-        block read as texture. Laid out as a spec sheet instead: the category is
-        the anchor at full contrast, the items are quiet text behind it. */}
-    <Section id="skills" title="Technical Skills">
-      {/* Category on its own line with the items stacked under it, so the item
-          list gets the full column measure instead of the 25rem left over
-          beside a label column — and no category has to wrap. */}
-      <dl class="space-y-5">
-        {
-          skills.map((group) => (
-            <div>
-              <dt class="text-subhead">{group.category}</dt>
-              <dd class="mt-1.5">
-                <ul class="flex flex-wrap items-baseline gap-x-1.5 gap-y-1 text-muted">
-                  {group.items.map((item) => (
-                    <li class="after:ml-1.5 after:text-border after:content-['·'] last:after:content-none">
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </dd>
-            </div>
-          ))
-        }
-      </dl>
-    </Section>
-
-    {
-      projects.length > 0 && (
-        <Section
-          id="projects"
-          title="Selected Projects"
-          note="Full write-ups are landing here as they are cleared for publication."
-        >
-          {/* Picture beside the text from sm up, stacked below it. A 160px
-              thumbnail next to a 375px screen would leave the summary about
-              29ch wide, which is unreadable — so the row turns into a column
-              instead of shrinking the text. `min-w-0` on the text side stops a
-              long unbroken token from pushing the thumbnail off its width.
-
-              `sm:items-start` is load-bearing: a flex row stretches its
-              children to the tallest one, which overrode the thumbnail's
-              aspect-ratio and rendered it 160×123 instead of 160×100. It also
-              pins the picture to the title rather than letting it grow with a
-              longer summary. */}
-          <ul class="space-y-8">
-            {projects.map((project) => (
-              <li class="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-5">
-                <ProjectThumb
-                  image={project.image}
-                  alt={project.imageAlt}
-                  name={project.name}
-                  class="sm:w-40"
-                />
-                <div class="min-w-0 flex-1">
-                  <div class="flex items-baseline justify-between gap-4">
-                    <h3 class="text-subhead">
-                      {project.slug && linkedProjects.has(project.slug) ? (
-                        <a
-                          href={`/projects/${project.slug}`}
-                          class="transition-colors hover:text-accent"
-                        >
-                          {project.name}
-                        </a>
-                      ) : (
-                        project.name
-                      )}
-                    </h3>
-                    <span class="shrink-0 text-meta text-muted tabular-nums">
-                      {project.year}
+        <Section id="experience" title="Experience">
+          <ol class="space-y-8">
+            {
+              work.map((job) => (
+                <li>
+                  {/* Title, then company and dates on one line, then the stack,
+                      then the prose. The stack sits third on purpose: it is the
+                      fastest thing on the page to scan, and a reader deciding
+                      whether this job is relevant to them reads it before any
+                      sentence. It used to be last, under the highlights, where
+                      it was doing that job for nobody. */}
+                  <h3 class="text-subhead">{job.position}</h3>
+                  <p class="mt-0.5 text-meta tabular-nums">
+                    <span>{job.company}</span>
+                    <span aria-hidden="true" class="mx-1.5 text-muted">
+                      |
                     </span>
-                  </div>
-                  <p class="prose-block mt-2 text-muted">{project.summary}</p>
-                  {project.tags.length > 0 && (
-                    <ul class="mt-3 flex flex-wrap gap-1.5">
-                      {project.tags.map((tag) => (
-                        <li class="tag">{tag}</li>
+                    <span>{formatRange(job.startDate, job.endDate)}</span>
+                    {job.location && (
+                      <>
+                        <span aria-hidden="true" class="mx-1.5 text-muted">
+                          |
+                        </span>
+                        <span>{job.location}</span>
+                      </>
+                    )}
+                  </p>
+                  {job.stack.length > 0 && (
+                    <ul class="mt-2.5 flex flex-wrap gap-x-2 gap-y-1">
+                      {job.stack.map((item) => (
+                        <li class="tag">{item}</li>
                       ))}
                     </ul>
                   )}
-                </div>
-              </li>
-            ))}
-          </ul>
-
-          {site.projectsReady && (
-            <a
-              href="/projects"
-              class="mt-8 inline-flex items-center gap-1.5 text-meta text-accent transition-colors hover:underline"
-            >
-              All projects
-              <span aria-hidden="true">&rarr;</span>
-            </a>
-          )}
-        </Section>
-      )
-    }
-
-    <Section id="education" title="Education">
-      <ol class="space-y-5">
-        {
-          education.map((entry) => (
-            <li>
-              <h3 class="text-subhead">{entry.institution}</h3>
-              <p class="mt-1 text-meta text-muted tabular-nums">
-                {entry.startDate} — {entry.endDate}
-              </p>
-              <p class="mt-2 text-muted">
-                {entry.studyType}, {entry.area}
-              </p>
-              {
-                entry.note && (
-                  <p class="mt-0.5 text-meta text-muted">{entry.note}</p>
-                )
-              }
-            </li>
-          ))
-        }
-      </ol>
-    </Section>
-
-    {
-      awards.length > 0 && (
-        <Section id="awards" title="Awards">
-          <ul class="space-y-5">
-            {awards.map((entry) => (
-              <li>
-                <h3 class="text-subhead">
-                  {entry.url ? (
-                    <a
-                      href={entry.url}
-                      rel="noopener"
-                      class="transition-colors hover:text-accent"
-                    >
-                      {entry.title}
-                    </a>
-                  ) : (
-                    entry.title
+                  {job.summary && (
+                    <p class="prose-block mt-3.5">{job.summary}</p>
                   )}
-                </h3>
-                <p class="mt-1 text-meta text-muted tabular-nums">
-                  {entry.issuer} · {entry.date}
-                </p>
-              </li>
-            ))}
-          </ul>
+                  {job.highlights.length > 0 && (
+                    <ul class="bullets mt-3.5">
+                      {job.highlights.map((highlight) => (
+                        <li class="prose-block">{highlight}</li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              ))
+            }
+          </ol>
         </Section>
-      )
-    }
 
-    {
-      certificates.length > 0 && (
-        <Section id="certifications" title="Certifications">
-          <ul class="space-y-3">
-            {certificates.map((entry) => (
-              <li class="flex flex-wrap items-baseline gap-x-2">
-                <span>{entry.name}</span>
-                <span class="text-muted">— {entry.issuer}</span>
-                <span class="text-meta text-muted tabular-nums">
-                  {entry.date}
-                </span>
-              </li>
-            ))}
-          </ul>
+        {/* Fifty-four skills as fifty-four chips gave every item the same
+            visual weight, so the categories stopped doing their job and the
+            whole block read as texture. Laid out as a spec sheet instead: the
+            category is the anchor at full contrast, the items are quiet text
+            behind it. This is the one block that kept the muted grey when the
+            rest of the card content went to full ink — at this density, ink
+            turns it back into texture. */}
+        <Section id="skills" title="Technical Skills">
+          <dl class="space-y-4">
+            {
+              skills.map((group) => (
+                <div>
+                  <dt class="text-subhead">{group.category}</dt>
+                  <dd class="mt-1">
+                    <ul class="flex flex-wrap items-baseline gap-x-1.5 gap-y-1 text-muted">
+                      {group.items.map((item) => (
+                        <li class="after:ml-1.5 after:text-border after:content-['·'] last:after:content-none">
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </dd>
+                </div>
+              ))
+            }
+          </dl>
         </Section>
-      )
-    }
 
-    {
-      languages.length > 0 && (
-        <Section id="languages" title="Languages">
-          <ul class="flex flex-wrap gap-x-8 gap-y-2">
-            {languages.map((entry) => (
-              <li>
-                {entry.language}
-                <span class="text-muted"> — {entry.fluency}</span>
-              </li>
-            ))}
-          </ul>
+        {
+          projects.length > 0 && (
+            <Section
+              id="projects"
+              title="Selected Projects"
+              note="Full write-ups are landing here as they are cleared for publication."
+            >
+              {/* Picture beside the text from sm up, stacked below it. A 160px
+                  thumbnail next to a 375px screen would leave the summary about
+                  29ch wide, which is unreadable — so the row turns into a
+                  column instead of shrinking the text. `min-w-0` on the text
+                  side stops a long unbroken token from pushing the thumbnail
+                  off its width.
+
+                  `sm:items-start` is load-bearing: a flex row stretches its
+                  children to the tallest one, which overrode the thumbnail's
+                  aspect-ratio and rendered it 160×123 instead of 160×100. */}
+              <ul class="space-y-6">
+                {projects.map((project) => (
+                  <li class="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-5">
+                    <ProjectThumb
+                      image={project.image}
+                      alt={project.imageAlt}
+                      name={project.name}
+                      class="sm:w-40"
+                    />
+                    <div class="min-w-0 flex-1">
+                      <h3 class="text-subhead">
+                        {project.slug && linkedProjects.has(project.slug) ? (
+                          <a
+                            href={`/projects/${project.slug}`}
+                            class="transition-colors hover:text-accent"
+                          >
+                            {project.name}
+                          </a>
+                        ) : (
+                          project.name
+                        )}
+                      </h3>
+                      <p class="mt-0.5 text-meta tabular-nums">
+                        {project.year}
+                      </p>
+                      {project.tags.length > 0 && (
+                        <ul class="mt-2.5 flex flex-wrap gap-x-2 gap-y-1">
+                          {project.tags.map((tag) => (
+                            <li class="tag">{tag}</li>
+                          ))}
+                        </ul>
+                      )}
+                      <p class="prose-block mt-3.5">{project.summary}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+
+              {site.projectsReady && (
+                <a
+                  href="/projects"
+                  class="mt-6 inline-flex items-center gap-1.5 text-meta text-accent transition-colors hover:underline"
+                >
+                  All projects
+                  <span aria-hidden="true">&rarr;</span>
+                </a>
+              )}
+            </Section>
+          )
+        }
+
+        <Section id="education" title="Education">
+          <ol class="space-y-5">
+            {
+              education.map((entry) => (
+                <li>
+                  {/* Degree first, school second — the same order the résumé
+                      prints, and the same title/meta pair every other entry on
+                      the page uses. */}
+                  <h3 class="text-subhead">
+                    {entry.studyType}, {entry.area}
+                  </h3>
+                  <p class="mt-0.5 text-meta tabular-nums">
+                    <span>{entry.institution}</span>
+                    <span aria-hidden="true" class="mx-1.5 text-muted">
+                      |
+                    </span>
+                    <span>
+                      {entry.startDate} — {entry.endDate}
+                    </span>
+                  </p>
+                  {entry.note && (
+                    <p class="mt-2 text-meta text-muted">{entry.note}</p>
+                  )}
+                </li>
+              ))
+            }
+          </ol>
         </Section>
-      )
-    }
+
+        {
+          awards.length > 0 && (
+            <Section id="awards" title="Awards">
+              <ul class="space-y-5">
+                {awards.map((entry) => (
+                  <li>
+                    <h3 class="text-subhead">
+                      {entry.url ? (
+                        <a
+                          href={entry.url}
+                          rel="noopener"
+                          class="transition-colors hover:text-accent"
+                        >
+                          {entry.title}
+                        </a>
+                      ) : (
+                        entry.title
+                      )}
+                    </h3>
+                    <p class="mt-0.5 text-meta tabular-nums">
+                      <span>{entry.issuer}</span>
+                      <span aria-hidden="true" class="mx-1.5 text-muted">
+                        |
+                      </span>
+                      <span>{entry.date}</span>
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </Section>
+          )
+        }
+
+        {
+          certificates.length > 0 && (
+            <Section id="certifications" title="Certifications">
+              <ul class="space-y-3">
+                {certificates.map((entry) => (
+                  <li class="flex flex-wrap items-baseline gap-x-2">
+                    <span>{entry.name}</span>
+                    <span class="text-muted">— {entry.issuer}</span>
+                    <span class="text-meta text-muted tabular-nums">
+                      {entry.date}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </Section>
+          )
+        }
+
+        {
+          languages.length > 0 && (
+            <Section id="languages" title="Languages">
+              <ul class="flex flex-wrap gap-x-8 gap-y-2">
+                {languages.map((entry) => (
+                  <li>
+                    {entry.language}
+                    <span class="text-muted"> — {entry.fluency}</span>
+                  </li>
+                ))}
+              </ul>
+            </Section>
+          )
+        }
+      </div>
+    </div>
   </div>
 </BaseLayout>

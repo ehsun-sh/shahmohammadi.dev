@@ -156,23 +156,29 @@
      Type scale — six roles, nothing else. Every size in the UI comes from this
      list; no arbitrary `text-[15px]` values.
 
-     The values were retuned to a CV-platform scale (14 · 15 · 16 · 18) and the
-     roles were not: there are still exactly six, they still mean the same
-     things, and no component had to learn a new class. That is the whole point
-     of naming sizes by job — the scale can be replaced in one place.
+     The values were retuned to a CV-platform scale (14 · 16 · 18) and the roles
+     were not: there are still exactly six, they still mean the same things, and
+     no component had to learn a new class. That is the whole point of naming
+     sizes by job — the scale can be replaced in one place.
 
-     Size alone does not carry the hierarchy. Weight and space do their share,
-     which is why `heading` and `lead` share 18px and differ by 300 units of
-     weight, and why a 16px entry title reads as a title against 15px body.
+     Size alone does not carry the hierarchy. Weight, colour and space do their
+     share, which is why `heading` and `lead` share 18px and differ by 300 units
+     of weight, and why a 16px entry title reads as a title against 14px body.
+
+     `meta` and `body` are now the same 14px, and that is not an oversight. The
+     reference sets a job's dates, its description and its bullets at one size
+     and separates them by colour and weight instead. The roles stay apart
+     because they mean different things — `body` is content and takes the ink
+     colour, `meta` is chrome and takes the muted grey — and the day the scale
+     moves again they will move independently.
   ------------------------------------------------------------------------- */
   --text-meta: 0.875rem;              /* 14px — dates, tags, notes, chrome */
-  --text-meta--line-height: 1.45;
+  --text-meta--line-height: 1.5;
 
-  /* 15px, and it is the size of *every* description on the site: job
-     summaries, highlights, project blurbs, skill items, degree lines. One size
-     for supporting content is what makes the sections look like each other. */
-  --text-body: 0.9375rem;             /* 15px — all prose and list content */
-  --text-body--line-height: 1.6;
+  /* 14px with 1.5 leading, both measured off the reference: a 21px line box on
+     a 14px face. It was 15/1.6, which read as a page that had been zoomed. */
+  --text-body: 0.875rem;              /* 14px — all prose and list content */
+  --text-body--line-height: 1.5;
 
   --text-subhead: 1rem;               /* 16px — entry titles and skill groups */
   --text-subhead--line-height: 1.5;
@@ -195,44 +201,49 @@
   --text-lead: 1.125rem;              /* 18px — hero and page standfirst */
   --text-lead--line-height: 1.6;
 
-  /* Was clamp(2.5rem, 7vw, 3.5rem) — 56px, a marketing headline. A name at the
-     top of a CV is an identifier, not a banner, and 44px is where it stops
-     competing with the content underneath it. */
-  --text-display: clamp(2rem, 5vw, 2.75rem);
-  --text-display--line-height: 1.15;
+  /* A name at the top of a CV is an identifier, not a banner. It was 56px, then
+     44px; at 36px it stops competing with the content underneath it, which is
+     the right relationship once body copy is 14px. Only secondary pages use
+     this now — the landing page's name lives in the sidebar at heading size,
+     because there the identity is a card, not a masthead. */
+  --text-display: clamp(1.75rem, 4vw, 2.25rem);
+  --text-display--line-height: 1.2;
   --text-display--font-weight: 700;
-  --text-display--letter-spacing: -0.021em;
+  --text-display--letter-spacing: -0.018em;
 
   /* -------------------------------------------------------------------------
-     Measure. One width for the whole page: the reading column now matches the
-     hero visual, so every left and right edge on the page lines up instead of
-     the hero card overhanging the text by 144px a side.
+     Measure. Two containers, and the second one exists because the CV grew a
+     sidebar.
 
-     The cost is real and worth writing down. At 41rem the column measured
-     exactly 75ch; at 56rem it measures 104ch, which is past the range long-form
-     prose is comfortable in, and justified text pays the most for it because
-     wider lines open wider word spaces. `.prose-block` gets extra leading to
-     compensate — the longer the line, the more vertical separation the eye
-     needs to find the start of the next one.
+     `page` is the reading column and it is the one that matters: 48rem, which
+     after 24px of page padding and 24px of card padding a side leaves 672px of
+     text — about 100 characters a line in Open Sans at 14px. It was 56rem when
+     body copy was 15px; dropping the body size without dropping the column
+     would have taken the line past 120 characters, which is why these two
+     numbers move together and always will.
 
-     Do not fix this by nesting a narrower max-width inside the column for
-     paragraphs. That reintroduces the asymmetric right-hand gutter this layout
-     was rebuilt to get rid of. If the measure has to come down, move
-     --container-page and let everything move with it.
+     `wide` is 71rem, and it is not a design flourish — it is arithmetic. The
+     landing page is a 20rem rail, a 20px gutter and a main column, and 71rem is
+     what makes that main column land on 748px, or 698px of text: 104 characters
+     measured on the rendered page, near enough the reading column's 100 that
+     the two feel like one document. The nav bar and the footer use `wide` too,
+     so the site's chrome brackets the widest thing on it.
+
+     Do not fix a long line by nesting a narrower max-width inside a column.
+     That reintroduces the asymmetric right-hand gutter this layout was rebuilt
+     to get rid of. Move the container and let everything move with it. Below
+     `lg` the sidebar stacks and the shell falls back to `page`, so a 1023px
+     viewport never renders a 970px line.
 
      The container IS the measure, so text fills it edge to edge and the gutters
      stay symmetric by construction rather than by luck.
-
-     The cards changed the arithmetic slightly in the right direction: 24px of
-     padding a side means prose runs in 798px rather than 848px. Measured on
-     the rendered page that is 111 characters a line in Open Sans at 15px —
-     still long, still the documented trade, and no worse than it was. Worth
-     knowing that the CV platform this layout was drawn from lands on the same
-     number by a different route (745px at 14px = 110), so the measure is not
-     the thing separating this page from that one.
   ------------------------------------------------------------------------- */
-  --container-page: 56rem;
-  --container-wide: 56rem;
+  --container-page: 48rem;
+  --container-wide: 71rem;
+  /* The sidebar. Fixed, not fractional: it holds a portrait, a name and a
+     button, none of which get better at 24rem, and a fixed rail is what keeps
+     the main column's measure predictable at every viewport above `lg`. */
+  --container-rail: 20rem;
 }
 
 @layer base {
@@ -257,7 +268,12 @@
     color: var(--color-text);
     font-family: var(--font-sans);
     font-size: var(--text-body);
-    line-height: 1.65;
+    /* Must match --text-body--line-height. Anything that inherits rather than
+       carrying a `text-*` class — a `.prose-block` paragraph, a bullet — takes
+       its leading from here, so a mismatch shows up as two different rhythms in
+       the same card. It was 1.65 against a body role of 1.5 and that is exactly
+       what happened. */
+    line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
@@ -265,7 +281,7 @@
   /* Light text on a black field looks tighter and thinner than the same text
      on white. Give it back a little leading and tracking. */
   [data-theme="dark"] body {
-    line-height: 1.7;
+    line-height: 1.6;
     letter-spacing: 0.003em;
   }
 
@@ -352,6 +368,34 @@
     color: var(--color-text);
   }
 
+  /* -------------------------------------------------------------------------
+     Bulleted lists.
+
+     Real `list-style: disc` with a real ::marker, not a positioned ::before
+     pseudo-element drawing a circle. The custom dot was there because the list
+     was a flex column — flex destroys `display: list-item`, so the native
+     marker never rendered and one had to be drawn by hand. Making the list a
+     block again gets the browser's own marker back, which means correct
+     alignment on a wrapped line and correct behaviour when a bullet is read
+     aloud, at the cost of nothing.
+
+     The marker takes the ink colour. It was the border grey, which made the
+     bullets disappear at a glance and left the list looking like indented
+     paragraphs.
+
+     No gap between items, which is the reference's spacing and is tighter than
+     it looks: a 21px line box with no margin still separates two single-line
+     bullets clearly, and a wrapped bullet is held together by its marker
+     sitting out in the gutter.
+  ------------------------------------------------------------------------- */
+  .bullets {
+    list-style: disc;
+    padding-left: 1.25rem;
+  }
+  .bullets > li::marker {
+    color: var(--color-text);
+  }
+
   /* Justified body copy. Justification only works without rivers of white when
      the browser is allowed to hyphenate, which needs both `hyphens: auto` and
      the `lang` attribute on <html>. `text-wrap: auto` because `pretty` fights
@@ -363,10 +407,6 @@
     hyphens: auto;
     -webkit-hyphens: auto;
     text-wrap: auto;
-    /* Longer lines need more air between them, because the eye has further to
-       travel back and needs the next line's start to be unambiguous. This is
-       the compensation for the 104ch measure — see --container-page. */
-    line-height: 1.75;
   }
 
   /* A last line left alone at the bottom of a justified block reads as a bug.
@@ -509,7 +549,6 @@
     hyphens: auto;
     -webkit-hyphens: auto;
     text-wrap: auto;
-    line-height: 1.75;
   }
 
   @media (width < 34rem) {
@@ -518,49 +557,30 @@
     }
   }
 
+  /* Native markers, same as `.bullets` — a write-up's list and a job's
+     highlights are the same device and must not be drawn two different ways.
+     A write-up gets a little air between items that the CV does not, because
+     its bullets are sentences rather than one-line claims. */
   .prose-doc :is(ul, ol) {
     margin-top: 1.15rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-  }
-
-  .prose-doc li {
-    position: relative;
     padding-left: 1.25rem;
-    line-height: 1.75;
   }
-
-  /* The same dot the experience highlights use, at the same offset, so a
-     bulleted list reads as one device across the whole site. */
-  .prose-doc ul > li::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0.72em;
-    width: 0.375rem;
-    height: 0.375rem;
-    border-radius: 9999px;
-    background-color: var(--color-border);
+  .prose-doc ul {
+    list-style: disc;
   }
-
   .prose-doc ol {
-    counter-reset: prose-ol;
+    list-style: decimal;
   }
-  .prose-doc ol > li {
-    counter-increment: prose-ol;
-    padding-left: 1.75rem;
+  .prose-doc li + li {
+    margin-top: 0.4rem;
   }
-  .prose-doc ol > li::before {
-    content: counter(prose-ol) '.';
-    position: absolute;
-    left: 0;
-    color: var(--color-muted);
+  .prose-doc li::marker {
+    color: var(--color-text);
     font-variant-numeric: tabular-nums;
   }
 
   .prose-doc li > :is(ul, ol) {
-    margin-top: 0.6rem;
+    margin-top: 0.4rem;
   }
 
   .prose-doc strong {

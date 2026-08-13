@@ -1,0 +1,170 @@
+---
+import { Image } from 'astro:assets';
+import SocialIcon from './SocialIcon.astro';
+import { cv, locationLabel } from '../data/cv';
+import { site } from '../data/site';
+
+/**
+ * The identity rail.
+ *
+ * Everything a recruiter needs before they have read a word of the CV — who
+ * this is, where they are, whether they are available, how to reach them, and
+ * the PDF — held in one card that stays on screen while the CV scrolls past it.
+ * That is the whole argument for a sidebar: those five facts are needed at
+ * every point in the page, and in a single column they are only available at
+ * the top of it.
+ *
+ * It carries the page's <h1>. The name is the heading of this document; the
+ * landing page has no masthead any more, and inventing a second, larger name
+ * somewhere else would mean two h1s or a heading that outranks the real one.
+ *
+ * Landing page only. /services and /contact are addressed to clients, not
+ * recruiters, and a "download my résumé" rail on a services page argues against
+ * the page it is sitting on.
+ */
+
+// Same bridge as the project thumbnails: a filename cannot be turned into an
+// ImageMetadata by a runtime `import()`, because the bundler has to know the
+// candidate set statically. One glob, and whatever is there wins.
+const portraits = import.meta.glob<{ default: ImageMetadata }>(
+  '../assets/portrait.{jpg,jpeg,png,webp,avif}',
+  { eager: true },
+);
+const portrait = Object.values(portraits)[0]?.default;
+
+const { basics } = cv;
+
+// Placeholder profile URLs never reach the live site; in dev they render dimmed
+// so the row is visible while cv.json is still being filled in.
+const isPlaceholder = (url: string) => url.includes('TODO');
+const profiles = import.meta.env.DEV
+  ? basics.profiles
+  : basics.profiles.filter((profile) => !isPlaceholder(profile.url));
+
+// Label / value pairs, so the rail reads as a spec sheet rather than a
+// paragraph. `remote` is a fact a recruiter filters on, so it gets its own row
+// instead of being appended to the location.
+const facts = [
+  { label: 'Based in', value: locationLabel },
+  ...(basics.location.remote
+    ? [{ label: 'Works', value: 'Remotely, with teams anywhere' }]
+    : []),
+];
+---
+
+<div class="card">
+  {
+    portrait ? (
+      <Image
+        src={portrait}
+        alt={`${basics.name}, ${basics.label}`}
+        widths={[80, 160]}
+        sizes="80px"
+        loading="eager"
+        decoding="async"
+        class="size-20 rounded-full object-cover"
+      />
+    ) : (
+      import.meta.env.DEV && (
+        /* Dev only. A portrait is the one thing in this card that cannot come
+           out of cv.json, and an empty circle shipped to a visitor would read
+           as a broken avatar rather than as a deliberate omission — so in
+           production the card simply starts at the name. */
+        <div
+          class="grid size-20 place-items-center rounded-full border border-dashed border-border bg-bg text-center text-meta text-muted"
+          aria-hidden="true"
+        >
+          Photo
+        </div>
+      )
+    )
+  }
+
+  <h1 class="mt-4 text-heading">{basics.name}</h1>
+  <p class="mt-1 text-meta text-muted">{basics.label}</p>
+
+  <div class="mt-4 h-px w-full bg-subtle" aria-hidden="true"></div>
+
+  {
+    basics.availability.open && basics.availability.note && (
+      <p class="mt-4 flex items-start gap-2.5 text-meta">
+        <span class="status-dot mt-1.5 shrink-0" aria-hidden="true" />
+        {basics.availability.note}
+      </p>
+    )
+  }
+
+  <dl class="mt-3 space-y-1 text-meta">
+    {
+      facts.map((fact) => (
+        <div class="flex flex-wrap gap-x-1.5">
+          {/* The label is the semibold half of the pair, which is what the
+              reference does and what makes a two-line spec block scannable
+              without a second colour or a second size. */}
+          <dt class="font-semibold">{fact.label}:</dt>
+          <dd class="text-muted">{fact.value}</dd>
+        </div>
+      ))
+    }
+    <div class="flex flex-wrap gap-x-1.5">
+      <dt class="font-semibold">Email:</dt>
+      <dd class="min-w-0">
+        <a
+          href={`mailto:${basics.email}`}
+          class="break-all text-accent transition-colors hover:underline"
+        >
+          {basics.email}
+        </a>
+      </dd>
+    </div>
+  </dl>
+
+  {/* Full-width stacked buttons, not a wrapped row: the rail is 20rem and two
+      side-by-side buttons in it would each be too narrow to read as the
+      primary action. */}
+  <div class="mt-5 flex flex-col gap-2">
+    {
+      site.resumeReady && (
+        <a href="/resume.pdf" class="btn btn-primary w-full">
+          Download résumé
+        </a>
+      )
+    }
+    <a
+      href="/contact"
+      class:list={[
+        'btn w-full',
+        site.resumeReady ? 'btn-secondary' : 'btn-primary',
+      ]}
+    >
+      Get in touch
+    </a>
+  </div>
+
+  {
+    profiles.length > 0 && (
+      <ul class="mt-4 flex flex-wrap items-center gap-1">
+        {profiles.map((profile) => (
+          <li>
+            <a
+              href={profile.url}
+              rel="me noopener"
+              aria-label={profile.network}
+              title={
+                isPlaceholder(profile.url)
+                  ? `${profile.network} — URL not set in cv.json`
+                  : profile.network
+              }
+              class:list={[
+                'grid size-9 place-items-center rounded transition-colors hover:bg-subtle hover:text-accent',
+                isPlaceholder(profile.url) && 'opacity-30',
+              ]}
+            >
+              <SocialIcon network={profile.network} />
+            </a>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</div>

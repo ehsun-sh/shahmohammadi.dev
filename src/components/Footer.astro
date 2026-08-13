@@ -2,6 +2,13 @@
 import SocialIcon from './SocialIcon.astro';
 import { cv } from '../data/cv';
 
+interface Props {
+  /** Matches the page's own container, like the nav bar. See BaseLayout. */
+  shell?: 'page' | 'wide';
+}
+
+const { shell = 'page' } = Astro.props;
+
 const year = new Date().getFullYear();
 
 // Placeholder URLs never reach the live site. In dev they render dimmed so the
@@ -23,7 +30,10 @@ const profiles = import.meta.env.DEV
     rule is balanced against the block, which is what the eye reads. */}
 <footer class="border-t border-subtle">
   <div
-    class="mx-auto flex max-w-page flex-col gap-5 px-6 py-8 text-meta text-muted sm:flex-row sm:items-center"
+    class:list={[
+      'mx-auto flex flex-col gap-5 px-6 py-8 text-meta text-muted sm:flex-row sm:items-center',
+      shell === 'wide' ? 'max-w-page lg:max-w-wide' : 'max-w-page',
+    ]}
   >
     <p>© {year} {cv.basics.name}</p>
 

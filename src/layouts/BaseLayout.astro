@@ -10,9 +10,24 @@ interface Props {
   description: string;
   /** Root-relative path to a social card. Built by `src/pages/og.png.ts`. */
   ogImage?: string;
+  /**
+   * Which container the page's content sits in, so the header and footer can
+   * sit in the same one. `page` (48rem) is the reading column every ordinary
+   * page uses; `wide` (71rem) is the landing page, which is a rail plus a main
+   * column and is the only thing on the site that needs the extra width.
+   *
+   * Without this the bar would be 71rem everywhere and its logo would start
+   * 184px to the left of the card underneath it on five pages out of six.
+   */
+  shell?: 'page' | 'wide';
 }
 
-const { title, description, ogImage = '/og.png' } = Astro.props;
+const {
+  title,
+  description,
+  ogImage = '/og.png',
+  shell = 'page',
+} = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
 const fullTitle =
@@ -159,10 +174,10 @@ const profilePageSchema = {
 
   <body class="min-h-dvh flex flex-col">
     <a class="skip-link" href="#main">Skip to content</a>
-    <Navigation />
+    <Navigation shell={shell} />
     <main id="main" class="flex-1">
       <slot />
     </main>
-    <Footer />
+    <Footer shell={shell} />
   </body>
 </html>

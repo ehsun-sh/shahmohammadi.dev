@@ -61,13 +61,33 @@ Deploys happen on push to `main`. Nothing is published from a local machine.
   is why the nav bar is `--color-surface` rather than a translucent tint of the
   page, and why `.btn-secondary` darkens its border on hover instead of turning
   blue.
-- **Six type roles, no arbitrary sizes.** `text-meta` (14) · `text-body` (15) ·
+- **Six type roles, no arbitrary sizes.** `text-meta` (14) · `text-body` (14) ·
   `text-subhead` (16/600) · `text-heading` (18/700) · `text-lead` (18) ·
-  `text-display` (clamp, 32→44). Never write `text-[15px]` or reach for
+  `text-display` (clamp, 28→36). Never write `text-[15px]` or reach for
   Tailwind's default `text-sm`/`text-xl` ramp — it bypasses the scale. The
-  values were retuned once, wholesale, in `@theme`; the roles did not change and
-  no component was touched. That is the test any future change to the scale has
-  to pass.
+  values were retuned twice, wholesale, in `@theme`; the roles did not change
+  and no component was touched. That is the test any future change to the scale
+  has to pass. `meta` and `body` share 14px on purpose — a job's dates, its
+  description and its bullets are all one size on the reference and are held
+  apart by colour and weight — and they stay separate roles so they can move
+  independently later.
+  **`body { line-height }` in `@layer base` must equal
+  `--text-body--line-height`.** Anything without an explicit `text-*` class
+  inherits from there, so a mismatch renders two rhythms inside one card.
+- **Body copy is ink; `--color-muted` is for chrome.** Descriptions, bullets,
+  dates and the company line all take `--color-text`. The muted grey is for the
+  nav, the footer, breadcrumbs, section notes, dev-only banners, placeholder
+  text and the skill lists — the one content exception, because at that density
+  full ink turns the block back into texture.
+- **Bulleted lists are `.bullets`**: real `list-style: disc` with the native
+  `::marker` in `--color-text`, 20px of padding-left, and no gap between items.
+  Never draw a bullet with a positioned `::before` again — that only existed
+  because the list was a flex column, and flex destroys `display: list-item`.
+  `.prose-doc` lists use the same device with a little air between items.
+- **An entry reads title → `company | dates` → tags → prose.** The stack sits
+  third because it is the fastest thing to scan and a reader decides relevance
+  from it before reading a sentence. The pipes are `aria-hidden` spans with
+  horizontal margin, not literal text.
 - **The layout is a tinted ground with white cards on it.** Every section on
   every page is a `.card` — 8px radius, 1px `--color-subtle` edge, no shadow,
   24px of padding, 20px between plates. `Section.astro` and `PageHeader.astro`
@@ -94,22 +114,33 @@ Deploys happen on push to `main`. Nothing is published from a local machine.
   like each other: `subhead` for the entry title or skill category, `body` for
   its description, `meta` for dates, tags and notes. Do not give one section its
   own sizes.
-- **One measure, centred.** `max-w-page` and `max-w-wide` are both 56rem:
-  `page` is the reading column, `wide` is the hero visual and the nav bar, and
-  they are equal on purpose so every left and right edge on the page lines up.
+- **Two containers, and they exist to produce one measure.** `max-w-page` is
+  48rem — the reading column, used by `/services`, `/contact`, `/projects`, the
+  project pages and `/404`, and it puts body copy at ~100 characters a line.
+  `max-w-wide` is 71rem and belongs to the landing page alone: a 20rem rail
+  (`--container-rail`) + 20px + a main column that lands on 748px, measured at
+  **104ch** — near enough `page` that the two read as one document. Below `lg`
+  the rail stacks and the shell falls back to `max-w-page`, so a 1023px viewport
+  never renders a 970px line.
   Horizontal padding is `px-6` everywhere. Gutters are symmetric because the
-  measure *is* the container — **never nest a narrower `max-w-*` inside
-  `max-w-page`**, not even to shorten paragraph lines. That is what left the old
+  measure *is* the container — **never nest a narrower `max-w-*` inside a
+  container**, not even to shorten paragraph lines. That is what left the old
   layout with 396px of dead space on the right, and it is the one fix that must
-  not be reached for here. If the measure has to change, change
-  `--container-page` and let the whole page move with it.
-  This is a deliberate trade, not an oversight: inside a card the column is
-  798px, which measures **111ch** on the rendered page — past the comfortable
-  range for long-form prose, and justified text pays most because wider lines
-  open wider word spaces. `.prose-block` carries `line-height: 1.75` to
-  compensate. It was 41rem/75ch before; widening to match the hero was an
-  explicit design call, and the CV platform this layout is drawn from lands on
-  110ch by a different route, so the measure is not what separates them.
+  not be reached for here. If a measure has to change, move the container
+  variable and let the page move with it; `--container-page` and `--text-body`
+  move together, because dropping the body size without dropping the column took
+  the line past 120 characters.
+- **`BaseLayout`'s `shell` prop picks the container for the nav and footer**
+  (`"page"` by default, `"wide"` on the landing page) so the header mark starts
+  at exactly the same x as the card beneath it. Without it the bar would be
+  71rem on all six pages and overhang the content by 184px a side on five.
+- **The landing page has a rail; no other page does.** `ProfileCard.astro` is
+  sticky at `lg:top-20`, holds the page's single `<h1>`, and carries the five
+  facts a recruiter needs at any scroll position: who, where, availability,
+  contact, and the PDF. `/services` and `/contact` address clients, and a
+  "download my résumé" rail argues against the page it would sit on.
+  `lg:items-start` on the grid is load-bearing — a stretched grid item gives
+  `position: sticky` nothing to travel inside.
 - **Body prose is justified** via the `.prose-block` class, which pairs
   `text-align: justify` with `hyphens: auto` and drops to ragged-left below
   34rem. Apply it to multi-line prose only — never headings, chips, or labels.

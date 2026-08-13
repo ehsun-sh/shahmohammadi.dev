@@ -4,6 +4,14 @@ import BrandMark from './BrandMark.astro';
 import { cv } from '../data/cv';
 import { site } from '../data/site';
 
+interface Props {
+  /** Matches the page's own container so the mark lines up with the card
+   *  underneath it. See BaseLayout for why this is a prop and not a constant. */
+  shell?: 'page' | 'wide';
+}
+
+const { shell = 'page' } = Astro.props;
+
 // Dedicated pages replace their anchors as each phase lands, which is what the
 // site.*Ready flags gate. Nothing here may point at a 404.
 const links = [
@@ -37,7 +45,12 @@ const isCurrent = (href: string) =>
 <header class="sticky top-0 z-50 border-b border-subtle bg-surface">
   <nav
     aria-label="Main"
-    class="mx-auto flex h-14 max-w-wide items-center gap-4 px-6 lg:gap-6"
+    class:list={[
+      'mx-auto flex h-14 items-center gap-4 px-6 lg:gap-6',
+      // Mirrors the landing page's own container swap exactly: it is `page`
+      // until the rail appears at `lg`, and `wide` after.
+      shell === 'wide' ? 'max-w-page lg:max-w-wide' : 'max-w-page',
+    ]}
   >
     {/* Mark and name are one link, and the mark is decorative — it is the same
         word as the name beside it, so labelling it would make a screen reader
