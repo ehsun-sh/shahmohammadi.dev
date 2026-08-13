@@ -28,9 +28,13 @@ const isCurrent = (href: string) =>
   !href.startsWith('/#') && normalize(href) === path;
 ---
 
-<header
-  class="sticky top-0 z-50 border-b border-border/60 bg-bg/80 backdrop-blur-xl"
->
+{/* Solid white, not a translucent tint of the page. Two reasons and both are
+    load-bearing: it is the same white as the cards, so the bar reads as part of
+    the same material system; and it is the only surface outside a card where
+    accent-coloured text appears — the brand lockup on hover — which needs white
+    underneath it to clear 4.5:1. A blurred tint would have put that hover at
+    4.4:1 against the ground. */}
+<header class="sticky top-0 z-50 border-b border-subtle bg-surface">
   <nav
     aria-label="Main"
     class="mx-auto flex h-14 max-w-wide items-center gap-4 px-6 lg:gap-6"
@@ -66,7 +70,7 @@ const isCurrent = (href: string) =>
             <a
               href={link.href}
               aria-current={isCurrent(link.href) ? 'page' : undefined}
-              class="rounded-md px-2 py-1.5 text-meta text-muted transition-colors hover:text-text aria-[current=page]:text-text"
+              class="rounded px-2 py-1.5 text-meta text-muted transition-colors hover:text-text aria-[current=page]:text-text"
             >
               {link.label}
             </a>

@@ -8,12 +8,13 @@ interface Props {
 const { title, standfirst } = Astro.props;
 ---
 
-<header class="pt-16 pb-2 sm:pt-24">
+{/* The same card the landing page opens with, so /services and /projects begin
+    the way / does: one plate carrying the identity of the page, then the
+    section plates under it. The extra padding at sm: is the only thing that
+    distinguishes a header card from a section card — it is holding display
+    type, which needs more room around it than a section title does. */}
+<header class="card sm:p-8">
   <h1 class="text-display">{title}</h1>
-  {
-    standfirst && (
-      <p class="prose-block mt-5 text-lead text-muted">{standfirst}</p>
-    )
-  }
+  {standfirst && <p class="prose-block mt-4 text-lead text-muted">{standfirst}</p>}
   <slot />
 </header>

@@ -16,7 +16,7 @@ import { Resvg } from '@resvg/resvg-js';
  * generated PNG cannot read CSS custom properties. Keep the two in sync.
  */
 const COLOR = {
-  bg: '#FBFBFD',
+  bg: '#F4F5F9',
   text: '#1D1D1F',
   muted: '#6E6E73',
   accent: '#0071E3',
@@ -35,13 +35,19 @@ const HEIGHT = 630;
 const fromRoot = (...segments: string[]) =>
   path.join(process.cwd(), ...segments);
 
+/**
+ * The site's typeface, in its static form. Satori cannot read woff2 or a
+ * variable axis, so the card uses the same family from `@fontsource/open-sans`
+ * rather than the variable file the pages load — same drawing, different
+ * container.
+ */
 const font = (weight: 400 | 600 | 700) =>
   fromRoot(
     'node_modules',
     '@fontsource',
-    'inter',
+    'open-sans',
     'files',
-    `inter-latin-${weight}-normal.woff`,
+    `open-sans-latin-${weight}-normal.woff`,
   );
 
 const LOGO = fromRoot('src', 'assets', 'brand', 'logo.svg');
@@ -50,13 +56,13 @@ let cached: { fonts: Awaited<ReturnType<typeof loadFonts>>; logo: string } | nul
   null;
 
 async function loadFonts() {
-  const [regular, semibold] = await Promise.all([
+  const [regular, bold] = await Promise.all([
     fs.readFile(font(400)),
-    fs.readFile(font(600)),
+    fs.readFile(font(700)),
   ]);
   return [
-    { name: 'Inter', data: regular, weight: 400 as const, style: 'normal' as const },
-    { name: 'Inter', data: semibold, weight: 600 as const, style: 'normal' as const },
+    { name: 'Open Sans', data: regular, weight: 400 as const, style: 'normal' as const },
+    { name: 'Open Sans', data: bold, weight: 700 as const, style: 'normal' as const },
   ];
 }
 
@@ -110,7 +116,7 @@ export async function renderOgImage({
         justifyContent: 'space-between',
         backgroundColor: COLOR.bg,
         padding: '72px',
-        fontFamily: 'Inter',
+        fontFamily: 'Open Sans',
       },
       children: [
         {
@@ -155,9 +161,9 @@ export async function renderOgImage({
                 type: 'div',
                 props: {
                   style: {
-                    fontSize: 76,
-                    fontWeight: 600,
-                    letterSpacing: '-0.03em',
+                    fontSize: 68,
+                    fontWeight: 700,
+                    letterSpacing: '-0.021em',
                     color: COLOR.text,
                     lineHeight: 1.05,
                   },
@@ -168,7 +174,11 @@ export async function renderOgImage({
                 type: 'div',
                 props: {
                   style: {
-                    fontSize: 34,
+                    // 31, down from 34, because Open Sans sets about 9% wider
+                    // than Inter did at the same size. The two changes cancel,
+                    // which is what keeps the 118-character clamp in
+                    // og/projects/[slug].png.ts valid across the swap.
+                    fontSize: 31,
                     color: COLOR.muted,
                     marginTop: '20px',
                     lineHeight: 1.35,

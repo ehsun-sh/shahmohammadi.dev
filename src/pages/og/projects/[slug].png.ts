@@ -23,16 +23,22 @@ import { getProjectPages } from '../../../lib/projects';
  * sentence is itself too long, or when there is no sentence break to find.
  *
  * Both limits are set by where the text wraps, measured on the rendered card:
- * a line holds about 61 characters at the subtitle size, and a third line runs
+ * a line holds about 68 characters at the subtitle size, and a third line runs
  * into the rule above the footer.
+ *
+ * It was 118 when the card was set in Inter at 34px. Open Sans at 31px fits
+ * more per line, not fewer — the two changes did not cancel as neatly here as
+ * they did for the layout — so the limit went up with it. Re-measure this if
+ * the card's typeface or subtitle size moves again; it is the one number in
+ * the OG pipeline that is calibrated to the rendering rather than chosen.
  */
-const TWO_LINES = 118;
+const TWO_LINES = 128;
 
 function clamp(text: string, limit = TWO_LINES): string {
   if (text.length <= limit) return text;
 
   const sentence = text.match(/^.+?[.!?](?=\s|$)/)?.[0];
-  if (sentence && sentence.length >= 40 && sentence.length <= 125) {
+  if (sentence && sentence.length >= 40 && sentence.length <= 134) {
     return sentence;
   }
 

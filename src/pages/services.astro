@@ -16,9 +16,9 @@ const description = `${basics.name} takes embedded electronic products from sche
   other, and this link can be sent on its own.
 */}
 <BaseLayout title="Services" description={description} ogImage="/og/services.png">
-  <div class="mx-auto max-w-page px-6 pb-4">
+  <div class="mx-auto max-w-page space-y-5 px-6 pt-6 pb-8">
     <PageHeader title="Services" standfirst={services.intro}>
-      <div class="mt-8 flex flex-wrap items-center gap-x-3 gap-y-4">
+      <div class="mt-7 flex flex-wrap items-center gap-x-3 gap-y-3">
         <a href="/contact" class="btn btn-primary">Start a conversation</a>
       </div>
       {
@@ -32,7 +32,7 @@ const description = `${basics.name} takes embedded electronic products from sche
     </PageHeader>
 
     <Section id="what-i-do" title="What I do">
-      <div class="space-y-10">
+      <div class="space-y-7">
         {
           services.offerings.map((offering) => (
             <article>
@@ -55,7 +55,7 @@ const description = `${basics.name} takes embedded electronic products from sche
       title="How we work together"
       note="Pick whichever fits the shape of the problem; it can change between phases."
     >
-      <dl class="space-y-6">
+      <dl class="space-y-5">
         {
           services.engagement.map((model) => (
             <div>

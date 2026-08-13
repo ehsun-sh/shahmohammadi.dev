@@ -27,10 +27,14 @@ const standfirst =
 ---
 
 <BaseLayout title="Projects" description={standfirst}>
-  <div class="mx-auto max-w-page px-6 pb-4">
+  <div class="mx-auto max-w-page space-y-5 px-6 pt-6 pb-8">
     <PageHeader title="Projects" standfirst={standfirst} />
 
-    <ul class="mt-14 grid gap-x-8 gap-y-12 sm:grid-cols-2">
+    {/* One card per project rather than one card holding a grid. These are the
+        page's subject, not a section of it, and a plate each is what says so —
+        the same reason the landing page keeps them as rows inside the CV card
+        instead. Same content, different job. */}
+    <ul class="grid gap-5 sm:grid-cols-2">
       {
         cv.projects.map((project) => {
           const href =
@@ -39,7 +43,7 @@ const standfirst =
               : null;
 
           return (
-            <li class="group relative">
+            <li class="card group relative transition-colors hover:border-border">
               <ProjectThumb
                 image={project.image}
                 alt={project.imageAlt}
@@ -69,9 +73,7 @@ const standfirst =
               {project.tags.length > 0 && (
                 <ul class="mt-3 flex flex-wrap gap-1.5">
                   {project.tags.map((tag) => (
-                    <li class="rounded-md border border-border px-2 py-0.5 text-meta text-muted">
-                      {tag}
-                    </li>
+                    <li class="tag">{tag}</li>
                   ))}
                 </ul>
               )}

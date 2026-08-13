@@ -23,6 +23,8 @@ npm run build     # static build to dist/
 npm run preview   # serve dist/ locally
 npm run check     # astro check — CI runs this before deploying
 npm run resume    # compile src/resume/resume.typ -> public/resume.pdf
+npm run fonts     # copy Open Sans out of node_modules -> public/fonts/ (committed)
+npm run icons     # regenerate the favicon set from the brand mark (committed)
 ```
 
 Deploys happen on push to `main`. Nothing is published from a local machine.
@@ -54,10 +56,40 @@ Deploys happen on push to `main`. Nothing is published from a local machine.
   and icons; `--color-accent-solid` is for filled surfaces and stays the darker
   blue in both themes, because white on the light dark-mode accent is only
   3.0:1. Never fill a button with `--color-accent`.
+  **Accent text only ever appears on white.** On the light theme's tinted ground
+  it measures 4.40:1 and fails AA; on a card or the nav bar it is 4.79:1. That
+  is why the nav bar is `--color-surface` rather than a translucent tint of the
+  page, and why `.btn-secondary` darkens its border on hover instead of turning
+  blue.
 - **Six type roles, no arbitrary sizes.** `text-meta` (14) · `text-body` (15) ·
-  `text-subhead` (17/600) · `text-heading` (24/600) · `text-lead` (20) ·
-  `text-display` (clamp). Never write `text-[15px]` or reach for Tailwind's
-  default `text-sm`/`text-xl` ramp — it bypasses the scale.
+  `text-subhead` (16/600) · `text-heading` (18/700) · `text-lead` (18) ·
+  `text-display` (clamp, 32→44). Never write `text-[15px]` or reach for
+  Tailwind's default `text-sm`/`text-xl` ramp — it bypasses the scale. The
+  values were retuned once, wholesale, in `@theme`; the roles did not change and
+  no component was touched. That is the test any future change to the scale has
+  to pass.
+- **The layout is a tinted ground with white cards on it.** Every section on
+  every page is a `.card` — 8px radius, 1px `--color-subtle` edge, no shadow,
+  24px of padding, 20px between plates. `Section.astro` and `PageHeader.astro`
+  already are one; page wrappers are `mx-auto max-w-page space-y-5 px-6 pt-6
+  pb-8` and own all the vertical rhythm, so a section never carries its own
+  outer margin. Elevation is deliberately absent: a shadow implies something
+  can be picked up, and none of these can.
+- **`--color-subtle` is the one soft grey** and it does three jobs: card edges,
+  the hairline under a section title, and the plate behind a `.tag` or a code
+  span. `--color-border` stays the stronger grey for controls, inputs and image
+  frames. A hairline *inside* a card is `subtle`; at `border` it reads as a
+  second card edge.
+- **Anything filled with `--color-surface` must not sit on a card** — the card
+  is that colour, so it would be white on white. Inset things (form fields,
+  empty-image frames, the placeholder cover) take `--color-bg` instead.
+- **Open Sans, self-hosted, latin only.** `public/fonts/*.woff2` are copied out
+  of `@fontsource-variable/open-sans` by `npm run fonts` and committed, the same
+  arrangement as the icons — a bundled font gets a content hash, and the preload
+  in `BaseLayout.astro` needs a path that is knowable before the build. One
+  variable file covers 300–800. Regenerate in the same change as any version
+  bump. The OG cards use the static `@fontsource/open-sans` woff instead,
+  because Satori reads neither woff2 nor a variable axis.
 - **Every section uses the same three roles**, which is what makes them look
   like each other: `subhead` for the entry title or skill category, `body` for
   its description, `meta` for dates, tags and notes. Do not give one section its
@@ -71,11 +103,13 @@ Deploys happen on push to `main`. Nothing is published from a local machine.
   layout with 396px of dead space on the right, and it is the one fix that must
   not be reached for here. If the measure has to change, change
   `--container-page` and let the whole page move with it.
-  This is a deliberate trade, not an oversight: 56rem puts body copy at **104ch**,
-  past the comfortable range for long-form prose, and justified text pays most
-  because wider lines open wider word spaces. `.prose-block` carries
-  `line-height: 1.75` to compensate. It was 41rem/75ch before; widening to match
-  the hero was an explicit design call.
+  This is a deliberate trade, not an oversight: inside a card the column is
+  798px, which measures **111ch** on the rendered page — past the comfortable
+  range for long-form prose, and justified text pays most because wider lines
+  open wider word spaces. `.prose-block` carries `line-height: 1.75` to
+  compensate. It was 41rem/75ch before; widening to match the hero was an
+  explicit design call, and the CV platform this layout is drawn from lands on
+  110ch by a different route, so the measure is not what separates them.
 - **Body prose is justified** via the `.prose-block` class, which pairs
   `text-align: justify` with `hyphens: auto` and drops to ragged-left below
   34rem. Apply it to multi-line prose only — never headings, chips, or labels.
@@ -111,7 +145,7 @@ Deploys happen on push to `main`. Nothing is published from a local machine.
 - **Rendered markdown is styled by `.prose-doc` in `global.css`**, the one
   place the site styles elements by tag name — a write-up's headings arrive
   with no class to hang a utility on. Every value it sets comes from the same
-  six type roles, so an `<h2>` in a write-up is the identical 24/600 plus
+  six type roles, so an `<h2>` in a write-up is the identical 18/700 plus
   hairline that `Section.astro` renders. Never add a size there.
 - `public/resume.pdf` is generated by `src/resume/resume.typ` from the same
   `cv.json` the site renders. It is gitignored and must not be committed, and
@@ -129,6 +163,10 @@ Deploys happen on push to `main`. Nothing is published from a local machine.
 - **The accent bar beside the résumé header is the PDF's only colour**, and it
   is the same `--color-accent-solid` the site fills its primary button with.
   The same rationing rule applies: one job, one colour.
+  Note the résumé is the one surface still set in Almarai while the site moved
+  to Open Sans. That is a known, deliberate gap, not an oversight — closing it
+  means swapping the Typst font package and re-proofing both pages, and it has
+  not been done.
 
 ## Hard constraints
 

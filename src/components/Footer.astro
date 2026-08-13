@@ -12,14 +12,16 @@ const profiles = import.meta.env.DEV
   : cv.basics.profiles.filter((profile) => !isPlaceholder(profile.url));
 ---
 
-{/* The rule sits at the footer's top edge, so only this margin can open the
-    space above it — and it is not the whole story: the last Section's `pb-2`
-    and the page wrapper's `pb-4` already contribute 24px. mt-4 brings the total
-    to 40px, matching the 41px that falls between the rule and the copyright
-    line below it, so the rule sits centred in its own whitespace. It was mt-24,
-    which put 120px above against 41px below and left a visible hole under the
-    last section. If Section's bottom padding ever changes, re-measure. */}
-<footer class="mt-4 border-t border-border/70">
+{/* The rule sits at the footer's top edge, so the space above it comes entirely
+    from the page wrapper's `pb-8` — 32px, against the 33px of `py-8` below it,
+    which puts the rule centred in its own whitespace. Every page wrapper uses
+    the same pb-8 for exactly this reason. If one changes, re-measure.
+
+    Measuring the copyright line's own box gives 41px, not 33: the row is
+    `items-center` and the icon buttons are 36px tall against its 20px, so the
+    text is optically centred and its top sits 8px lower than the padding. The
+    rule is balanced against the block, which is what the eye reads. */}
+<footer class="border-t border-subtle">
   <div
     class="mx-auto flex max-w-page flex-col gap-5 px-6 py-8 text-meta text-muted sm:flex-row sm:items-center"
   >

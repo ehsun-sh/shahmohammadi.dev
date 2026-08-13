@@ -179,6 +179,27 @@ The projects to publish are the four already in `cv.json`, not the blueprint's
 For work done under contract, publish block diagrams, outcomes, and the
 engineering reasoning only. Confirm before each project page goes live.
 
+### Interlude — Card layout and Open Sans (done 2026-08-12)
+Not a numbered phase; a visual-language change requested against a reference
+(`arc.dev`), on the grounds that a CV-platform layout reads as more standard to
+the recruiters this site is for.
+
+- [x] Open Sans self-hosted, latin-only variable woff2, preloaded — the system
+      stack rendered as a different design on Windows, which is half the audience
+- [x] Tinted page ground with white section cards, 8px / 1px edge / no shadow,
+      20px apart — `Section.astro` and `PageHeader.astro` are the cards
+- [x] Type scale retuned to 14 · 15 · 16 · 18 · 44 without adding or renaming a
+      role, so no component changed
+- [x] Outlined chips became filled `.tag` plates; pill buttons became flat 4px
+      rectangles
+- [x] Carried through `/`, `/services`, `/contact`, `/projects`,
+      `/projects/[slug]` and `/404`; OG cards moved to Open Sans with the
+      subtitle clamp recalibrated to the new wrap
+
+Left open on purpose: `resume.pdf` is still set in Almarai, so the PDF and the
+site no longer share a typeface. Closing that means swapping the Typst font
+package and re-proofing both pages.
+
 ### Phase 6 — Hero animation ("Concept to Production")
 Four stages, not seven: **Schematic → PCB Layout → Assembled Board → Product.**
 

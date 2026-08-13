@@ -6,17 +6,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   title="Page not found"
   description="That page does not exist on shahmohammadi.dev."
 >
-  <section class="mx-auto max-w-page px-6 py-32">
-    <p class="text-meta text-muted tabular-nums">404</p>
-    <h1 class="mt-2 text-display">Page not found</h1>
-    <p class="mt-5 text-lead text-muted">
-      That URL does not exist. It may have moved, or it may never have.
-    </p>
-    <a
-      href="/"
-      class="btn btn-primary mt-9"
-    >
-      Back to the homepage
-    </a>
-  </section>
+  <div class="mx-auto max-w-page px-6 pt-6 pb-8">
+    <section class="card sm:p-8">
+      <p class="text-meta text-muted tabular-nums">404</p>
+      <h1 class="mt-2 text-display">Page not found</h1>
+      <p class="mt-4 text-lead text-muted">
+        That URL does not exist. It may have moved, or it may never have.
+      </p>
+      <a href="/" class="btn btn-primary mt-7"> Back to the homepage </a>
+    </section>
+  </div>
 </BaseLayout>

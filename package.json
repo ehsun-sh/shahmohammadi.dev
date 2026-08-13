@@ -10,11 +10,14 @@
     "preview": "astro preview",
     "check": "astro check",
     "icons": "node scripts/make-icons.mjs",
+    "fonts": "node scripts/copy-fonts.mjs",
     "resume": "typst compile src/resume/resume.typ public/resume.pdf --root . --ignore-system-fonts --font-path node_modules/@expo-google-fonts/almarai"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",
+    "@fontsource-variable/open-sans": "^5.3.0",
     "@fontsource/inter": "^5.3.0",
+    "@fontsource/open-sans": "^5.3.0",
     "@resvg/resvg-js": "^2.6.2",
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^7.1.6",

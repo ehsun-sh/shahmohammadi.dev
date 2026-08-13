@@ -46,19 +46,22 @@ const rows = [{ label: 'Role', value: role }, ...specs];
   description={project.summary}
   ogImage={`/og/projects/${page.slug}.png`}
 >
-  <div class="mx-auto max-w-page px-6 pb-4">
+  <div class="mx-auto max-w-page space-y-5 px-6 pt-6 pb-8">
     {
       page.draft && (
         /* Only ever visible in `npm run dev` — the build drops draft pages
            entirely, so this banner cannot reach a visitor. */
-        <p class="mt-8 rounded-lg border border-dashed border-border bg-surface px-4 py-2.5 text-meta text-muted">
+        <p class="rounded-card border border-dashed border-border bg-surface px-4 py-2.5 text-meta text-muted">
           Draft — excluded from the build. Set <code class="font-mono">draft:
           false</code> in the frontmatter to publish.
         </p>
       )
     }
 
-    <nav class="pt-12 sm:pt-16" aria-label="Breadcrumb">
+    {/* On the ground rather than in a card: it is a way out of the page, not
+        part of it, and giving it a plate would have made it the first thing
+        the page appears to be about. */}
+    <nav aria-label="Breadcrumb">
       <a
         href="/projects"
         class="inline-flex items-center gap-1.5 text-meta text-muted transition-colors hover:text-text"
@@ -68,29 +71,26 @@ const rows = [{ label: 'Role', value: role }, ...specs];
       </a>
     </nav>
 
-    <header class="mt-7">
+    <header class="card sm:p-8">
       <h1 class="text-display">{project.name}</h1>
-      <p class="prose-block mt-5 text-lead text-muted">{project.summary}</p>
-      <p class="mt-6 text-meta text-muted">
+      <p class="prose-block mt-4 text-lead text-muted">{project.summary}</p>
+      <p class="mt-5 text-meta text-muted">
         <span class="tabular-nums">{project.year}</span>
         <span aria-hidden="true"> · </span>
         {STATUS_LABEL[status]}
       </p>
       {
         project.tags.length > 0 && (
-          <ul class="mt-5 flex flex-wrap gap-1.5">
+          <ul class="mt-4 flex flex-wrap gap-1.5">
             {project.tags.map((tag) => (
-              <li class="rounded-md border border-border px-2 py-0.5 text-meta text-muted">
-                {tag}
-              </li>
+              <li class="tag">{tag}</li>
             ))}
           </ul>
         )
       }
-    </header>
 
-    {
-      image ? (
+      {
+        image ? (
         /* The cover is the largest thing above the fold on this page, so it is
            the LCP element — eager and high priority, unlike every other image
            on the site, which is lazy. */
@@ -102,7 +102,7 @@ const rows = [{ label: 'Role', value: role }, ...specs];
           loading="eager"
           fetchpriority="high"
           decoding="async"
-          class="mt-12 w-full rounded-xl border border-border object-cover"
+          class="mt-7 w-full rounded-card border border-subtle object-cover"
           style="aspect-ratio: 16 / 10"
         />
       ) : (
@@ -116,7 +116,7 @@ const rows = [{ label: 'Role', value: role }, ...specs];
              Kept visible while writing so the slot, its exact ratio and the
              filename it wants are all in front of you on the page itself. */
           <div
-            class="mt-12 flex w-full flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-border bg-surface text-center"
+            class="mt-7 flex w-full flex-col items-center justify-center gap-1 rounded-card border border-dashed border-border bg-bg text-center"
             style="aspect-ratio: 16 / 10"
           >
             <p class="text-subhead text-muted">Cover image</p>
@@ -130,17 +130,22 @@ const rows = [{ label: 'Role', value: role }, ...specs];
           </div>
         )
       )
-    }
+      }
+    </header>
 
     {
       rows.length > 0 && (
         <Section id="specifications" title="Specifications">
           {/* A spec sheet is read down a column, not across a card. Hairline
               per row, label in the meta role, value in body — the same two
-              roles the Skills list uses, so the two blocks look related. */}
-          <dl class="border-t border-border">
+              roles the Skills list uses, so the two blocks look related.
+
+              The rules are the soft grey: inside a card they divide rows of one
+              table, and at --color-border a stack of them read as a stack of
+              card edges. */}
+          <dl class="border-t border-subtle">
             {rows.map((row) => (
-              <div class="grid gap-1 border-b border-border py-3 sm:grid-cols-[11rem_1fr] sm:gap-6">
+              <div class="grid gap-1 border-b border-subtle py-3 sm:grid-cols-[11rem_1fr] sm:gap-6">
                 <dt class="text-meta text-muted">{row.label}</dt>
                 <dd class="min-w-0">{row.value}</dd>
               </div>
@@ -150,10 +155,11 @@ const rows = [{ label: 'Role', value: role }, ...specs];
       )
     }
 
-    {/* The write-up itself. Its headings arrive from markdown as bare tags, so
-        `.prose-doc` styles them — onto the same six type roles, which is why an
-        <h2> here matches a section title above it exactly. */}
-    <article class="prose-doc mt-16">
+    {/* The write-up itself, on its own plate. Its headings arrive from markdown
+        as bare tags, so `.prose-doc` styles them — onto the same six type
+        roles, which is why an <h2> here matches a section title above it
+        exactly, hairline included. */}
+    <article class="card prose-doc sm:p-8">
       <slot />
     </article>
 
@@ -179,11 +185,13 @@ const rows = [{ label: 'Role', value: role }, ...specs];
 
     {
       (prev || next) && (
-        <nav
-          class="mt-16 grid gap-6 border-t border-border pt-8 sm:grid-cols-2"
-          aria-label="More projects"
-        >
-          {/* `col-start-2` keeps a lone "next" on the right where it belongs,
+        <nav class="grid gap-5 sm:grid-cols-2" aria-label="More projects">
+          {/* A plate each, at the same 20px gap as every other pair of plates
+              on the page — the pager used to be a rule and two bare links, and
+              a rule sitting on the tinted ground under a card had nothing to
+              draw itself against.
+
+              `col-start-2` keeps a lone "next" on the right where it belongs,
               rather than sliding into the empty first column.
 
               The aria-label is not decoration: the two spans run together in
@@ -192,7 +200,7 @@ const rows = [{ label: 'Role', value: role }, ...specs];
           {prev && (
             <a
               href={`/projects/${prev.slug}`}
-              class="group"
+              class="card group transition-colors hover:border-border"
               aria-label={`Previous project: ${prev.cv.name}`}
             >
               <span class="text-meta text-muted">Previous</span>
@@ -204,7 +212,7 @@ const rows = [{ label: 'Role', value: role }, ...specs];
           {next && (
             <a
               href={`/projects/${next.slug}`}
-              class="group sm:col-start-2 sm:text-right"
+              class="card group transition-colors hover:border-border sm:col-start-2 sm:text-right"
               aria-label={`Next project: ${next.cv.name}`}
             >
               <span class="text-meta text-muted">Next</span>

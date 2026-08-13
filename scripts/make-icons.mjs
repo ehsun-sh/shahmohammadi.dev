@@ -21,7 +21,7 @@ const SRC = path.join(ROOT, 'src', 'assets', 'brand', 'logo.svg');
 const OUT = path.join(ROOT, 'public');
 
 const INK = '#1D1D1F'; // --color-text, the plate
-const MARK = '#FBFBFD'; // --color-bg, the monogram
+const MARK = '#F4F5F9'; // --color-bg, the monogram
 
 /**
  * The monogram sits at ~11% inset inside its own viewBox, which is right for a

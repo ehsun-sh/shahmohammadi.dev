@@ -44,7 +44,7 @@ const { class: className } = Astro.props;
 
 <figure
   class:list={[
-    'relative overflow-hidden rounded-2xl bg-surface ring-1 ring-border/70 ring-inset',
+    'relative overflow-hidden rounded-card bg-surface ring-1 ring-subtle ring-inset',
     className,
   ]}
 >
@@ -145,7 +145,7 @@ const { class: className } = Astro.props;
 
   {
     import.meta.env.DEV && (
-      <figcaption class="absolute bottom-3 left-3 rounded-md bg-bg/90 px-2.5 py-1 text-meta text-muted ring-1 ring-border">
+      <figcaption class="absolute bottom-3 left-3 rounded bg-bg/90 px-2.5 py-1 text-meta text-muted ring-1 ring-border">
         Placeholder — drop the render in at 1600×1000, transparent background.
         See <code class="font-mono">HeroVisual.astro</code>.
       </figcaption>

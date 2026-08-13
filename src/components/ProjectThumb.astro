@@ -42,15 +42,18 @@ const RATIO = '16 / 10';
         sizes="(min-width: 640px) 160px, 100vw"
         loading="lazy"
         decoding="async"
-        class="size-full rounded-lg border border-border object-cover"
+        class="size-full rounded-card border border-subtle object-cover"
       />
     ) : (
       /* Not a broken-image icon and not invisible: a deliberate empty frame,
          so the row keeps its shape and the gap reads as "picture pending"
          rather than as a layout bug. aria-hidden because there is nothing to
          describe yet — the project title already names the entry. */
+      /* Filled with the page ground, not the card colour — the frame sits on a
+         white card now, and --color-surface would have been white on white
+         with only the dashes to prove anything was there. */
       <div
-        class="size-full rounded-lg border border-dashed border-border bg-surface"
+        class="size-full rounded-card border border-dashed border-border bg-bg"
         aria-hidden="true"
       />
     )

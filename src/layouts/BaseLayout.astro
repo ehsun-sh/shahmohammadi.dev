@@ -85,9 +85,25 @@ const profilePageSchema = {
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
+    {/* The typeface is the largest render-blocking dependency on every page, and
+        it is referenced from a stylesheet the browser has to download and parse
+        before it can discover it. Preloading from the HTML starts the fetch in
+        the same round trip as the CSS. Only the upright face — italic is used
+        by markdown emphasis and nowhere near the fold.
+
+        The path is fixed rather than content-hashed, which is the reason the
+        font is copied into public/ instead of bundled. See scripts/copy-fonts.mjs. */}
+    <link
+      rel="preload"
+      href="/fonts/open-sans-latin-wght-normal.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
     <meta
       name="theme-color"
-      content="#fbfbfd"
+      content="#f4f5f9"
       media="(prefers-color-scheme: light)"
     />
     <meta
