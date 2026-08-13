@@ -53,8 +53,8 @@ jobs:
       # perfectly valid PDF set in the wrong typeface rather than a failed build.
       - name: Build résumé PDF
         run: |
-          test -s node_modules/@expo-google-fonts/almarai/400Regular/Almarai_400Regular.ttf \
-            || { echo "::error::Almarai TTFs missing — the résumé would silently fall back to a serif"; exit 1; }
+          test -s node_modules/@expo-google-fonts/open-sans/400Regular/OpenSans_400Regular.ttf \
+            || { echo "::error::Open Sans TTFs missing — the résumé would silently fall back to a serif"; exit 1; }
           npm run resume
 
       # Pages has to be enabled on the repo before this step can succeed, and it

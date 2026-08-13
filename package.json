@@ -11,7 +11,7 @@
     "check": "astro check",
     "icons": "node scripts/make-icons.mjs",
     "fonts": "node scripts/copy-fonts.mjs",
-    "resume": "typst compile src/resume/resume.typ public/resume.pdf --root . --ignore-system-fonts --font-path node_modules/@expo-google-fonts/almarai"
+    "resume": "typst compile src/resume/resume.typ public/resume.pdf --root . --ignore-system-fonts --font-path node_modules/@expo-google-fonts/open-sans"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",
@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
-    "@expo-google-fonts/almarai": "0.4.1",
+    "@expo-google-fonts/open-sans": "0.4.2",
     "typescript": "^6.0.3"
   }
 }

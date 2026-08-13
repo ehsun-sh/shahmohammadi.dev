@@ -138,13 +138,18 @@ on the next push. ✅
 
 **Font note:** Typst embeds only four faces — Libertinus Serif, New Computer
 Modern, New Computer Modern Math and DejaVu Sans Mono — and none of them is a
-proportional sans. The résumé is set in **Almarai**, sourced through npm
-(`@expo-google-fonts/almarai`, OFL) so `package-lock` pins it and no binary is
-committed, and passed to Typst with `--font-path`. Both the script and CI keep
-`--ignore-system-fonts`: without it whatever is installed on a machine leaks in
-and a layout approved locally ships subtly different from the runner's. Typst
-warns rather than fails on an unresolvable family, so CI asserts the TTF exists
-before compiling. Almarai has no italic; the layout must not ask for one.
+proportional sans. The résumé is set in **Open Sans**, the same family the site
+loads, sourced through npm (`@expo-google-fonts/open-sans`, OFL) so the version
+is pinned and no binary is committed, and passed to Typst with `--font-path`.
+Both the script and CI keep `--ignore-system-fonts`: without it whatever is
+installed on a machine leaks in and a layout approved locally ships subtly
+different from the runner's. Typst warns rather than fails on an unresolvable
+family, so CI asserts the TTF exists before compiling.
+
+It was Almarai until 2026-08-12, chosen when the site itself had no typeface to
+agree with. Verify with `pdffonts` or equivalent that only `OpenSans-Regular`
+and `OpenSans-Bold` are embedded — a serif in that list means the family did not
+resolve and Typst fell back without saying so.
 
 ### Phase 5 — Project pages
 This phase carries the most weight with technical readers. Budget accordingly.
@@ -196,9 +201,9 @@ the recruiters this site is for.
       `/projects/[slug]` and `/404`; OG cards moved to Open Sans with the
       subtitle clamp recalibrated to the new wrap
 
-Left open on purpose: `resume.pdf` is still set in Almarai, so the PDF and the
-site no longer share a typeface. Closing that means swapping the Typst font
-package and re-proofing both pages.
+- [x] `resume.pdf` followed: Almarai out, Open Sans in from
+      `@expo-google-fonts/open-sans`, body size 9.5pt → 9pt so both page breaks
+      land on section boundaries. Site and PDF now share one typeface.
 
 ### Phase 6 — Hero animation ("Concept to Production")
 Four stages, not seven: **Schematic → PCB Layout → Assembled Board → Product.**

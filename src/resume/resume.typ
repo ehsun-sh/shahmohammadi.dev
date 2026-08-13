@@ -16,11 +16,30 @@
 //     locally, or a layout approved here ships subtly different.
 //
 // Typst embeds only four faces and none of them is a proportional sans, so
-// Almarai is sourced through npm (@expo-google-fonts/almarai, OFL) and passed
-// in with --font-path. That keeps the TTFs out of the repo and pinned by
+// Open Sans is sourced through npm (@expo-google-fonts/open-sans, OFL) and
+// passed in with --font-path. That keeps the TTFs out of the repo and pinned by
 // package-lock, and --ignore-system-fonts keeps whatever happens to be
-// installed on a machine from leaking in. Almarai ships no italic — the
-// layout must not ask for one, or Typst will synthesise a slant.
+// installed on a machine from leaking in.
+//
+// This is the same family the site sets, and that is the point: a recruiter who
+// reads the page and then opens the PDF should not feel handed a document from
+// somewhere else. It replaced Almarai, which was chosen when the site was on a
+// system font stack and nothing here had a typeface to agree with.
+//
+// The swap cost half a point of body size, and the reason is where the page
+// breaks land rather than how many there are. Open Sans sets wider than Almarai
+// did, and at 9.5pt the document still fitted two pages but filled the first
+// one to its last line and split Technical Skills across the break, so the
+// skills table was read half on one page and half on the next. 9pt pulls the
+// whole of that section back onto page 1 and leaves both breaks on section
+// boundaries: page 1 is the summary, Experience and Skills; page 2 is Projects,
+// Education and Awards. Both were rendered and compared before choosing.
+//
+// Every other number in this file survived the swap untouched, which is the
+// test a font change has to pass.
+//
+// Unlike Almarai, this family does ship italic, so the layout could ask for one
+// — it still does not, because nothing in a résumé needs it.
 
 #let cv = json("/src/data/cv.json")
 #let basics = cv.basics
@@ -39,7 +58,7 @@
 )
 
 #set page(paper: "us-letter", margin: (x: 0.62in, top: 0.58in, bottom: 0.5in))
-#set text(font: "Almarai", size: 9.5pt, fill: ink, lang: "en")
+#set text(font: "Open Sans", size: 9pt, fill: ink, lang: "en")
 #set par(justify: true, leading: 0.62em, spacing: 0.62em)
 #show link: set text(fill: ink)
 
