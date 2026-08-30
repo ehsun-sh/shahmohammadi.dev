@@ -46,8 +46,23 @@ const ROOT = process.cwd();
 const OUT = path.join(ROOT, 'public', 'hero');
 
 /** Mobile first, and the one that has to fit the budget. */
-const WIDTHS = [750, 1500];
+const WIDTHS = [720, 1440];
 const READABLE = /\.(png|jpe?g|webp|tiff?|avif)$/i;
+
+/**
+ * The mobile set is encoded harder than the desktop one. It is displayed at
+ * roughly half the size, so the same artefacts are half as visible, and it is
+ * the set that has to fit inside 2 MB.
+ */
+const QUALITY_STEP_DOWN = 10;
+
+/** Alpha above this counts as "object here" when measuring the crop. */
+const ALPHA_FLOOR = 8;
+/** Breathing room left around the union box, as a fraction of its size. */
+const CROP_PADDING = 0.02;
+/** Width the bounding box is measured at. Full resolution is not needed to
+ *  find an edge, and 200 full-size PNGs would take minutes to scan. */
+const PROBE_WIDTH = 240;
 
 const args = process.argv.slice(2);
 const flag = (name, fallback) => {
@@ -106,30 +121,123 @@ const pick = (list, count) => {
 const selected = pick(frames, TARGET_FRAMES);
 
 const first = await sharp(path.join(source, selected[0].file)).metadata();
-const aspect = first.width / first.height;
 
 console.log(
   `${frames.length} frames found, ${selected.length} kept ` +
     `(every ${(frames.length / selected.length).toFixed(1)}), ` +
-    `source ${first.width}×${first.height}\n`,
+    `source ${first.width}×${first.height}` +
+    `${first.hasAlpha ? ', transparent' : ', opaque'}\n`,
 );
+
+/**
+ * The union of every frame's alpha bounding box.
+ *
+ * A render arrives with the object floating in a canvas sized for the widest
+ * moment of the camera move, so most frames are largely empty. That emptiness
+ * is not free: it is encoded, downloaded and decoded a hundred times, and it
+ * shrinks the object on screen because `object-fit: contain` fits the canvas,
+ * not the thing in it.
+ *
+ * The union — not a per-frame crop — is what keeps the animation registered.
+ * Cropping each frame to its own contents would re-centre the object every
+ * frame and the whole sequence would jitter. One rectangle for all of them
+ * removes the dead space that no frame ever uses and moves nothing.
+ *
+ * Measured on a downscale, then scaled back up with padding. Finding an edge
+ * does not need full resolution, and scanning 200 full-size PNGs would take
+ * minutes to answer a question a thumbnail answers.
+ */
+async function unionBox(files) {
+  let box = null;
+
+  for (const [i, frame] of files.entries()) {
+    const { data, info } = await sharp(path.join(source, frame.file))
+      .ensureAlpha()
+      .resize({ width: PROBE_WIDTH })
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+
+    const { width: w, height: h, channels } = info;
+    let minX = w, minY = h, maxX = -1, maxY = -1;
+
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        if (data[(y * w + x) * channels + channels - 1] <= ALPHA_FLOOR) continue;
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+      }
+    }
+
+    if (maxX < 0) continue; // fully transparent frame, nothing to contribute
+    box = box
+      ? {
+          minX: Math.min(box.minX, minX),
+          minY: Math.min(box.minY, minY),
+          maxX: Math.max(box.maxX, maxX),
+          maxY: Math.max(box.maxY, maxY),
+          scale: box.scale,
+        }
+      : { minX, minY, maxX, maxY, scale: first.width / w };
+
+    if (i % 25 === 0) process.stdout.write(`  measuring crop: ${i + 1}/${files.length}\r`);
+  }
+
+  if (!box) return null;
+
+  const s = box.scale;
+  const padX = (box.maxX - box.minX + 1) * s * CROP_PADDING;
+  const padY = (box.maxY - box.minY + 1) * s * CROP_PADDING;
+  const left = Math.max(0, Math.round(box.minX * s - padX));
+  const top = Math.max(0, Math.round(box.minY * s - padY));
+
+  return {
+    left,
+    top,
+    width: Math.min(first.width - left, Math.round((box.maxX + 1) * s + padX) - left),
+    height: Math.min(first.height - top, Math.round((box.maxY + 1) * s + padY) - top),
+  };
+}
+
+const crop = first.hasAlpha ? await unionBox(selected) : null;
+
+if (crop) {
+  const kept = ((crop.width * crop.height) / (first.width * first.height)) * 100;
+  console.log(
+    `  crop: ${crop.width}×${crop.height} at (${crop.left},${crop.top}) — ` +
+      `${(100 - kept).toFixed(0)}% of the canvas was empty in every frame\n`,
+  );
+}
+
+const aspect = crop ? crop.width / crop.height : first.width / first.height;
+
+/** Source → cropped → resized, in that order, for every output. */
+const pipeline = (file, width) => {
+  const s = sharp(path.join(source, file));
+  return (crop ? s.extract(crop) : s).resize({ width, withoutEnlargement: true });
+};
 
 fs.rmSync(OUT, { recursive: true, force: true });
 
 const totals = {};
 
-for (const width of WIDTHS) {
+for (const [w, width] of WIDTHS.entries()) {
   const dir = path.join(OUT, `w${width}`);
   fs.mkdirSync(dir, { recursive: true });
+  const quality = w === 0 ? QUALITY - QUALITY_STEP_DOWN : QUALITY;
   let bytes = 0;
 
   for (const [i, frame] of selected.entries()) {
     const target = path.join(dir, `${String(i).padStart(3, '0')}.webp`);
-    await sharp(path.join(source, frame.file))
-      .resize({ width, withoutEnlargement: true })
+    await pipeline(frame.file, width)
       // `effort: 6` is slow to encode and 8–12% smaller than the default. This
       // runs once per render, and every visitor pays for the bytes.
-      .webp({ quality: QUALITY, effort: 6 })
+      //
+      // `alphaQuality: 100` is not negotiable: the alpha channel here is the
+      // silhouette of a machined metal edge against the page, and lossy alpha
+      // shows up as a dirty fringe exactly where the eye is looking.
+      .webp({ quality, alphaQuality: 100, effort: 6 })
       .toFile(target);
     bytes += fs.statSync(target).size;
     if (i % 25 === 0) process.stdout.write(`  w${width}: ${i + 1}/${selected.length}\r`);
@@ -138,7 +246,9 @@ for (const width of WIDTHS) {
   totals[width] = bytes;
   const mb = (bytes / 1024 / 1024).toFixed(2);
   const per = Math.round(bytes / selected.length / 1024);
-  console.log(`  w${width}: ${selected.length} frames, ${mb} MB total, ~${per} KB each`);
+  console.log(
+    `  w${width}: ${selected.length} frames at q${quality}, ${mb} MB total, ~${per} KB each`,
+  );
 }
 
 /**
@@ -148,9 +258,8 @@ for (const width of WIDTHS) {
  * says the most on its own, which is the end of the story, not the start.
  */
 const poster = path.join(OUT, 'poster.webp');
-await sharp(path.join(source, selected.at(-1).file))
-  .resize({ width: 1500, withoutEnlargement: true })
-  .webp({ quality: 82, effort: 6 })
+await pipeline(selected.at(-1).file, WIDTHS.at(-1))
+  .webp({ quality: 82, alphaQuality: 100, effort: 6 })
   .toFile(poster);
 
 const manifest = {
@@ -159,6 +268,7 @@ const manifest = {
   aspect: Number(aspect.toFixed(4)),
   quality: QUALITY,
   sourceFrames: frames.length,
+  crop: crop ?? null,
   generated: new Date().toISOString().slice(0, 10),
 };
 fs.writeFileSync(path.join(OUT, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
@@ -170,10 +280,16 @@ console.log(
 );
 
 if (mobile > BUDGET_BYTES) {
+  const perFrame = mobile / selected.length;
   console.error(
-    `Mobile set is ${(mobile / 1024 / 1024).toFixed(2)} MB, over the 2 MB hero budget ` +
-      `in CLAUDE.md.\nDrop --frames or --quality and run again. At ${selected.length} ` +
-      `frames the ceiling is ~${Math.floor(BUDGET_BYTES / selected.length / 1024)} KB a frame.`,
+    `\nMobile set is ${(mobile / 1024 / 1024).toFixed(2)} MB, over the 2 MB hero budget in ` +
+      `CLAUDE.md.\n\n` +
+      `At ${Math.round(perFrame / 1024)} KB a frame the ceiling is ` +
+      `${Math.floor(BUDGET_BYTES / perFrame)} frames — try:\n` +
+      `  npm run hero -- "${source}" --frames ${Math.floor(BUDGET_BYTES / perFrame)}\n\n` +
+      `Fewer frames costs less than lower quality here. Scroll scrubbing hides a ` +
+      `dropped frame; it does not hide a smeared reflection on brushed metal.\n` +
+      `public/hero/ has been left as written so you can look at it before deciding.`,
   );
   process.exit(1);
 }

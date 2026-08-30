@@ -42,18 +42,20 @@ const manifest = getHeroManifest();
  * starts at the CV, which is a complete page on its own.
  */
 
-interface Props {
-  /**
-   * Whether the render's background is light or dark, which is the only thing
-   * the page needs to know about the artwork: it decides the ink of the mark
-   * and the name drawn over it. Flip it once the frames land rather than
-   * guessing per element.
-   */
-  tone?: 'light' | 'dark';
-}
-
-const { tone = 'light' } = Astro.props;
-
+/**
+ * There is no `tone` prop and there should not be one.
+ *
+ * The render has a transparent background, so the page's own ground shows
+ * through it and every colour on this screen is already the theme's colour —
+ * the name is `--color-text` in both themes because it is ordinary text on the
+ * ordinary page, not text over an image. A baked-in background would have
+ * needed the page to be told which ink to use over it; transparency deletes
+ * the question instead of answering it.
+ *
+ * It also means one silver render covers both themes. A second, darker render
+ * for dark mode would be worse, not better: dark metal on a black ground loses
+ * its silhouette, while the light one keeps its edges against both.
+ */
 const poster = manifest ? '/hero/poster.webp' : null;
 const alt =
   'The product this site is about: a printed circuit board assembling itself ' +
@@ -82,24 +84,38 @@ const alt =
 <section
   class="hero"
   data-hero
-  data-tone={tone}
   data-count={manifest?.count}
   data-widths={manifest?.widths.join(',')}
   aria-label="Product animation"
 >
   <div class="hero-stage">
+    {/* One of the four things colour is spent on, and the only one that has to
+        be here: the enclosure's brightest faces sit within a few percent of the
+        light theme's ground, so on a laptop panel its top edge would otherwise
+        dissolve into the page. The glow gives the object something to sit on
+        without drawing a plate under it. It fades out with the object in stage
+        three. */}
+    <div class="hero-glow" data-hero-glow aria-hidden="true"></div>
     {
       manifest ? (
         <>
           {/* The poster is the LCP element and the only thing painted until the
               sequence has downloaded. It stays in the DOM under the canvas
               rather than being swapped out, so a failed fetch of the frames
-              degrades to a still picture instead of an empty box. */}
+              degrades to a still picture instead of an empty box.
+
+              Its dimensions come from the manifest rather than being written
+              here: the poster is encoded at the widest configured width and
+              cropped to the union alpha box, so a literal would go stale the
+              first time either changes and would then reserve the wrong space
+              while the image loads. A comment cannot sit between the attributes
+              of a JSX element — Astro parses it as attributes — which is why
+              this one is up here. */}
           <img
             src={poster}
             alt={alt}
-            width="1500"
-            height={Math.round(1500 / (manifest.aspect || 1.6))}
+            width={manifest.widths.at(-1)}
+            height={Math.round(manifest.widths.at(-1)! / manifest.aspect)}
             fetchpriority="high"
             decoding="async"
             class="hero-media hero-poster"
@@ -251,13 +267,11 @@ const alt =
     text-wrap: balance;
   }
 
-  /* The artwork decides the ink over it. One attribute, flipped once, rather
-     than a guess per element. */
-  .hero[data-tone='dark'] .hero-name {
-    color: #fff;
-  }
-  .hero[data-tone='dark'] .hero-kicker {
-    color: rgb(255 255 255 / 0.72);
+  /* `.hero-glow` itself is defined once in global.css, beside the other three
+     jobs colour is allowed to do. Here it only needs sizing and the same fade
+     the object gets, so the two leave together. */
+  .hero-glow {
+    opacity: var(--hero-object-opacity, 1);
   }
 
   @media (prefers-reduced-motion: reduce) {

@@ -21,10 +21,16 @@ export interface HeroManifest {
   count: number;
   /** Rendered widths, narrowest first. */
   widths: number[];
-  /** width / height of the source render. */
+  /** width / height of the frames as written, after the crop below. */
   aspect: number;
   quality: number;
   sourceFrames: number;
+  /**
+   * The union alpha bounding box the frames were cropped to, in source pixels,
+   * or null for an opaque render. Recorded for provenance rather than for use:
+   * the frames on disk are already cropped, and nothing at runtime needs it.
+   */
+  crop: { left: number; top: number; width: number; height: number } | null;
   generated: string;
 }
 
