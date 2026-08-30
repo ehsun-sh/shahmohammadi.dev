@@ -20,6 +20,13 @@ interface Props {
    * 184px to the left of the card underneath it on five pages out of six.
    */
   shell?: 'page' | 'wide';
+  /**
+   * Where "Skip to content" lands. The default is the whole `<main>`, which is
+   * right until a page opens with something the visitor would want to skip —
+   * the landing page's hero is 350vh of animation, and skipping to the top of
+   * it skips nothing.
+   */
+  skipTo?: string;
 }
 
 const {
@@ -27,6 +34,7 @@ const {
   description,
   ogImage = '/og.png',
   shell = 'page',
+  skipTo = '#main',
 } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
@@ -173,7 +181,7 @@ const profilePageSchema = {
   </head>
 
   <body class="min-h-dvh flex flex-col">
-    <a class="skip-link" href="#main">Skip to content</a>
+    <a class="skip-link" href={skipTo}>Skip to content</a>
     <Navigation shell={shell} />
     <main id="main" class="flex-1">
       <slot />

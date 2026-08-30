@@ -689,6 +689,45 @@
     border-top: 1px solid var(--color-subtle);
   }
 
+  /* -------------------------------------------------------------------------
+     The nav over the hero sequence.
+
+     Both attributes are set by the hero script and only by the hero script, so
+     with JavaScript off or reduced motion on none of this applies and the bar
+     is the ordinary bar. `data-hero-active` means the sequence is running;
+     `data-hero-passed` means the visitor has scrolled through it.
+
+     The mark stays visible the whole way. The links go, the plate goes, the
+     identity does not — the name has to be on screen at frame 0, and a header
+     that vanishes entirely for two and a half screens leaves no way out.
+
+     `:focus-within` is the keyboard's way back in: tab into the header and the
+     bar comes back rather than moving focus through invisible links.
+  ------------------------------------------------------------------------- */
+  html[data-hero-active]:not([data-hero-passed]) header:not(:focus-within) {
+    background-color: transparent;
+    border-bottom-color: transparent;
+  }
+  html[data-hero-active]:not([data-hero-passed]) header:not(:focus-within) nav > ul {
+    opacity: 0;
+    visibility: hidden;
+  }
+  header,
+  header nav > ul {
+    transition:
+      background-color 0.3s ease,
+      border-color 0.3s ease,
+      opacity 0.3s ease,
+      visibility 0.3s ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    header,
+    header nav > ul {
+      transition: none;
+    }
+  }
+
   /* Skip link — visible only on keyboard focus. */
   .skip-link {
     position: absolute;

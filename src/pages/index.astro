@@ -1,12 +1,19 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Section from '../components/Section.astro';
+import HeroSequence from '../components/HeroSequence.astro';
 import HeroVisual from '../components/HeroVisual.astro';
 import ProfileCard from '../components/ProfileCard.astro';
 import ProjectThumb from '../components/ProjectThumb.astro';
 import { cv, cvHasPlaceholders, formatRange } from '../data/cv';
+import { getHeroManifest } from '../lib/heroFrames';
 import { getLinkedSlugs } from '../lib/projects';
 import { site } from '../data/site';
+
+// The drawn board is a stand-in for the product shot, and the hero sequence is
+// the product shot. Once the frames exist the two are the same picture twice,
+// so the placeholder retires itself rather than waiting to be noticed.
+const heroReady = getHeroManifest() !== null;
 
 // A project title links to its write-up only once that write-up is published.
 // `slug` alone is not enough — a draft has a slug and no page.
@@ -24,7 +31,12 @@ const {
 } = cv;
 ---
 
-<BaseLayout title={basics.name} description={basics.headline} shell="wide">
+<BaseLayout
+  title={basics.name}
+  description={basics.headline}
+  shell="wide"
+  skipTo="#cv"
+>
   {
     import.meta.env.DEV && cvHasPlaceholders && (
       <p class="border-b border-border bg-surface px-6 py-2 text-center text-meta text-muted">
@@ -33,6 +45,8 @@ const {
       </p>
     )
   }
+
+  {(heroReady || import.meta.env.DEV) && <HeroSequence />}
 
   {/* Two columns above `lg`, one below it, and the container swaps with them:
       `max-w-page` when the rail is stacked so a 1023px viewport does not render
@@ -43,7 +57,10 @@ const {
       `items-start` is load-bearing. A grid stretches its children to the tallest
       row by default, which would make the rail as tall as the whole CV and
       leave `position: sticky` nothing to travel inside. */}
-  <div class="mx-auto max-w-page px-6 pt-6 pb-8 lg:max-w-wide">
+  {/* `id` is the skip link's target, not decoration: it is the first thing on
+      the page a visitor could want to jump to, since everything above it is
+      animation. */}
+  <div id="cv" class="mx-auto max-w-page px-6 pt-6 pb-8 lg:max-w-wide">
     <div
       class="grid gap-5 lg:grid-cols-[var(--container-rail)_minmax(0,1fr)] lg:items-start"
     >
@@ -56,11 +73,10 @@ const {
 
       <div class="space-y-5">
         {/* No title on this one. It is the claim the rest of the page is
-            evidence for, and a heading above it would only name it. The
-            scroll-driven sequence replaces HeroVisual in Phase 6. */}
+            evidence for, and a heading above it would only name it. */}
         <section class="card">
           <p class="prose-block text-lead">{basics.headline}</p>
-          <HeroVisual class="mt-5" />
+          {!heroReady && <HeroVisual class="mt-5" />}
         </section>
 
         <Section id="about" title="About">

@@ -1,0 +1,469 @@
+---
+import { getHeroManifest } from '../lib/heroFrames';
+import { cv } from '../data/cv';
+
+/**
+ * The scroll-driven product sequence.
+ *
+ * Four stages over one pinned screen: the board assembles, the enclosure
+ * closes, the object recedes, the name arrives, the name leaves and the CV
+ * begins. The frames are a pre-rendered sequence scrubbed on a canvas — see
+ * scripts/build-hero-frames.mjs for why that and not a real-time 3D scene.
+ *
+ * THE PIN IS `position: sticky`, NOT JAVASCRIPT.
+ * The section is 350vh tall and holds one 100dvh sticky child, which gives
+ * exactly 250vh of travel — the documented ceiling — without touching the
+ * scroll position. Nothing here scroll-jacks: the page scrolls natively at
+ * whatever speed the visitor's own input device says, and the only thing script
+ * does is read a number and draw. A momentum flick, a trackpad, a Page Down
+ * key and a screen reader's caret all behave the way the visitor expects,
+ * because none of them are being intercepted.
+ *
+ * WHAT HAPPENS WITH NO JAVASCRIPT
+ * The section is one screen tall and shows the poster — the closed enclosure,
+ * the end of the story — with the name under it, and the CV follows normally.
+ * `data-hero-active` is set by script and only by script, so every "tall,
+ * pinned, animated" rule in the stylesheet is opt-in. Nothing is hidden waiting
+ * for a class that will never arrive, which is the usual way this effect breaks
+ * a page.
+ *
+ * `prefers-reduced-motion: reduce` takes the same path as no-JS. Not a
+ * shortened animation — no animation.
+ */
+
+const manifest = getHeroManifest();
+
+/**
+ * With no frames this component is only mounted by `npm run dev` — index.astro
+ * gates it — because the alternative in a build is a full screen holding a name
+ * and no picture, which is a hole rather than a hero. That is the same call the
+ * project cover makes at the same size and for the same reason: a placeholder
+ * is a design element at 160px and a defect at 1500. The page then simply
+ * starts at the CV, which is a complete page on its own.
+ */
+
+interface Props {
+  /**
+   * Whether the render's background is light or dark, which is the only thing
+   * the page needs to know about the artwork: it decides the ink of the mark
+   * and the name drawn over it. Flip it once the frames land rather than
+   * guessing per element.
+   */
+  tone?: 'light' | 'dark';
+}
+
+const { tone = 'light' } = Astro.props;
+
+const poster = manifest ? '/hero/poster.webp' : null;
+const alt =
+  'The product this site is about: a printed circuit board assembling itself ' +
+  'from its component parts, and the finished enclosure closing over it.';
+---
+
+{
+  manifest && (
+    /* Runs during parse, before the hero paints, for the same reason the theme
+       script does: the module script below is deferred, so between first paint
+       and hydration the section would render one screen tall with the name at
+       full size, then jump to 350vh with the name invisible. One frame of the
+       wrong layout is worse than no animation.
+
+       Everything the stylesheet does for the animated state hangs off this
+       attribute, so the guards live here and nowhere else — no reduced motion,
+       no attribute, no animation. */
+    <script is:inline>
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.documentElement.setAttribute('data-hero-active', '');
+      }
+    </script>
+  )
+}
+
+<section
+  class="hero"
+  data-hero
+  data-tone={tone}
+  data-count={manifest?.count}
+  data-widths={manifest?.widths.join(',')}
+  aria-label="Product animation"
+>
+  <div class="hero-stage">
+    {
+      manifest ? (
+        <>
+          {/* The poster is the LCP element and the only thing painted until the
+              sequence has downloaded. It stays in the DOM under the canvas
+              rather than being swapped out, so a failed fetch of the frames
+              degrades to a still picture instead of an empty box. */}
+          <img
+            src={poster}
+            alt={alt}
+            width="1500"
+            height={Math.round(1500 / (manifest.aspect || 1.6))}
+            fetchpriority="high"
+            decoding="async"
+            class="hero-media hero-poster"
+            data-hero-poster
+          />
+          <canvas class="hero-media hero-canvas" data-hero-canvas aria-hidden="true"
+          ></canvas>
+        </>
+      ) : (
+        import.meta.env.DEV && (
+          /* Dev only, like every other slot on this site that is waiting for an
+             asset. It carries the command, because the thing you need when you
+             see this frame is the thing that fills it. */
+          <div class="hero-pending" aria-hidden="true">
+            <p class="text-heading">Hero sequence</p>
+            <p class="text-meta">
+              <code class="font-mono">npm run hero -- "&lt;render folder&gt;"</code>
+            </p>
+            <p class="text-meta">
+              Writes public/hero/ and the manifest. Until then this section is
+              one screen tall and does not pin.
+            </p>
+          </div>
+        )
+      )
+    }
+
+    {/* Stage three. Present in the HTML from the start — it is the page's
+        identity, not a payload the animation delivers — and simply not
+        transformed when script is not driving it. */}
+    <div class="hero-title" data-hero-title>
+      <p class="hero-kicker">Designed by</p>
+      <p class="hero-name">{cv.basics.name}</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    /* No script: one screen, no pin. `data-hero-active` is what makes it tall,
+       and only the client script sets that. */
+    min-height: 100dvh;
+    background-color: var(--color-bg);
+  }
+
+  :global(html[data-hero-active]) .hero {
+    /* 350vh of section minus the 100vh sticky child = 250vh of travel, the
+       ceiling in CLAUDE.md. Change one number here and the pin distance
+       changes with it. */
+    height: 350vh;
+    min-height: 0;
+  }
+
+  .hero-stage {
+    position: sticky;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .hero-media {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    /* Both the transform and the fade belong to stage two. The custom
+       properties are written by script; these defaults are the untouched state
+       every fallback path renders in. */
+    transform: scale(var(--hero-object-scale, 1));
+    opacity: var(--hero-object-opacity, 1);
+    will-change: transform, opacity;
+  }
+
+  /* The canvas is only worth anything once script has drawn something into it.
+     Until then it is a transparent rectangle over the poster. */
+  .hero-canvas {
+    opacity: 0;
+  }
+  :global(html[data-hero-active]) .hero-canvas[data-ready] {
+    opacity: var(--hero-object-opacity, 1);
+  }
+  /* Dropping the poster once the canvas has something in it saves compositing
+     a second full-screen layer. It is an optimisation and not load-bearing: the
+     two are the same box at the same object-fit, so the canvas covers the
+     poster exactly even where `:has()` is not supported, and both carry
+     `--hero-object-opacity` so they fade together in stage three either way. */
+  :global(html[data-hero-active]) .hero-poster:has(+ .hero-canvas[data-ready]) {
+    opacity: 0;
+  }
+
+  .hero-pending {
+    display: grid;
+    place-items: center;
+    gap: 0.5rem;
+    width: min(90%, 40rem);
+    aspect-ratio: 16 / 10;
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius-card);
+    background-color: var(--color-surface);
+    color: var(--color-muted);
+    text-align: center;
+    padding: 1.5rem;
+  }
+
+  .hero-title {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding-inline: 1.5rem;
+    /* Stage three scales it up from a little under full size and stage four
+       lifts it out of frame. Both are custom properties so the whole sequence
+       is one place to read. */
+    transform: translate3d(0, var(--hero-title-y, 0), 0)
+      scale(var(--hero-title-scale, 1));
+    opacity: var(--hero-title-opacity, 1);
+    will-change: transform, opacity;
+  }
+
+  /* With script driving, the name starts invisible and arrives on cue. Without
+     it, it is simply there — the one line on this screen that must never
+     depend on the animation running. */
+  :global(html[data-hero-active]) .hero-title {
+    --hero-title-opacity: 0;
+    --hero-title-scale: 0.72;
+  }
+
+  .hero-kicker {
+    font-size: var(--text-lead);
+    line-height: 1.2;
+    color: var(--color-muted);
+  }
+
+  .hero-name {
+    margin-top: 0.35rem;
+    /* The one place on the site that reaches past the display role, and it is
+       not an arbitrary size: it is the largest the longest name in cv.json can
+       be set at without wrapping on a 375px screen, solved by the viewport
+       unit rather than by a breakpoint. */
+    font-size: clamp(1.75rem, 8.2vw, 6rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.02;
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+
+  /* The artwork decides the ink over it. One attribute, flipped once, rather
+     than a guess per element. */
+  .hero[data-tone='dark'] .hero-name {
+    color: #fff;
+  }
+  .hero[data-tone='dark'] .hero-kicker {
+    color: rgb(255 255 255 / 0.72);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    /* Belt and braces. The script already refuses to run, and this makes the
+       stylesheet independently correct if it ever stops refusing. */
+    .hero,
+    :global(html[data-hero-active]) .hero {
+      height: auto;
+      min-height: 100dvh;
+    }
+    .hero-media,
+    .hero-title {
+      transform: none;
+      opacity: 1;
+      will-change: auto;
+    }
+    :global(html[data-hero-active]) .hero-title {
+      --hero-title-opacity: 1;
+      --hero-title-scale: 1;
+    }
+  }
+</style>
+
+<script>
+  /**
+   * Frame scrubber. ~2 KB, no dependencies.
+   *
+   * GSAP + ScrollTrigger is what the roadmap named, and it is not used here:
+   * together they are about 45 KB gzipped against a 50 KB budget for the whole
+   * landing page, to replace a division and a `drawImage`. The pin is CSS.
+   */
+  const root = document.documentElement;
+  const section = document.querySelector<HTMLElement>('[data-hero]');
+  const canvas = document.querySelector<HTMLCanvasElement>('[data-hero-canvas]');
+  const stage = section?.querySelector<HTMLElement>('.hero-stage');
+  const title = document.querySelector<HTMLElement>('[data-hero-title]');
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  if (section && canvas && stage && title && !reduced.matches) {
+    const count = Number(section.dataset.count);
+    const widths = (section.dataset.widths ?? '')
+      .split(',')
+      .map(Number)
+      .filter(Boolean)
+      .sort((a, b) => a - b);
+
+    // Pick the width once, from the layout viewport rather than from the
+    // device pixel ratio: a 3× phone would otherwise pull the desktop set over
+    // a mobile connection to fill 400 CSS pixels.
+    const width =
+      widths.find((w) => w >= window.innerWidth * Math.min(devicePixelRatio, 2)) ??
+      widths.at(-1)!;
+
+    const ctx = canvas.getContext('2d', { alpha: true })!;
+    const images: (HTMLImageElement | null)[] = new Array(count).fill(null);
+    let loaded = 0;
+    let lastDrawn = -1;
+
+    const url = (i: number) => `/hero/w${width}/${String(i).padStart(3, '0')}.webp`;
+
+    /** Nearest frame that has actually arrived, so a fast scroll through a
+     *  half-loaded sequence shows the closest thing rather than nothing. */
+    function nearest(index: number): HTMLImageElement | null {
+      if (images[index]) return images[index];
+      for (let d = 1; d < count; d++) {
+        if (images[index - d]) return images[index - d];
+        if (images[index + d]) return images[index + d];
+      }
+      return null;
+    }
+
+    function resize() {
+      const dpr = Math.min(devicePixelRatio || 1, 2);
+      const rect = stage!.getBoundingClientRect();
+      canvas!.width = Math.round(rect.width * dpr);
+      canvas!.height = Math.round(rect.height * dpr);
+      lastDrawn = -1;
+    }
+
+    function draw(index: number) {
+      const img = nearest(index);
+      if (!img) return;
+      const cw = canvas!.width;
+      const ch = canvas!.height;
+      ctx.clearRect(0, 0, cw, ch);
+      // `contain`, matching the poster's object-fit, so the two are
+      // interchangeable and the swap between them is invisible.
+      const scale = Math.min(cw / img.naturalWidth, ch / img.naturalHeight);
+      const w = img.naturalWidth * scale;
+      const h = img.naturalHeight * scale;
+      ctx.drawImage(img, (cw - w) / 2, (ch - h) / 2, w, h);
+      if (!canvas!.dataset.ready) canvas!.dataset.ready = '';
+    }
+
+    /** 0 → 1 across the pinned travel. */
+    function progress() {
+      const rect = section!.getBoundingClientRect();
+      const travel = rect.height - window.innerHeight;
+      if (travel <= 0) return 0;
+      return Math.min(Math.max(-rect.top / travel, 0), 1);
+    }
+
+    const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
+    /** Normalised position of `p` inside [a, b]. */
+    const span = (p: number, a: number, b: number) => clamp01((p - a) / (b - a));
+
+    function render() {
+      const p = progress();
+
+      // Stage one and two: the frames. They own the first 70% of the travel
+      // because they are the part with something to say.
+      const frame = Math.round(span(p, 0, 0.7) * (count - 1));
+      if (frame !== lastDrawn) {
+        draw(frame);
+        lastDrawn = frame;
+      }
+
+      // Stage three: the object recedes and fades as the name comes up. The
+      // two overlap by design — a gap between them reads as two animations
+      // rather than one handover.
+      const recede = span(p, 0.7, 0.86);
+      stage!.style.setProperty('--hero-object-scale', String(1 - recede * 0.45));
+      stage!.style.setProperty('--hero-object-opacity', String(1 - recede));
+
+      const arrive = span(p, 0.74, 0.9);
+      const exit = span(p, 0.9, 1);
+      title!.style.setProperty('--hero-title-opacity', String(arrive * (1 - exit)));
+      title!.style.setProperty('--hero-title-scale', String(0.72 + arrive * 0.28));
+      title!.style.setProperty('--hero-title-y', `${exit * -35}vh`);
+
+      // The nav and the CV underneath are revealed on the same cue as the exit,
+      // so the page hands over rather than cutting.
+      root.toggleAttribute('data-hero-passed', p > 0.88);
+    }
+
+    let ticking = false;
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        render();
+        ticking = false;
+      });
+    }
+
+    /**
+     * Load order matters more than load speed. Frame 0 first and alone, so the
+     * first thing on screen is correct as early as possible; then a coarse pass
+     * over the whole sequence so an early fast scroll lands near something;
+     * then everything else. `nearest()` covers the gaps in the meantime.
+     */
+    function load(index: number): Promise<void> {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.decoding = 'async';
+        img.onload = () => {
+          images[index] = img;
+          loaded++;
+          if (index === lastDrawn || lastDrawn === -1) draw(lastDrawn < 0 ? 0 : lastDrawn);
+          resolve();
+        };
+        img.onerror = () => resolve();
+        img.src = url(index);
+      });
+    }
+
+    async function loadAll() {
+      await load(0);
+      render();
+
+      const coarse: number[] = [];
+      for (let i = 8; i < count; i += 8) coarse.push(i);
+      const rest = Array.from({ length: count }, (_, i) => i).filter(
+        (i) => i !== 0 && !coarse.includes(i),
+      );
+
+      // Six at a time: enough to saturate a connection, few enough that the
+      // browser still has sockets left for anything else the page wants.
+      const queue = [...coarse, ...rest];
+      const workers = Array.from({ length: 6 }, async () => {
+        while (queue.length) {
+          const next = queue.shift();
+          if (next !== undefined) await load(next);
+        }
+      });
+      await Promise.all(workers);
+      render();
+    }
+
+    root.setAttribute('data-hero-active', '');
+    resize();
+    void loadAll();
+
+    addEventListener('scroll', onScroll, { passive: true });
+    addEventListener('resize', () => {
+      resize();
+      render();
+    });
+
+    // If the visitor turns reduced motion on mid-visit, hand the page back.
+    reduced.addEventListener('change', (event) => {
+      if (event.matches) {
+        root.removeAttribute('data-hero-active');
+        root.setAttribute('data-hero-passed', '');
+      }
+    });
+  }
+</script>
