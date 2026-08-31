@@ -299,7 +299,17 @@ const alt =
      reason about where the card actually ends has to be able to add their
      heights back on itself. */
   .hero-intro {
-    --name-size: clamp(2rem, 7.4vw, 5.25rem);
+    /* No lower bound, and that is the point of the 7.4vw.
+       The coefficient was solved for one thing: keep the longest name in
+       cv.json on ONE line at the narrowest screen, without a breakpoint. The
+       name sets 11.43em wide and the card has 3rem of gutters, so one line
+       needs 11.43 x k x vw <= vw - 48, which at 320px is k <= 0.0744. 7.4vw
+       clears it down to 312px.
+       A 2rem floor used to sit under it, and it undid exactly that: 7.4vw only
+       reaches 2rem at 432px, so every phone got 32px, and 11.43 x 32 = 366px of
+       name in 327px of room — two lines. The floor was protecting a legibility
+       the viewport unit never threatened; at 320px this is still 23.7px. */
+    --name-size: min(7.4vw, 5.25rem);
     --mark-size: calc(var(--name-size) * 1.6018);
     /* The artwork fills 77.3% of the square box, leaving 11.35% blank down each
        side. Pulling that back in is what makes `--mark-gap` the gap you can
