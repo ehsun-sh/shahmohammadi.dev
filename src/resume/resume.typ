@@ -16,14 +16,20 @@
 //     locally, or a layout approved here ships subtly different.
 //
 // Typst embeds only four faces and none of them is a proportional sans, so
-// Open Sans is sourced through npm (@expo-google-fonts/open-sans, OFL) and
+// Noto Sans is sourced through npm (@expo-google-fonts/noto-sans, OFL) and
 // passed in with --font-path. That keeps the TTFs out of the repo and pinned by
 // package-lock, and --ignore-system-fonts keeps whatever happens to be
 // installed on a machine from leaking in.
 //
-// This is the same family the site sets, and that is the point: a recruiter who
-// reads the page and then opens the PDF should not feel handed a document from
-// somewhere else.
+// Noto Sans, not the site's Open Sans, because the reference is set in it and
+// matching the reference is what this document is for. The site keeps Open
+// Sans. That is a real cost — the page and the PDF no longer read as one
+// document — and it was paid deliberately rather than overlooked.
+//
+// The swap cost nothing else, and that is not luck: both families descend from
+// Droid Sans and their metrics are the same to four places — cap-height 0.714em,
+// ascender 1.069, descender 0.293. Every spacing number below survived it
+// untouched, which is the test a font change has to pass here.
 //
 // ---------------------------------------------------------------------------
 // WHERE THE NUMBERS CAME FROM
@@ -43,7 +49,7 @@
 //
 //     baseline(A) -> baseline(B)  =  spacing  +  cap-height x size(B)
 //
-// and Open Sans' cap-height is 1462/2048 = 0.714em. Every `spacing`, `above`
+// and Noto Sans' cap-height is 714/1000 = 0.714em. Every `spacing`, `above`
 // and `row-gutter` in this file is a measured baseline delta with the cap
 // height of the following line subtracted out. Change a size and the spacings
 // that touch it have to be re-solved, not nudged.
@@ -93,7 +99,7 @@
 #let ink = rgb("#000000")
 #let accent = rgb("#0071e3")
 
-#let cap = 0.714 // Open Sans cap-height, in em. See the note above.
+#let cap = 0.714 // Noto Sans cap-height, in em. See the note above.
 
 #set document(
   title: basics.name + " — " + basics.label,
@@ -102,7 +108,7 @@
 )
 
 #set page(paper: "us-letter", margin: 30pt)
-#set text(font: "Open Sans", size: 8pt, fill: ink, lang: "en")
+#set text(font: "Noto Sans", size: 8pt, fill: ink, lang: "en")
 #set par(justify: true, leading: 0.79em, spacing: 2.49pt)
 
 // The reference underlines its contact links and nothing else, hairline and
