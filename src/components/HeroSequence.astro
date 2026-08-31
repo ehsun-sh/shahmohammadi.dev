@@ -185,8 +185,14 @@ const alt =
         this. The mark is decorative here too — the name is right beside it in
         real text, so announcing the logo as well would only say it twice. */}
     <div class="hero-intro" data-hero-intro>
+      {/* A Tailwind utility and not a class this file styles, for the same
+          reason Navigation.astro uses one: BrandMark injects the artwork with
+          `set:html`, so the <svg> never receives the `data-astro-cid-*`
+          attribute that scoped rules are compiled against, and a scoped
+          `.hero-mark { width }` silently matched nothing. The mark rendered
+          0×0 — present in the DOM, invisible on screen. */}
       <p class="hero-lockup">
-        <BrandMark class="hero-mark" />
+        <BrandMark class="size-[30px] shrink-0" />
         <span>{cv.basics.name}</span>
       </p>
 
@@ -223,18 +229,21 @@ const alt =
 <style>
   /* ------------------------------------------------------------ intro --- */
 
-  /* A layer over the stage, laid out as three rows so the identity sits at the
-     top, the thesis on the optical centre line and the cue at the foot —
-     without any of the three knowing what the others are doing. */
+  /* One centred stack, not three rows pushed to the edges of the screen.
+     Spread across the full height the lockup and the cue read as page furniture
+     that happens to share a screen with the headline; gathered around it they
+     read as one title card, which is what they are. The gaps are asymmetric on
+     purpose — the identity belongs to the line under it, the cue is an aside
+     about what to do next, so it sits further off. */
   .hero-intro {
     position: absolute;
     inset: 0;
     z-index: 2;
-    display: grid;
-    grid-template-rows: auto 1fr auto;
-    justify-items: center;
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    padding: clamp(1.5rem, 5vh, 2.75rem) 1.5rem;
+    justify-content: center;
+    padding: 1.5rem;
     text-align: center;
     /* The exact inverse of what `.hero-title` does on the way out: it fades in
        while growing from 0.72, so this fades out while shrinking to it. Script
@@ -251,18 +260,14 @@ const alt =
   .hero-lockup {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.55rem;
+    margin-bottom: clamp(1rem, 2.2vh, 1.5rem);
     font-size: var(--text-subhead);
     font-weight: 600;
-    /* The grid row shrinks to content, which let the name wrap under itself
-       into two lines beside the mark. It is 155px at this size and the mark is
-       26 — there is no width this has to survive where breaking it helps. */
+    /* The column shrinks to content, which let the name wrap under itself into
+       two lines beside the mark. It is 155px at this size and the mark is 30 —
+       there is no width this has to survive where breaking it helps. */
     white-space: nowrap;
-  }
-
-  .hero-mark {
-    width: 26px;
-    height: 26px;
   }
 
   .hero-headline {
@@ -282,7 +287,8 @@ const alt =
   .hero-scroll {
     display: grid;
     justify-items: center;
-    gap: 0.6rem;
+    gap: 0.55rem;
+    margin-top: clamp(1.75rem, 4vh, 2.75rem);
     color: var(--color-muted);
   }
 

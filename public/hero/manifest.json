@@ -4,20 +4,13 @@
     720,
     1440
   ],
-  "aspect": 1.1638,
+  "aspect": 1,
   "quality": 72,
   "sourceFrames": 200,
-  "crop": {
-    "left": 3,
-    "top": 284,
-    "width": 1997,
-    "height": 1716,
-    "bled": 15,
-    "total": 68
-  },
+  "crop": null,
   "zoom": {
     "start": 1,
-    "end": 1.5
+    "end": 1
   },
   "generated": "2026-08-31"
 }

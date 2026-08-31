@@ -59,27 +59,27 @@ const QUALITY_STEP_DOWN = 10;
 /** Alpha above this counts as "object here" when measuring the crop. */
 const ALPHA_FLOOR = 8;
 /**
- * Fraction of frames the crop must contain whole. The rest are allowed to
- * bleed off the edges.
+ * Fraction of frames the crop must contain whole, or 1 to skip cropping.
  *
- * A strict union is the wrong rule for an exploded assembly. The parts fly in
- * from outside the frame, so in a handful of frames a panel sweeps right across
- * the canvas and touches every edge — which makes the union the whole canvas
- * and reclaims nothing, while the subject itself never leaves the middle 60%.
- * Fitting the canvas then renders the board small with dead space all round it
- * for the whole sequence, to keep three frames' worth of incoming panel inside
- * the frame.
+ * OFF BY DEFAULT, and that is the conclusion of having shipped it on.
  *
- * A part bleeding off the edge as it flies in reads as a part flying in from
- * off-screen, which is what it is. So the box is sized to hold the great
- * majority of frames and the outliers are allowed past it.
+ * The idea was that trimming the transparent margin would buy payload. It does
+ * not: transparent pixels are nearly free in WebP, and the same frame measured
+ * ~29 KB cropped and ~29 KB whole. Frame count is the only real lever on
+ * payload. What cropping actually buys is composition — a bigger subject on
+ * screen — and it charges for that in correctness.
  *
- * Worth knowing before reaching for this to save bytes: it mostly will not.
- * Transparent pixels are nearly free in WebP, so cropping buys composition —
- * a bigger subject on screen — far more than it buys payload. Frame count is
- * the lever for payload.
+ * The charge is this. A strict union is the wrong rule for an exploded
+ * assembly: the parts fly in from outside the frame, so in a handful of frames
+ * a panel sweeps across the canvas and touches every edge, which makes the
+ * union the whole canvas and reclaims nothing. Loosening it to a percentile
+ * reclaims area by letting the outliers bleed — which is to say by clipping
+ * the very parts whose arrival is the point of those frames.
+ *
+ * So it is opt-in. `--contain 0.9` restores the old behaviour if a particular
+ * render genuinely needs it; the note above is what to weigh first.
  */
-const DEFAULT_CONTAIN = 0.9;
+const DEFAULT_CONTAIN = 1;
 /** Breathing room left around the union box, as a fraction of its size. */
 const CROP_PADDING = 0.02;
 /** Width the bounding box is measured at. Full resolution is not needed to
@@ -112,11 +112,18 @@ const CONTAIN = flag('contain', DEFAULT_CONTAIN);
  * shot finishing rather than as a correction. Frames wide enough to bleed are
  * clipped by the stage, which already hides its overflow.
  *
- * Set both to 1 to turn it off, which is the right move if the render is ever
- * re-shot with the camera closer at the end.
+ * OFF BY DEFAULT. It ran at 1 -> 1.5 for one build and the result was visibly
+ * soft, because it scales up pixels that have already been scaled down to the
+ * output width — blur on top of blur. The empty space it was compensating for
+ * turned out to be correct anyway: the camera orbits from above to head-on, so
+ * the subject genuinely occupies less of a head-on frame, and shrinking that
+ * gap fights the shot rather than finishing it.
+ *
+ * `--zoom-end 1.4` brings it back for a render that needs it. If the last frame
+ * is too loose, the fix is the camera, not this.
  */
 const ZOOM_START = flag('zoom-start', 1);
-const ZOOM_END = flag('zoom-end', 1.5);
+const ZOOM_END = flag('zoom-end', 1);
 /** CLAUDE.md hard constraint #3. Checked against the mobile set. */
 const BUDGET_BYTES = 2 * 1024 * 1024;
 
@@ -267,7 +274,14 @@ async function unionBox(files) {
   };
 }
 
-const crop = first.hasAlpha ? await unionBox(selected) : null;
+// `CONTAIN >= 1` means no crop at all, not a strict union: on this render a
+// strict union is the whole canvas anyway, and skipping the pass saves scanning
+// every frame's alpha to arrive at that answer.
+const crop = first.hasAlpha && CONTAIN < 1 ? await unionBox(selected) : null;
+
+if (!crop) {
+  console.log(`  crop: off — frames are written at the full ${first.width}×${first.height}\n`);
+}
 
 if (crop) {
   const kept = ((crop.width * crop.height) / (first.width * first.height)) * 100;
