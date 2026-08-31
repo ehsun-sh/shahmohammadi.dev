@@ -191,13 +191,24 @@ const alt =
           attribute that scoped rules are compiled against, and a scoped
           `.hero-mark { width }` silently matched nothing. The mark rendered
           0×0 — present in the DOM, invisible on screen. */}
+      {/* The name is the only thing in the flow, because it is the only thing
+          that has to land on the screen's centre line. The tagline and the mark
+          are lifted out of it and hung above — anything sharing the row would
+          push the name down by half its own height, which is the difference
+          between "the block is centred" and "the name is centred". */}
       <div class="hero-lead">
-        <p class="hero-lockup">
-          <BrandMark class="size-[1.875em] shrink-0" />
-          <span>{cv.basics.name}</span>
-        </p>
+        {/* A Tailwind utility and not a class this file styles, for the same
+            reason Navigation.astro uses one: BrandMark injects the artwork with
+            `set:html`, so the <svg> never receives the `data-astro-cid-*`
+            attribute that scoped rules are compiled against, and a scoped
+            `.hero-mark { width }` silently matches nothing — the mark renders
+            0×0, present in the DOM and invisible on screen. */}
+        <div class="hero-above">
+          <p class="hero-tagline">{HEADLINE}</p>
+          <BrandMark class="size-[clamp(2.25rem,4.6vw,3.25rem)] shrink-0" />
+        </div>
 
-        <p class="hero-headline">{HEADLINE}</p>
+        <p class="hero-fullname">{cv.basics.name}</p>
       </div>
 
       <span class="hero-scroll" aria-hidden="true">
@@ -250,16 +261,15 @@ const alt =
     display: grid;
     grid-template-rows: minmax(0, 1fr) auto minmax(0, 1fr);
     justify-items: center;
-    /* No bottom padding, and that is the difference between "near the middle"
-       and the middle: the grid's last track ends at the padding edge, so any
-       value here lands the cue half of it high — 12px with 1.5rem. The cue is
-       centred in a track that is a quarter of the screen tall, so it is in no
-       danger of touching an edge that no longer has a cushion.
-       The top padding stays, and costs the lead block 12px of true centre for
-       it. That is the right way round: it is a real guard on a short landscape
-       viewport, where track 1 can collapse to nothing and put the lockup
-       against the top edge, and 12px on a 958px screen is not visible. */
-    padding: 1.5rem 1.5rem 0;
+    /* No vertical padding at all, because both of the things this card
+       promises are measured against the screen and not against a padding box.
+       The grid's tracks end at the padding edge, so a value here would land the
+       name half of it low and the cue half of it high — "near the middle"
+       rather than the middle. Nothing is at risk from losing the cushion: the
+       tagline and the mark hang off the name rather than sitting in a track, so
+       a short viewport shrinks the empty tracks instead of pushing anything
+       against an edge. */
+    padding: 0 1.5rem;
     text-align: center;
     /* The exact inverse of what `.hero-title` does on the way out: it fades in
        while growing from 0.72, so this fades out while shrinking to it. Script
@@ -276,58 +286,54 @@ const alt =
   /* Explicit rows: auto-placement would drop these into tracks 1 and 2 and
      leave the third empty, which is the opposite of the arrangement. */
   .hero-lead {
+    position: relative;
     grid-row: 2;
     align-self: center;
   }
 
-  .hero-lockup {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.8rem;
-    margin-bottom: clamp(1rem, 2.2vh, 1.5rem);
-    /* 24px at its ceiling — a step past the six type roles, in the one
-       component that already has a licence for it. `.hero-name` reaches past
-       the display role for the same reason: this screen is a title sequence
-       rather than a page, and the lockup has to hold its own beside a headline
-       set at up to 80px. Nothing outside .hero may take a size from here.
-       Clamped rather than fixed because the line does not wrap: mark plus gap
-       plus name measures 336px at 24px, against the 327px a 375px screen has
-       left after its padding, so a phone would have clipped the last letters.
-       The middle term is a `calc` and not a bare `vw` because the relationship
-       is affine, not proportional: the content needs 14px of width per px of
-       font size, the padding is a fixed 48, so the largest size that fits with
-       ~8% to spare is 6.5vw - 3px. That reaches the 24px ceiling at about
-       414px and holds it everywhere above — every tablet and desktop gets the
-       full size, and only a narrow phone trades any of it. A plain `4.7vw` was
-       the first attempt and gave up 24px far too early, at viewports with room
-       to spare, because it had no constant to absorb the padding.
-       The mark is sized in `em` so it tracks this rather than having to be
-       clamped a second time and kept in sync by hand. */
-    font-size: clamp(1.125rem, calc(6.5vw - 3px), 1.5rem);
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    /* Breaking the name across two lines beside the mark looks like a mistake
-       rather than a wrap, which is why the size gives way instead. */
-    white-space: nowrap;
+  /* Out of the flow and hung off the top of the name, which is what lets the
+     name itself be the centred thing. `bottom: 100%` puts this block's foot on
+     the name's cap line; the margin is the gap between them. */
+  .hero-above {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: grid;
+    justify-items: center;
+    gap: clamp(0.85rem, 1.8vh, 1.35rem);
+    margin-bottom: clamp(0.9rem, 2vh, 1.5rem);
+    width: max-content;
+    max-width: 100%;
   }
 
-  .hero-headline {
-    /* Sized the same way `.hero-name` is — by viewport unit, so the longest
-       line fits a 375px screen without a breakpoint — but deliberately a step
-       under it in size and weight, and not uppercased. The two title moments
-       bookend the sequence and the closing one has to be the heavier of the
-       pair: this screen names the work, the last one names the person, and the
-       payoff should not be the quieter of the two. */
-    font-size: clamp(2.25rem, 7.2vw, 5rem);
-    font-weight: 700;
-    letter-spacing: -0.025em;
-    line-height: 1.05;
+  /* The mirror of `.hero-kicker` on the closing plate, and the same size and
+     colour: a short line introducing a large name. The two cards now hold the
+     same shape at both ends of the sequence, which is the whole argument for
+     the arrangement — one names the work above the person, the other names the
+     person under "Designed by". */
+  .hero-tagline {
+    font-size: var(--text-lead);
+    line-height: 1.2;
+    color: var(--color-muted);
     text-wrap: balance;
   }
 
-  /* No margin: its distance from the headline is the grid's job now, and a
-     margin here would offset it from the midpoint the row was sized to find. */
+  .hero-fullname {
+    /* Sized the way `.hero-name` is — by viewport unit, so the longest line
+       fits a 375px screen without a breakpoint — and deliberately a step under
+       it in size and weight, and not uppercased. The closing plate has to stay
+       the heavier of the two: this card opens with the name, the last one
+       lands on it, and the payoff should not be the quieter. */
+    font-size: clamp(2rem, 7.4vw, 5.25rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.04;
+    text-wrap: balance;
+  }
+
+  /* No margin: its distance from the name is the grid's job now, and a margin
+     here would offset it from the midpoint the row was sized to find. */
   .hero-scroll {
     grid-row: 3;
     align-self: center;
