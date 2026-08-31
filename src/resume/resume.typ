@@ -23,33 +23,77 @@
 //
 // This is the same family the site sets, and that is the point: a recruiter who
 // reads the page and then opens the PDF should not feel handed a document from
-// somewhere else. It replaced Almarai, which was chosen when the site was on a
-// system font stack and nothing here had a typeface to agree with.
+// somewhere else.
 //
-// The swap cost half a point of body size, and the reason is where the page
-// breaks land rather than how many there are. Open Sans sets wider than Almarai
-// did, and at 9.5pt the document still fitted two pages but filled the first
-// one to its last line and split Technical Skills across the break, so the
-// skills table was read half on one page and half on the next. 9pt pulls the
-// whole of that section back onto page 1 and leaves both breaks on section
-// boundaries: page 1 is the summary, Experience and Skills; page 2 is Projects,
-// Education and Awards. Both were rendered and compared before choosing.
+// ---------------------------------------------------------------------------
+// WHERE THE NUMBERS CAME FROM
 //
-// Every other number in this file survived the swap untouched, which is the
-// test a font change has to pass.
+// The metrics below are not taste. Every one of them was measured out of
+// `Docs/Ehsan Shahmohammadi CV 4.2.pdf` — a Reactive Resume export (Rhyhorn
+// template) that was reviewed and approved — by inflating its content streams
+// and replaying the text operators to recover each run's font size, baseline
+// and colour. Reproducing an approved document beats re-deriving it by eye.
+// That file is local only: `Docs/*.pdf` is gitignored because those exports
+// carry a phone number and this repo is public. The measurements below are the
+// part worth keeping, which is why they are written down here rather than left
+// to be re-derived from a file a fresh clone will not have.
 //
-// Unlike Almarai, this family does ship italic, so the layout could ask for one
-// — it still does not, because nothing in a résumé needs it.
+// The identity that makes the spacing solvable: Typst's default text box runs
+// cap-height to baseline, so
+//
+//     baseline(A) -> baseline(B)  =  spacing  +  cap-height x size(B)
+//
+// and Open Sans' cap-height is 1462/2048 = 0.714em. Every `spacing`, `above`
+// and `row-gutter` in this file is a measured baseline delta with the cap
+// height of the following line subtracted out. Change a size and the spacings
+// that touch it have to be re-solved, not nudged.
+//
+// The measured targets, in points:
+//
+//     page margin ................. 30 on all four sides (content 552 wide)
+//     name ........................ 15pt semibold
+//     section heading ............. 10pt semibold + full-width 2pt rule
+//     everything else ............. 8pt
+//     line to line, same para ..... 12.05   (= 1.5 x body, leading 0.79em)
+//     name -> headline ............ 15.4
+//     headline -> contact ......... 13.6
+//     content -> section heading .. 36.7
+//     heading -> its rule ......... 3.0 to the rule's top edge
+//     heading -> first content .... 13.2
+//     company -> position ......... 12.4
+//     position -> first bullet .... 12.5
+//     bullet -> bullet ............ 15.95
+//     entry -> entry .............. 15.1
+//
+// Two deliberate departures from the reference, both recorded rather than
+// silent. It sets headings in Arimo and body in Noto Sans; this file uses Open
+// Sans throughout, because agreeing with the website is the whole reason the
+// résumé has a typeface at all. And its accent bar is #155DFC; this one stays
+// on the site's --color-accent-solid, for the same reason.
+//
+// ---------------------------------------------------------------------------
+// SPACING DISCIPLINE
+//
+// Typst resolves the gap between two blocks as max(previous.below, next.above),
+// so the two ends fight and the larger wins. To keep that from turning every
+// number into a guess, `par.spacing` is set to the smallest gap in the
+// document — the one under a section rule — and every larger gap is declared as
+// `above` on the block that wants it. The floor never wins an argument, so a
+// block's own `above` is always what you read on the page.
+//
+// The exception is *inside* a container: Typst drops leading spacing at the
+// start of one, so a first child's `above` is ignored and the gap has to be set
+// as `below` on the child before it.
 
 #let cv = json("/src/data/cv.json")
 #let basics = cv.basics
 
-#let ink = rgb("#1d1d1f")
-#let muted = rgb("#5c5c60")
-#let rule-color = rgb("#c8c8cd")
-// The one colour in the document, and the same --color-accent-solid the site
-// fills its primary button with. It has exactly one job here: the header bar.
+// The reference sets every glyph in pure black and carries exactly one colour,
+// on the header bar. Same rationing rule as the site: one colour, one job.
+#let ink = rgb("#000000")
 #let accent = rgb("#0071e3")
+
+#let cap = 0.714 // Open Sans cap-height, in em. See the note above.
 
 #set document(
   title: basics.name + " — " + basics.label,
@@ -57,10 +101,13 @@
   keywords: cv.skills.map(g => g.items).flatten(),
 )
 
-#set page(paper: "us-letter", margin: (x: 0.62in, top: 0.58in, bottom: 0.5in))
-#set text(font: "Open Sans", size: 9pt, fill: ink, lang: "en")
-#set par(justify: true, leading: 0.62em, spacing: 0.62em)
-#show link: set text(fill: ink)
+#set page(paper: "us-letter", margin: 30pt)
+#set text(font: "Open Sans", size: 8pt, fill: ink, lang: "en")
+#set par(justify: true, leading: 0.79em, spacing: 2.49pt)
+
+// The reference underlines its contact links and nothing else, hairline and
+// close to the baseline. Measured: 0.5pt, 1pt of offset.
+#show link: it => underline(offset: 1pt, stroke: 0.5pt, it)
 
 // ---------------------------------------------------------------- helpers ---
 
@@ -85,66 +132,75 @@
 // A filled block, not `line()`. A line reserves no vertical space, so whatever
 // followed could sit on top of it — which is why the rule appeared under some
 // headings and not others depending on the next block's own spacing.
-#let rule(above: 0.25em, below: 0.4em, sticky: false) = block(
-  width: 100%, height: 0.5pt, fill: rule-color,
-  above: above, below: below, sticky: sticky,
-)
-
+//
 // `sticky` pulls the heading and its rule onto the next page with the entry
 // they introduce. Without it a section title can end up alone at the foot of a
 // page with its content overleaf.
-#let section(title) = {
+// `above` is exposed for exactly one caller: the first section. The header
+// block carries a 3.6pt bottom inset so its accent bar can overhang the contact
+// baseline, and that inset lands in the gap underneath, which would make the
+// first heading sit 3.6pt lower than every other one. Subtracting it there is
+// the only way to keep all seven gaps measuring the same 36.7.
+#let section(title, above: 36.7pt - cap * 10pt) = {
   block(
-    above: 0.95em, below: 0.25em, sticky: true,
-    text(size: 9pt, weight: "bold", tracking: 0.09em)[#upper(title)],
+    above: above,
+    below: 3pt,
+    sticky: true,
+    text(size: 10pt, weight: "semibold")[#title],
   )
-  rule(sticky: true)
+  block(
+    width: 100%, height: 2pt, fill: ink,
+    above: 3pt, below: 13.2pt - 5pt - cap * 8pt,
+    sticky: true,
+  )
 }
 
-// Title left, dates right on one baseline, with the scope note underneath.
+// Two lines, four fields: the organisation and where it was on the first,
+// what the role was and when on the second. Left column bold on line one,
+// because the name of the place is what a recruiter scans a résumé for; the
+// right column is flush to the measure so the dates form their own column.
 //
-// `breakable: false` keeps the title with its description. Without it a page
-// break could land between them and strand a heading alone at the foot of a
-// page — which is exactly what happened to the first project entry.
+// One grid rather than two blocks, so the pair cannot be split across a page:
+// a company name stranded at the foot of a page with its dates overleaf is the
+// exact failure `breakable: false` exists to prevent.
 //
-// The title/note gap is set as the head block's `below`, not the note's
-// `above`: Typst collapses leading spacing at the start of a container, and the
-// note is the first thing in its own `[...]` group, so its `above` is dropped.
-//
-// Both numbers were solved from measured output rather than guessed. Spacing is
-// set between block frames, and a text frame runs cap-height to baseline — so
-// the visible gap lands about 8.7px (at 300ppi) under the spacing value, that
-// being how far the descenders of the line above hang past its frame. 0.47em
-// puts roughly 3px of daylight at 96dpi under the entry title.
-//
-// `below` on the entry is the gap to the bullets, and is deliberately the
-// larger of the two: the note describes the title, so it has to sit nearer to
-// it than to the list, or it reads as the first bullet.
-#let entry(title, meta, note: none) = block(
-  breakable: false,
-  above: 0.85em,
-  below: 0.55em,
-)[
-  #block(below: 0.47em)[
-    #grid(
-      columns: (1fr, auto),
-      column-gutter: 1em,
-      align: (left + bottom, right + bottom),
-      title,
-      text(size: 8.5pt, fill: muted)[#meta],
-    )
-  ]
-  #if note != none and note != "" [
-    #text(fill: muted)[#note]
-  ]
-]
+// `bottom` alignment matters — the two cells hold different weights and, in
+// some entries, different string lengths that wrap. Aligning on the baseline
+// keeps the dates level with the text they belong to.
+#let entry-gap = 15.1pt - cap * 8pt
+#let after-rule = 13.2pt - 5pt - cap * 8pt
 
-#let bullets(items) = list(
-  marker: text(fill: rule-color)[•],
-  indent: 0.4em,
-  body-indent: 0.45em,
-  spacing: 0.5em,
-  ..items,
+#let entry(org, place, role, when, above: entry-gap) = block(
+  breakable: false,
+  above: above,
+  below: 12.5pt - cap * 8pt, // to the summary or the first bullet
+  grid(
+    columns: (1fr, auto),
+    column-gutter: 12pt,
+    row-gutter: 12.4pt - cap * 8pt,
+    align: (left + bottom, right + bottom),
+    text(weight: "semibold")[#org], [#place],
+    [#role], [#when],
+  ),
+)
+
+// The marker sits 5pt into the margin and the text 10.5pt, both measured. The
+// gap between items is the one place the reference is airier than a plain line
+// break — 15.95 against 12.05 — which is what keeps a six-bullet entry from
+// reading as a paragraph.
+//
+// Wrapped in a block because a bare `list` takes `par.spacing` as its `above`,
+// and par.spacing is the document's floor — which put the first bullet 8.2pt
+// under the line before it instead of 12.5.
+#let bullets(items) = block(
+  above: 12.5pt - cap * 8pt,
+  list(
+    marker: text(fill: ink)[•],
+    indent: 5pt,
+    body-indent: 2.7pt,
+    spacing: 15.95pt - cap * 8pt,
+    ..items,
+  ),
 )
 
 // -------------------------------------------------------------------- head ---
@@ -164,9 +220,12 @@
 // the country's name. Falls back to the code for anywhere not listed.
 #let country-names = ("CA": "Canada", "IR": "Iran", "US": "United States")
 
+// No phone number, here or in cv.json. This repo is public and the PDF is
+// served from a public URL; the reference export carries one because it lives
+// behind an account. Email and the site are the contact path.
 #let contact-items = (
-  [#basics.location.city, #country-names.at(basics.location.countryCode, default: basics.location.countryCode)],
   link("mailto:" + basics.email, basics.email),
+  [#basics.location.city, #country-names.at(basics.location.countryCode, default: basics.location.countryCode)],
   link(basics.url, basics.url.replace("https://", "")),
 ) + profile-links
 
@@ -177,62 +236,64 @@
 // rect sized `height: 100%` in an auto grid row resolves against the page, not
 // the row, which drew a bar down the whole of page 1.
 //
-// The block is then pulled into the left margin by half the stroke plus the
-// gap, so the header text keeps the same left edge as every section below it.
-// Indenting the header instead would break the spine the whole document reads
-// against, and the bar is a marginal mark either way.
-#let bar-width = 3.5pt
-#let bar-offset = 8pt + bar-width / 2
+// Typst centres a block stroke on the block's edge, so the block is pushed
+// right by half the bar to leave the bar itself sitting flush in the margin at
+// x=30..35, exactly where the reference puts it. Unlike the previous layout,
+// the header text is then indented past it rather than pulled back level with
+// the sections — that indent is the reference's, and the bar reads as a
+// masthead rule rather than a marginal tick because of it.
+//
+// The insets are the measured overhang: the bar starts 2.9pt above the name's
+// cap and ends 3.6pt below the contact baseline, for a 46.2pt bar.
+#let bar-width = 5pt
 
-// One value for both gaps, because the three lines are three different sizes
-// and the eye reads the whitespace, not the baselines. At 0.28/0.5em the
-// baselines were near enough evenly spaced (43px vs 45px at 300ppi) while the
-// visible gaps were 11px and 19px — the third line's smaller cap height leaves
-// a bigger hole above it for the same baseline distance. Equal spacers put the
-// whitespace at ~15px on both.
-#let head-gap = 0.39em
-
-#pad(left: -bar-offset)[
+#pad(left: bar-width / 2)[
   #block(
-    inset: (left: bar-offset),
+    inset: (left: 14.5pt, top: 2.9pt, bottom: 3.6pt),
     stroke: (left: bar-width + accent),
   )[
-    #text(size: 20pt, weight: "bold", tracking: -0.015em)[#basics.name]
-    #v(head-gap, weak: true)
-    #text(size: 10.5pt, fill: muted)[#basics.label]
-    #v(head-gap, weak: true)
-    #text(size: 8.5pt, fill: muted)[
-      #contact-items.join(text(fill: rule-color)[ · ])
-    ]
+    #text(size: 15pt, weight: "semibold")[#basics.name]
+    #v(15.4pt - cap * 8pt, weak: true)
+    #text[#basics.label]
+    #v(13.6pt - cap * 8pt, weak: true)
+    #contact-items.join(h(9pt))
   ]
 ]
 
-#rule(above: 0.8em, below: 0.55em)
+#section([Professional Summary], above: 36.7pt - cap * 10pt - 3.6pt)
 
-#par(justify: true)[#basics.summary]
+#basics.summary
 
 // -------------------------------------------------------------- experience ---
 
 #section[Experience]
 
-#for job in cv.work [
+#for (i, job) in cv.work.enumerate() [
   #entry(
-    [#text(weight: "bold")[#job.position] #text(fill: muted)[· #job.company]],
-    fmt-range(job.startDate, job.endDate)
-      + if job.location != "" { " · " + job.location } else { "" },
-    note: job.summary,
+    job.company,
+    job.location,
+    job.position,
+    fmt-range(job.startDate, job.endDate),
+    above: if i == 0 { after-rule } else { entry-gap },
   )
-  #if job.highlights.len() > 0 [#bullets(job.highlights)]
+  #if job.summary != "" [#block(above: 0pt)[#job.summary]]
+  #if job.highlights.len() > 0 [
+    #bullets(job.highlights)
+  ]
 ]
 
 // ------------------------------------------------------------------ skills ---
 
+// Category on its own line in semibold, its items underneath. Both are ink:
+// the reference sets the whole document in one colour and lets weight carry
+// the hierarchy, and at this density a second grey would only blur it.
 #section[Technical Skills]
 
-#for group in cv.skills [
-  #block(below: 0.45em)[
-    #text(weight: "bold")[#group.category] #h(0.35em)
-    #text(fill: muted)[#group.items.join(" · ")]
+#for (i, group) in cv.skills.enumerate() [
+  #block(above: if i == 0 { after-rule } else { 15.1pt - cap * 8pt })[
+    #text(weight: "semibold")[#group.category]
+    #v(12.8pt - cap * 8pt, weak: true)
+    #group.items.join(" · ")
   ]
 ]
 
@@ -240,12 +301,15 @@
 
 #if cv.projects.len() > 0 [
   #section[Selected Projects]
-  #for project in cv.projects [
+  #for (i, project) in cv.projects.enumerate() [
     #entry(
-      [#text(weight: "bold")[#project.name]],
+      project.name,
       project.year,
-      note: project.summary,
+      project.tags.join(" · "),
+      "",
+      above: if i == 0 { after-rule } else { entry-gap },
     )
+    #block(above: 0pt)[#project.summary]
   ]
 ]
 
@@ -253,37 +317,48 @@
 
 #section[Education]
 
-#for school in cv.education [
+#for (i, school) in cv.education.enumerate() [
   #entry(
-    [#text(weight: "bold")[#school.studyType, #school.area]],
+    school.institution,
     school.startDate + " – " + school.endDate,
-    note: [#school.institution#if school.note != "" [ · #school.note]],
+    school.studyType + ", " + school.area,
+    "",
+    above: if i == 0 { after-rule } else { entry-gap },
   )
+  #if school.note != "" [#block(above: 0pt)[#school.note]]
 ]
 
 // ------------------------------------------------------ awards & the tail ---
 
 #if cv.awards.len() > 0 [
   #section[Awards]
-  #for award in cv.awards [
+  #for (i, award) in cv.awards.enumerate() [
     #entry(
-      [#text(weight: "bold")[#award.title]],
+      award.title,
       award.date,
-      note: award.issuer,
+      award.issuer,
+      "",
+      above: if i == 0 { after-rule } else { entry-gap },
     )
   ]
 ]
 
 #if cv.certificates.len() > 0 [
   #section[Certifications]
-  #for cert in cv.certificates [
-    #block(below: 0.35em)[
-      #cert.name #text(fill: muted)[· #cert.issuer · #fmt-date(cert.date)]
-    ]
+  #for (i, cert) in cv.certificates.enumerate() [
+    #entry(
+      cert.name,
+      fmt-date(cert.date),
+      cert.issuer,
+      "",
+      above: if i == 0 { after-rule } else { entry-gap },
+    )
   ]
 ]
 
 #if cv.languages.len() > 0 [
   #section[Languages]
-  #cv.languages.map(l => l.language + " — " + l.fluency).join("  ·  ")
+  #block(above: after-rule)[
+    #cv.languages.map(l => l.language + " — " + l.fluency).join("  ·  ")
+  ]
 ]

@@ -8,6 +8,11 @@ node_modules/
 # generated — never commit, CI builds this from src/data/cv.json
 public/resume.pdf
 
+# Raw hero renders: ~200 transparent PNGs at 2400px, about a gigabyte. The
+# committed artefact is public/hero/, which `npm run hero` builds from these.
+# They live under images/ with the other source artwork the site does not read.
+images/hero-frames/
+
 # Source résumé PDFs stay local: they carry a phone number and this repo may
 # become public. Docs/Resume.MD (phone stripped) is the tracked source of truth.
 Docs/*.pdf

@@ -191,13 +191,43 @@ Deploys happen on push to `main`. Nothing is published from a local machine.
   locally would ship subtly different from the CI runner's. Typst is pinned to
   0.15.1 for the same reason. Typst only *warns* on an unresolvable family and
   falls back, so CI asserts the TTF exists before compiling.
-  **Body size is 9pt and that number is load-bearing.** At 9.5pt the document
-  still fits two pages but splits Technical Skills across the break; 9pt keeps
-  every break on a section boundary. Re-render and look at both pages before
-  changing any size in that file.
-- **The accent bar beside the résumé header is the PDF's only colour**, and it
-  is the same `--color-accent-solid` the site fills its primary button with.
-  The same rationing rule applies: one job, one colour.
+- **The résumé's metrics are measured, not chosen.** Three sizes — 15pt name,
+  10pt section heading, 8pt everything else — on a 30pt margin, with 12.05pt
+  between baselines. Every one of those numbers was recovered from
+  `Docs/Ehsan Shahmohammadi CV 4.2.pdf`, a Reactive Resume export (Rhyhorn
+  template) that was reviewed and approved, by inflating its content streams
+  and replaying the text operators. Reproducing an approved document beats
+  re-deriving it by eye, and it is why the file's header carries the full table
+  of measured baseline deltas rather than a rationale.
+  The identity that makes them solvable: Typst's text box runs cap-height to
+  baseline, so `baseline(A)→baseline(B) = spacing + cap-height × size(B)`, and
+  Open Sans' cap-height is 0.714em. Every `spacing`, `above` and `row-gutter`
+  in that file is a measured delta with the next line's cap height subtracted
+  out — **change a size and the spacings touching it have to be re-solved, not
+  nudged.** Verify by re-measuring the output, not by looking at it.
+  `par.spacing` is deliberately set to the *smallest* gap in the document, the
+  one under a section rule, because Typst resolves a gap as
+  `max(prev.below, next.above)` — a floor never wins an argument, so every
+  larger gap can be declared as `above` on the block that wants it. Inside a
+  container the reverse holds: Typst drops leading spacing at the start of one,
+  so a first child's gap has to be set as `below` on the child before it.
+- **An entry reads `company | location` then `position | dates`** — organisation
+  first, because that is what a recruiter scans for, and the right column flush
+  to the measure so the dates form their own column. Both rows are one grid, so
+  a page break cannot strand a company name from its dates. Note this is *not*
+  the site's order, which leads with the position; the two documents are read
+  differently and only `cv.json` has to agree.
+- **The résumé is set entirely in ink, with weight carrying the hierarchy.**
+  The reference sets every glyph in pure black and spends its only colour on
+  the header bar; a second grey at this density blurs the distinction rather
+  than making one. **That bar is the PDF's only colour**, and it is the same
+  `--color-accent-solid` the site fills its primary button with. The same
+  rationing rule applies: one job, one colour. It stays that blue rather than
+  the reference's `#155DFC`, because agreeing with the site is the whole reason
+  the résumé has a palette at all — the same argument that put it in Open Sans.
+- **No phone number, here or in `cv.json`.** This repo is public and
+  `resume.pdf` is served from a public URL. The reference export carries one
+  because it lives behind an account; email and the site are the contact path.
 
 ## Hard constraints
 
