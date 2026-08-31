@@ -65,6 +65,20 @@ const projectEntry = z.object({
   /** What the picture shows, for someone who cannot see it. Leave empty only
    *  if the image is pure decoration, which for a project shot it is not. */
   imageAlt: z.string().default(''),
+  /**
+   * Whether this project appears on the landing page and in `resume.pdf`.
+   *
+   * `/projects` ignores it and lists everything, which is the point: cv.json is
+   * meant to hold every project, and the two places with a fixed budget take a
+   * subset of it. The landing page is a CV where Projects is one section among
+   * Experience, Skills and Education, and the résumé is one page.
+   *
+   * **Defaults to false, deliberately.** Adding a project should be a decision
+   * about `/projects` only; growing the landing page and the PDF is a second,
+   * separate decision, and a default of true would make it happen silently
+   * every time. Two consumers, one flag — never a `featuredOnResume` as well.
+   */
+  featured: z.boolean().default(false),
 });
 
 const award = z.object({

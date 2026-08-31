@@ -323,9 +323,18 @@
 
 // ---------------------------------------------------------------- projects ---
 
-#if cv.projects.len() > 0 [
+// `featured` only. cv.json holds every project because /projects lists every
+// project; this document is one page and cannot. Same flag the landing page
+// reads, so the two can never disagree about which projects are the ones —
+// and a project added for the website does not silently push this to a second
+// page. The heading stays "Selected", which is what a CV calls a subset;
+// "Featured" is the website's word for it, and it earns it there by sitting
+// above a link to the full list, which a PDF has no equivalent of.
+#let featured = cv.projects.filter(p => p.at("featured", default: false))
+
+#if featured.len() > 0 [
   #section[Selected Projects]
-  #for (i, project) in cv.projects.enumerate() [
+  #for (i, project) in featured.enumerate() [
     #entry(
       project.name,
       project.year,

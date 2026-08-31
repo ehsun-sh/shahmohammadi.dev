@@ -270,7 +270,8 @@
       "tags": ["SDR", "Optical", "Medical"],
       "slug": "mri-optical-coil",
       "image": null,
-      "imageAlt": ""
+      "imageAlt": "",
+      "featured": true
     },
     {
       "name": "Optical Transmitter System with WDM",
@@ -279,7 +280,8 @@
       "tags": ["WDM", "Embedded Linux", "Telecom"],
       "slug": "wdm-optical-transmitter",
       "image": null,
-      "imageAlt": ""
+      "imageAlt": "",
+      "featured": true
     },
     {
       "name": "SFP 4.25G Transceiver Design",
@@ -288,7 +290,8 @@
       "tags": ["SFP", "High-speed PCB", "Optics"],
       "slug": "sfp-4g25-transceiver",
       "image": null,
-      "imageAlt": ""
+      "imageAlt": "",
+      "featured": true
     },
     {
       "name": "Digital Motor Protection Relay",
@@ -297,7 +300,8 @@
       "tags": ["PIC", "Power", "Industrial"],
       "slug": "motor-protection-relay",
       "image": null,
-      "imageAlt": ""
+      "imageAlt": "",
+      "featured": true
     }
   ],
 

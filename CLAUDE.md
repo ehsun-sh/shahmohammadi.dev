@@ -252,6 +252,17 @@ Deploys happen on push to `main`. Nothing is published from a local machine.
   name, year, summary and tags because `resume.pdf` prints them, and the
   frontmatter deliberately cannot restate any of the four. Ordering comes from
   the `cv.json` array so the site and the PDF agree on which project leads.
+  **`cv.json` holds every project; `featured` picks the ones with a budget.**
+  `/projects` lists all of them — that is the page whose subject is the list.
+  The landing page and `resume.pdf` take `featured` only, because there Projects
+  is one section between Experience and Education, and because the PDF has a
+  page count. One flag, both consumers, so they cannot disagree; never add a
+  second flag for the résumé. It **defaults to false**: adding a project is a
+  decision about `/projects`, and growing the CV page and the PDF is a separate
+  one that should have to be made out loud. The landing page's heading is
+  "Featured Projects" and the résumé's stays "Selected Projects" — the website
+  earns the stronger word by putting an "All projects" link under the section,
+  which a PDF has no equivalent of.
   Three things fail the build on purpose rather than shipping quietly: a slug
   with no matching file, a file with no matching slug, and a published
   (`draft: false`) write-up that still contains the word `TODO`. Drafts render
