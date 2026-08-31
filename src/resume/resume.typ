@@ -51,8 +51,8 @@
 // The measured targets, in points:
 //
 //     page margin ................. 30 on all four sides (content 552 wide)
-//     name ........................ 15pt semibold
-//     section heading ............. 10pt semibold + full-width 2pt rule
+//     name ........................ 15pt bold
+//     section heading ............. 10pt bold + full-width 1pt rule
 //     everything else ............. 8pt
 //     line to line, same para ..... 12.05   (= 1.5 x body, leading 0.79em)
 //     name -> headline ............ 15.4
@@ -133,9 +133,20 @@
 // followed could sit on top of it — which is why the rule appeared under some
 // headings and not others depending on the next block's own spacing.
 //
+// 1pt, and reading that number out of the reference took a second pass. Its
+// section rules are stroked with `2 w`, which is what a naive read reports —
+// but Skia draws a border by doubling the stroke and clipping it back to a band
+// of the real width, and the clip path around each of these is 1pt tall. The
+// same trick is why the header's accent bar is stroked at `10 w` and lands on
+// the page 5pt wide. Taking `2 w` at face value shipped rules at exactly twice
+// the reference's weight, which is the sort of error that is obvious side by
+// side and invisible in a table of numbers.
+#let rule-height = 1pt
+
 // `sticky` pulls the heading and its rule onto the next page with the entry
 // they introduce. Without it a section title can end up alone at the foot of a
 // page with its content overleaf.
+//
 // `above` is exposed for exactly one caller: the first section. The header
 // block carries a 3.6pt bottom inset so its accent bar can overhang the contact
 // baseline, and that inset lands in the gap underneath, which would make the
@@ -146,11 +157,11 @@
     above: above,
     below: 3pt,
     sticky: true,
-    text(size: 10pt, weight: "semibold")[#title],
+    text(size: 10pt, weight: "bold")[#title],
   )
   block(
-    width: 100%, height: 2pt, fill: ink,
-    above: 3pt, below: 13.2pt - 5pt - cap * 8pt,
+    width: 100%, height: rule-height, fill: ink,
+    above: 2.93pt, below: 13.2pt - 2.93pt - rule-height - cap * 8pt,
     sticky: true,
   )
 }
@@ -168,7 +179,10 @@
 // some entries, different string lengths that wrap. Aligning on the baseline
 // keeps the dates level with the text they belong to.
 #let entry-gap = 15.1pt - cap * 8pt
-#let after-rule = 13.2pt - 5pt - cap * 8pt
+
+// Must stay equal to the rule's `below`: it is the same gap, declared from the
+// other side for the one block that opens a section.
+#let after-rule = 13.2pt - 2.93pt - rule-height - cap * 8pt
 
 #let entry(org, place, role, when, above: entry-gap) = block(
   breakable: false,
@@ -179,7 +193,7 @@
     column-gutter: 12pt,
     row-gutter: 12.4pt - cap * 8pt,
     align: (left + bottom, right + bottom),
-    text(weight: "semibold")[#org], [#place],
+    text(weight: "bold")[#org], [#place],
     [#role], [#when],
   ),
 )
@@ -252,7 +266,7 @@
     inset: (left: 14.5pt, top: 2.9pt, bottom: 3.6pt),
     stroke: (left: bar-width + accent),
   )[
-    #text(size: 15pt, weight: "semibold")[#basics.name]
+    #text(size: 15pt, weight: "bold")[#basics.name]
     #v(15.4pt - cap * 8pt, weak: true)
     #text[#basics.label]
     #v(13.6pt - cap * 8pt, weak: true)
@@ -263,6 +277,24 @@
 #section([Professional Summary], above: 36.7pt - cap * 10pt - 3.6pt)
 
 #basics.summary
+
+// ------------------------------------------------------------------ skills ---
+
+// Second, ahead of Experience, as the reference orders it. A hardware CV is
+// filtered on its stack before it is read for its story, so the list a screener
+// is matching against should not be two pages down. Category on its own line in
+// bold, its items underneath. Both are ink: the reference sets the whole
+// document in one colour and lets weight carry the hierarchy, and at this
+// density a second grey would only blur it.
+#section[Technical Skills]
+
+#for (i, group) in cv.skills.enumerate() [
+  #block(above: if i == 0 { after-rule } else { 15.1pt - cap * 8pt })[
+    #text(weight: "bold")[#group.category]
+    #v(12.8pt - cap * 8pt, weak: true)
+    #group.items.join(" · ")
+  ]
+]
 
 // -------------------------------------------------------------- experience ---
 
@@ -279,21 +311,6 @@
   #if job.summary != "" [#block(above: 0pt)[#job.summary]]
   #if job.highlights.len() > 0 [
     #bullets(job.highlights)
-  ]
-]
-
-// ------------------------------------------------------------------ skills ---
-
-// Category on its own line in semibold, its items underneath. Both are ink:
-// the reference sets the whole document in one colour and lets weight carry
-// the hierarchy, and at this density a second grey would only blur it.
-#section[Technical Skills]
-
-#for (i, group) in cv.skills.enumerate() [
-  #block(above: if i == 0 { after-rule } else { 15.1pt - cap * 8pt })[
-    #text(weight: "semibold")[#group.category]
-    #v(12.8pt - cap * 8pt, weak: true)
-    #group.items.join(" · ")
   ]
 ]
 

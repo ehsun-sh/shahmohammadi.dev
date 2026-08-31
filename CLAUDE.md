@@ -192,8 +192,9 @@ Deploys happen on push to `main`. Nothing is published from a local machine.
   0.15.1 for the same reason. Typst only *warns* on an unresolvable family and
   falls back, so CI asserts the TTF exists before compiling.
 - **The résumé's metrics are measured, not chosen.** Three sizes — 15pt name,
-  10pt section heading, 8pt everything else — on a 30pt margin, with 12.05pt
-  between baselines. Every one of those numbers was recovered from
+  10pt section heading, 8pt everything else, all bold-or-regular with nothing
+  in between — on a 30pt margin, with 12.05pt between baselines and a 1pt rule
+  under each heading. Every one of those numbers was recovered from
   `Docs/Ehsan Shahmohammadi CV 4.2.pdf`, a Reactive Resume export (Rhyhorn
   template) that was reviewed and approved, by inflating its content streams
   and replaying the text operators. Reproducing an approved document beats
@@ -211,6 +212,20 @@ Deploys happen on push to `main`. Nothing is published from a local machine.
   larger gap can be declared as `above` on the block that wants it. Inside a
   container the reverse holds: Typst drops leading spacing at the start of one,
   so a first child's gap has to be set as `below` on the child before it.
+  **Two of those measurements cannot be read off the stream at face value.**
+  Chrome prints through Skia, and Skia draws a border by doubling the stroke
+  width and clipping it back to a band of the real size — so the reference's
+  section rules say `2 w` and are 1pt, and its accent bar says `10 w` and is
+  5pt. Read the clip path, not the `w`. Weight is the other one: the reference
+  embeds faces *named* SemiBold, but that is only the heaviest weight in a
+  subsetted family asked for `bold`, and Open Sans SemiBold set against it
+  reads visibly lighter. Everything bold in the résumé is 700.
+- **Skills sits second, between the summary and Experience** — the reference's
+  order, and the right one here: a hardware CV is filtered on its stack before
+  it is read for its story, so the list a screener matches against should not
+  be two pages down. This is deliberately *not* the site's order, where
+  Experience leads; the two are read differently and only `cv.json` has to
+  agree.
 - **An entry reads `company | location` then `position | dates`** — organisation
   first, because that is what a recruiter scans for, and the right column flush
   to the measure so the dates form their own column. Both rows are one grid, so
