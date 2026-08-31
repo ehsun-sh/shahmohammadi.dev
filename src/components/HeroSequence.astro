@@ -191,12 +191,14 @@ const alt =
           attribute that scoped rules are compiled against, and a scoped
           `.hero-mark { width }` silently matched nothing. The mark rendered
           0×0 — present in the DOM, invisible on screen. */}
-      <p class="hero-lockup">
-        <BrandMark class="size-[30px] shrink-0" />
-        <span>{cv.basics.name}</span>
-      </p>
+      <div class="hero-lead">
+        <p class="hero-lockup">
+          <BrandMark class="size-[1.875em] shrink-0" />
+          <span>{cv.basics.name}</span>
+        </p>
 
-      <p class="hero-headline">{HEADLINE}</p>
+        <p class="hero-headline">{HEADLINE}</p>
+      </div>
 
       <span class="hero-scroll" aria-hidden="true">
         <span class="hero-scroll-label">Scroll Down</span>
@@ -229,21 +231,35 @@ const alt =
 <style>
   /* ------------------------------------------------------------ intro --- */
 
-  /* One centred stack, not three rows pushed to the edges of the screen.
-     Spread across the full height the lockup and the cue read as page furniture
-     that happens to share a screen with the headline; gathered around it they
-     read as one title card, which is what they are. The gaps are asymmetric on
-     purpose — the identity belongs to the line under it, the cue is an aside
-     about what to do next, so it sits further off. */
+  /* Three tracks, and the two `1fr` ones are what make the arrangement hold at
+     any height instead of being a guess.
+       row 1  empty
+       row 2  the lockup and the headline, as one block
+       row 3  the cue, centred in it
+     Rows 1 and 3 split the leftover equally, so the lead block lands on the
+     screen's centre line; centring the cue inside row 3 puts it exactly halfway
+     between the bottom of the headline and the bottom of the screen, wherever
+     those two end up. A margin could only ever approximate that, and would
+     drift the moment the headline wrapped to a different number of lines.
+     `minmax(0, …)` rather than a bare `1fr`: on a short viewport the cue would
+     otherwise grow its own track and shove the lead block off centre. */
   .hero-intro {
     position: absolute;
     inset: 0;
     z-index: 2;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 1.5rem;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto minmax(0, 1fr);
+    justify-items: center;
+    /* No bottom padding, and that is the difference between "near the middle"
+       and the middle: the grid's last track ends at the padding edge, so any
+       value here lands the cue half of it high — 12px with 1.5rem. The cue is
+       centred in a track that is a quarter of the screen tall, so it is in no
+       danger of touching an edge that no longer has a cushion.
+       The top padding stays, and costs the lead block 12px of true centre for
+       it. That is the right way round: it is a real guard on a short landscape
+       viewport, where track 1 can collapse to nothing and put the lockup
+       against the top edge, and 12px on a 958px screen is not visible. */
+    padding: 1.5rem 1.5rem 0;
     text-align: center;
     /* The exact inverse of what `.hero-title` does on the way out: it fades in
        while growing from 0.72, so this fades out while shrinking to it. Script
@@ -257,16 +273,42 @@ const alt =
     pointer-events: none;
   }
 
+  /* Explicit rows: auto-placement would drop these into tracks 1 and 2 and
+     leave the third empty, which is the opposite of the arrangement. */
+  .hero-lead {
+    grid-row: 2;
+    align-self: center;
+  }
+
   .hero-lockup {
     display: flex;
     align-items: center;
-    gap: 0.55rem;
+    justify-content: center;
+    gap: 0.8rem;
     margin-bottom: clamp(1rem, 2.2vh, 1.5rem);
-    font-size: var(--text-subhead);
+    /* 24px at its ceiling — a step past the six type roles, in the one
+       component that already has a licence for it. `.hero-name` reaches past
+       the display role for the same reason: this screen is a title sequence
+       rather than a page, and the lockup has to hold its own beside a headline
+       set at up to 80px. Nothing outside .hero may take a size from here.
+       Clamped rather than fixed because the line does not wrap: mark plus gap
+       plus name measures 336px at 24px, against the 327px a 375px screen has
+       left after its padding, so a phone would have clipped the last letters.
+       The middle term is a `calc` and not a bare `vw` because the relationship
+       is affine, not proportional: the content needs 14px of width per px of
+       font size, the padding is a fixed 48, so the largest size that fits with
+       ~8% to spare is 6.5vw - 3px. That reaches the 24px ceiling at about
+       414px and holds it everywhere above — every tablet and desktop gets the
+       full size, and only a narrow phone trades any of it. A plain `4.7vw` was
+       the first attempt and gave up 24px far too early, at viewports with room
+       to spare, because it had no constant to absorb the padding.
+       The mark is sized in `em` so it tracks this rather than having to be
+       clamped a second time and kept in sync by hand. */
+    font-size: clamp(1.125rem, calc(6.5vw - 3px), 1.5rem);
     font-weight: 600;
-    /* The column shrinks to content, which let the name wrap under itself into
-       two lines beside the mark. It is 155px at this size and the mark is 30 —
-       there is no width this has to survive where breaking it helps. */
+    letter-spacing: -0.01em;
+    /* Breaking the name across two lines beside the mark looks like a mistake
+       rather than a wrap, which is why the size gives way instead. */
     white-space: nowrap;
   }
 
@@ -284,11 +326,14 @@ const alt =
     text-wrap: balance;
   }
 
+  /* No margin: its distance from the headline is the grid's job now, and a
+     margin here would offset it from the midpoint the row was sized to find. */
   .hero-scroll {
+    grid-row: 3;
+    align-self: center;
     display: grid;
     justify-items: center;
     gap: 0.55rem;
-    margin-top: clamp(1.75rem, 4vh, 2.75rem);
     color: var(--color-muted);
   }
 
