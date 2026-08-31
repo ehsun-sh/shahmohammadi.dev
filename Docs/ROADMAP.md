@@ -139,7 +139,8 @@ on the next push. ✅
 **Font note:** Typst embeds only four faces — Libertinus Serif, New Computer
 Modern, New Computer Modern Math and DejaVu Sans Mono — and none of them is a
 proportional sans. The résumé is set in **Noto Sans** — the family of the
-approved reference export, deliberately not the site's Open Sans — sourced
+approved reference export, and the family the site was moved onto to match it —
+sourced
 through npm (`@expo-google-fonts/noto-sans`, OFL) so the version is pinned and
 no binary is committed, and passed to Typst with `--font-path`.
 Both the script and CI keep `--ignore-system-fonts`: without it whatever is
@@ -207,9 +208,10 @@ the recruiters this site is for.
       land on section boundaries. Site and PDF now share one typeface.
 - [x] `resume.pdf` rebuilt to the metrics of the approved Reactive Resume
       export: 15/10/8pt on a 30pt margin, 12.05pt baselines, 1pt heading rules,
-      Skills ahead of Experience, and Noto Sans in place of Open Sans. The
-      typeface no longer matches the site — that was the trade for matching the
-      reference, and it was taken knowingly.
+      Skills ahead of Experience, and Noto Sans in place of Open Sans. The site
+      followed to Noto Sans in the same pass, so the page and the PDF still
+      share one typeface; nothing else moved, because Noto sets 1.01× wider
+      than Open Sans measured over the real strings.
 
 ### Phase 6 — Hero animation ("Concept to Production")
 Four stages, not seven: **Schematic → PCB Layout → Assembled Board → Product.**

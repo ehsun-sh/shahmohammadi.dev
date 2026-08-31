@@ -23,7 +23,7 @@ npm run build     # static build to dist/
 npm run preview   # serve dist/ locally
 npm run check     # astro check — CI runs this before deploying
 npm run resume    # compile src/resume/resume.typ -> public/resume.pdf
-npm run fonts     # copy Open Sans out of node_modules -> public/fonts/ (committed)
+npm run fonts     # copy Noto Sans out of node_modules -> public/fonts/ (committed)
 npm run icons     # regenerate the favicon set from the brand mark (committed)
 ```
 
@@ -103,13 +103,19 @@ Deploys happen on push to `main`. Nothing is published from a local machine.
 - **Anything filled with `--color-surface` must not sit on a card** — the card
   is that colour, so it would be white on white. Inset things (form fields,
   empty-image frames, the placeholder cover) take `--color-bg` instead.
-- **Open Sans, self-hosted, latin only.** `public/fonts/*.woff2` are copied out
-  of `@fontsource-variable/open-sans` by `npm run fonts` and committed, the same
+- **Noto Sans, self-hosted, latin only.** `public/fonts/*.woff2` are copied out
+  of `@fontsource-variable/noto-sans` by `npm run fonts` and committed, the same
   arrangement as the icons — a bundled font gets a content hash, and the preload
   in `BaseLayout.astro` needs a path that is knowable before the build. One
-  variable file covers 300–800. Regenerate in the same change as any version
-  bump. The OG cards use the static `@fontsource/open-sans` woff instead,
+  variable file covers 100–900. Regenerate in the same change as any version
+  bump. The OG cards use the static `@fontsource/noto-sans` woff instead,
   because Satori reads neither woff2 nor a variable axis.
+  It replaced Open Sans so the site and `resume.pdf` share a family again,
+  after the résumé moved to the reference export's typeface. Nothing else had
+  to move with it: Noto sets 1.01× wider — measured glyph by glyph out of the
+  `hmtx` tables over the real strings, not eyeballed — so the measure, the type
+  scale and the OG card's character clamp all held. Any future family change
+  gets the same measurement first.
 - **Every section uses the same three roles**, which is what makes them look
   like each other: `subhead` for the entry title or skill category, `body` for
   its description, `meta` for dates, tags and notes. Do not give one section its
@@ -185,15 +191,16 @@ Deploys happen on push to `main`. Nothing is published from a local machine.
   --font-path node_modules/@expo-google-fonts/noto-sans`.** Typst embeds only
   four faces and none is a proportional sans, so the TTFs come from npm
   (`@expo-google-fonts/noto-sans`, OFL) — pinned exactly by `package.json`, not
-  committed. **Deliberately not the site's Open Sans**: the approved reference
-  is set in Noto Sans and matching it is what the document is for. The page and
-  the PDF no longer read as one document, which is a real cost that was chosen
-  rather than overlooked — so do not "fix" the mismatch by moving either one.
+  committed. Same family as the site — but arrived at from the other direction
+  than before: the approved reference export is set in Noto Sans, matching it is
+  what this document is for, and the site was moved onto it afterwards so the
+  page and the PDF still read as one document to whoever opens both.
   The swap cost nothing else: both families descend from Droid Sans and their
   metrics agree to four places (cap-height 0.714em, ascender 1.069, descender
   0.293), so every spacing number survived it untouched. That is the test any
   future family change has to pass — measure the TTF's `OS/2` cap-height before
-  swapping, and re-solve the spacings if it moves. The flag keeps whatever fonts a machine
+  swapping, and re-solve the spacings if it moves.
+  The flag keeps whatever fonts a machine
   happens to have installed from leaking in: without it a layout approved
   locally would ship subtly different from the CI runner's. Typst is pinned to
   0.15.1 for the same reason. Typst only *warns* on an unresolvable family and

@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ---------------------------------------------------------------------------
-   Open Sans, self-hosted.
+   Noto Sans, self-hosted.
 
    The site used the system stack, which cost nothing and rendered as real SF
    on Apple hardware. It was traded for a webfont deliberately: a CV is read by
@@ -10,8 +10,8 @@
    face is the only way the layout a design decision was made against is the
    layout everyone actually sees.
 
-   One variable file per style covers 300–800, so weight 400, 600 and 700 all
-   come out of the same 47 KB rather than costing a request each. Copied into
+   One variable file per style covers 100–900, so weight 400, 600 and 700 all
+   come out of the same 35 KB rather than costing a request each. Copied into
    public/fonts/ by `npm run fonts` — see scripts/copy-fonts.mjs for why it is
    not bundled. The unicode-range is what keeps the fallback stack live for
    anything outside latin.
@@ -21,11 +21,11 @@
    arrives.
 --------------------------------------------------------------------------- */
 @font-face {
-  font-family: 'Open Sans Variable';
+  font-family: 'Noto Sans Variable';
   font-style: normal;
-  font-weight: 300 800;
+  font-weight: 100 900;
   font-display: swap;
-  src: url('/fonts/open-sans-latin-wght-normal.woff2') format('woff2-variations');
+  src: url('/fonts/noto-sans-latin-wght-normal.woff2') format('woff2-variations');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
     U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
     U+2212, U+2215, U+FEFF, U+FFFD;
@@ -35,11 +35,11 @@
    in a write-up, essentially. Without it the browser would synthesise a slant,
    which is the same defect the résumé avoids by never asking Almarai for one. */
 @font-face {
-  font-family: 'Open Sans Variable';
+  font-family: 'Noto Sans Variable';
   font-style: italic;
-  font-weight: 300 800;
+  font-weight: 100 900;
   font-display: swap;
-  src: url('/fonts/open-sans-latin-wght-italic.woff2') format('woff2-variations');
+  src: url('/fonts/noto-sans-latin-wght-italic.woff2') format('woff2-variations');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
     U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
     U+2212, U+2215, U+FEFF, U+FFFD;
@@ -137,11 +137,11 @@
   --color-border: var(--c-border);
   --color-subtle: var(--c-subtle);
 
-  /* Open Sans, self-hosted — see the @font-face pair at the top of this file
+  /* Noto Sans, self-hosted — see the @font-face pair at the top of this file
      for why the system stack was given up. The stack behind it is the old one
      verbatim, so the fallback render is the design this site shipped with
      rather than an arbitrary substitute. */
-  --font-sans: "Open Sans Variable", "Open Sans", -apple-system,
+  --font-sans: "Noto Sans Variable", "Noto Sans", -apple-system,
     BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial,
     sans-serif;
   --font-mono: "SF Mono", ui-monospace, "Cascadia Code", "Roboto Mono",
@@ -217,7 +217,7 @@
 
      `page` is the reading column and it is the one that matters: 48rem, which
      after 24px of page padding and 24px of card padding a side leaves 672px of
-     text — about 100 characters a line in Open Sans at 14px. It was 56rem when
+     text — about 100 characters a line in Noto Sans at 14px. It was 56rem when
      body copy was 15px; dropping the body size without dropping the column
      would have taken the line past 120 characters, which is why these two
      numbers move together and always will.

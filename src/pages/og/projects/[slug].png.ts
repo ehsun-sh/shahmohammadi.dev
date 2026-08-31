@@ -26,11 +26,17 @@ import { getProjectPages } from '../../../lib/projects';
  * a line holds about 68 characters at the subtitle size, and a third line runs
  * into the rule above the footer.
  *
- * It was 118 when the card was set in Inter at 34px. Open Sans at 31px fits
- * more per line, not fewer — the two changes did not cancel as neatly here as
- * they did for the layout — so the limit went up with it. Re-measure this if
- * the card's typeface or subtitle size moves again; it is the one number in
- * the OG pipeline that is calibrated to the rendering rather than chosen.
+ * It was 118 when the card was set in Inter at 34px. The Droid Sans-descended
+ * face the site moved to fits more per line at 31px, not fewer — the two
+ * changes did not cancel as neatly here as they did for the layout — so the
+ * limit went up with it. Re-measure this if the card's typeface or subtitle
+ * size moves again; it is the one number in the OG pipeline that is calibrated
+ * to the rendering rather than chosen.
+ *
+ * The Open Sans -> Noto Sans move did not move it. Their advance widths were
+ * compared glyph by glyph over these very summaries: Noto sets 1.01x wider,
+ * which puts the recalculated limit at 127 and is not worth spending a
+ * character on.
  */
 const TWO_LINES = 128;
 

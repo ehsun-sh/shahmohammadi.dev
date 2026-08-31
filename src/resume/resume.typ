@@ -21,10 +21,11 @@
 // package-lock, and --ignore-system-fonts keeps whatever happens to be
 // installed on a machine from leaking in.
 //
-// Noto Sans, not the site's Open Sans, because the reference is set in it and
-// matching the reference is what this document is for. The site keeps Open
-// Sans. That is a real cost — the page and the PDF no longer read as one
-// document — and it was paid deliberately rather than overlooked.
+// Noto Sans because the approved reference export is set in it and matching
+// that is what this document is for. The site followed onto the same family
+// afterwards, so a recruiter who reads the page and then opens the PDF is still
+// handed one document — the constraint held, it just got satisfied in the other
+// direction than before, when the résumé followed the site onto Open Sans.
 //
 // The swap cost nothing else, and that is not luck: both families descend from
 // Droid Sans and their metrics are the same to four places — cap-height 0.714em,

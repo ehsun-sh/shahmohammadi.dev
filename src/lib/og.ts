@@ -37,7 +37,7 @@ const fromRoot = (...segments: string[]) =>
 
 /**
  * The site's typeface, in its static form. Satori cannot read woff2 or a
- * variable axis, so the card uses the same family from `@fontsource/open-sans`
+ * variable axis, so the card uses the same family from `@fontsource/noto-sans`
  * rather than the variable file the pages load — same drawing, different
  * container.
  */
@@ -45,9 +45,9 @@ const font = (weight: 400 | 600 | 700) =>
   fromRoot(
     'node_modules',
     '@fontsource',
-    'open-sans',
+    'noto-sans',
     'files',
-    `open-sans-latin-${weight}-normal.woff`,
+    `noto-sans-latin-${weight}-normal.woff`,
   );
 
 const LOGO = fromRoot('src', 'assets', 'brand', 'logo.svg');
@@ -61,8 +61,8 @@ async function loadFonts() {
     fs.readFile(font(700)),
   ]);
   return [
-    { name: 'Open Sans', data: regular, weight: 400 as const, style: 'normal' as const },
-    { name: 'Open Sans', data: bold, weight: 700 as const, style: 'normal' as const },
+    { name: 'Noto Sans', data: regular, weight: 400 as const, style: 'normal' as const },
+    { name: 'Noto Sans', data: bold, weight: 700 as const, style: 'normal' as const },
   ];
 }
 
@@ -116,7 +116,7 @@ export async function renderOgImage({
         justifyContent: 'space-between',
         backgroundColor: COLOR.bg,
         padding: '72px',
-        fontFamily: 'Open Sans',
+        fontFamily: 'Noto Sans',
       },
       children: [
         {
@@ -174,10 +174,15 @@ export async function renderOgImage({
                 type: 'div',
                 props: {
                   style: {
-                    // 31, down from 34, because Open Sans sets about 9% wider
-                    // than Inter did at the same size. The two changes cancel,
-                    // which is what keeps the 118-character clamp in
+                    // 31, down from 34, because the site's face sets about 9%
+                    // wider than Inter did at the same size. The two changes
+                    // cancel, which is what keeps the character clamp in
                     // og/projects/[slug].png.ts valid across the swap.
+                    //
+                    // Unchanged by the move from Open Sans to Noto Sans: their
+                    // advance widths were compared glyph by glyph over the real
+                    // subtitles and Noto sets 1.01x wider, which is inside the
+                    // rounding on both numbers.
                     fontSize: 31,
                     color: COLOR.muted,
                     marginTop: '20px',
