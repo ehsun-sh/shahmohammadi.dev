@@ -4,7 +4,7 @@
  *   npm run hero -- "D:/path/to/render/output"
  *   npm run hero -- "D:/path/to/render" --frames 120 --quality 70
  *
- * Outputs public/hero/w750/*.webp, public/hero/w1500/*.webp and a manifest,
+ * Outputs public/hero/w720/*.webp, public/hero/w1280/*.webp and a manifest,
  * all committed. They are generated, but they cannot be generated in CI: the
  * source renders are hundreds of megabytes and do not live in this repo. Same
  * arrangement as the icons and the font — regenerate locally, commit the result.
@@ -45,8 +45,28 @@ import sharp from 'sharp';
 const ROOT = process.cwd();
 const OUT = path.join(ROOT, 'public', 'hero');
 
-/** Mobile first, and the one that has to fit the budget. */
-const WIDTHS = [720, 1440];
+/**
+ * Mobile first, and the one that has to fit the budget.
+ *
+ * The large tier was 1440 and is 1280, which is 20% off the desktop payload for
+ * a resolution nobody was getting anyway. Work out what the large tier is
+ * actually for before changing it: the frames are square and drawn `contain`,
+ * so the rendered size is `min(stageW, stageH)` — the viewport HEIGHT on any
+ * landscape screen. A 1920×1080 desktop draws 1080 device pixels, not 1920, so
+ * 1440 was already 33% more than it could show; the only clients that wanted
+ * more were retina laptops, which need ~1900 and were being upscaled at 1440
+ * too. Going 1440 → 1280 moves them from a 1.32× upscale to 1.48×, on a
+ * sequence that is moving every frame.
+ *
+ * The pixels are where the bytes are, and that is measured, not assumed.
+ * Averaged over four representative frames at 1440: quality 72 → 50 saves 16%
+ * and visibly smears the board, alphaQuality 100 → 80 saves 4%, and
+ * `smartSubsample` costs 5%. Dropping alpha entirely — which is not on the
+ * table, the silhouette is the whole effect — saves 21%. Width is the only
+ * lever with real travel in it, because the subject is a PCB covered in fine
+ * silkscreen and that detail is genuinely incompressible.
+ */
+const WIDTHS = [720, 1280];
 const READABLE = /\.(png|jpe?g|webp|tiff?|avif)$/i;
 
 /**

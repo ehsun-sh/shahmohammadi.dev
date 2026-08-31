@@ -792,12 +792,33 @@ const alt =
       .filter(Boolean)
       .sort((a, b) => a - b);
 
-    // Pick the width once, from the layout viewport rather than from the
-    // device pixel ratio: a 3× phone would otherwise pull the desktop set over
-    // a mobile connection to fill 400 CSS pixels.
-    const width =
-      widths.find((w) => w >= window.innerWidth * Math.min(devicePixelRatio, 2)) ??
-      widths.at(-1)!;
+    /**
+     * Pick the width once, from the size the frame is actually DRAWN at.
+     *
+     * Two corrections to the obvious version, and the first one is the whole
+     * reason this comment is long. The frames are square and the canvas draws
+     * them `contain`, so what lands on screen is `min(stageW, stageH)` — on a
+     * landscape desktop that is the HEIGHT, and on a phone it is the width.
+     * Choosing off `innerWidth` measures the one dimension that is not doing
+     * the work: it asked a 1920×1080 desktop for 1920 when 1080 is drawn, and
+     * it asked a 390px phone for 780.
+     *
+     * The second is the tolerance. `>= needed` steps up an entire tier to cover
+     * a shortfall of a few percent, and with two tiers that is a 2.9× payload.
+     * Every phone but a 360px one needs 750–860 against a 720 tier and was
+     * therefore pulling the desktop set over cellular — the 2 MB budget was
+     * being enforced on a set almost nobody received. 1.25 lets a tier serve up
+     * to a 25% upscale, which on a scroll-scrubbed animation is invisible and
+     * is the correct trade against tripling the bytes.
+     *
+     * Measured at the moment of choosing, so an orientation change or a resized
+     * window keeps whatever it started with. That is deliberate: swapping sets
+     * mid-visit would re-download the whole sequence to change nothing anyone
+     * is looking at.
+     */
+    const rect = stage.getBoundingClientRect();
+    const needed = Math.min(rect.width, rect.height) * Math.min(devicePixelRatio, 2);
+    const width = widths.find((w) => w * 1.25 >= needed) ?? widths.at(-1)!;
 
     const [zoomStart = 1, zoomEnd = 1] = (section.dataset.zoom ?? '')
       .split(',')

@@ -204,6 +204,22 @@ Deploys happen on push to `main`. Nothing is published from a local machine.
   attribute.
 - **Images** go through `astro:assets` (`<Image />` / `getImage`). Exception:
   the hero canvas frame sequence, which is fetched directly.
+- **The hero frames are square and drawn `contain`, so the rendered size is
+  `min(stageW, stageH)` — the viewport HEIGHT on any landscape screen.** Every
+  sizing decision about the sequence follows from that one fact, and the two
+  places that forgot it both shipped bugs. The tier picker measured
+  `innerWidth`, which is the dimension not doing the work: it asked a 1920×1080
+  desktop for 1920 when 1080 is drawn, and it asked a 390px phone for 780
+  against a 720 tier — so it stepped up and **every phone but a 360px one
+  downloaded the desktop set**, and the 2 MB budget was being enforced on a set
+  almost nobody received. It now measures the drawn box and allows a tier to
+  serve up to a 1.25× upscale, which is invisible on something moving every
+  frame and is the right trade against tripling the bytes. The large tier is
+  1280 for the same reason: 1440 was 33% more than a 1080p desktop can show.
+  **Payload is pixels, and that is measured, not assumed** — at 1440, quality
+  72 → 50 saves 16% and visibly smears the board, `alphaQuality` 100 → 80 saves
+  4%, `smartSubsample` costs 5%, and dropping alpha entirely would save 21%.
+  Frame count and width are the only real levers; reach for quality last.
 - **Brand assets.** `src/assets/brand/logo.svg` is the ESM monogram and the only
   copy of that artwork in the repo. It carries no background plate and fills
   with `currentColor`, so the header mark follows the theme and takes the accent
