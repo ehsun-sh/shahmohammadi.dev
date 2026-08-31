@@ -513,13 +513,25 @@ const alt =
     height: 400vh;
     min-height: 0;
 
-    /* The header is `sticky` and still takes its 57px out of the flow, so
-       without this the pinned stage would start 57px down and hang the same
-       distance past the fold — which put the scroll cue below it. The bar is
-       invisible for the whole sequence, so sliding under it is exactly right,
-       and the negative margin is scoped to the animated state so the ordinary
-       flow is untouched with no script or reduced motion. */
-    margin-top: calc(-3.5rem - 1px);
+    /* The stage has to start at the top of the viewport, and everything on this
+       card is centred against it — so anything in the flow above the hero
+       pushes the whole title card down by its own height. The bar is invisible
+       for the whole sequence, so sliding under it is exactly right.
+
+       `--hero-lift` is written by the script, which measures what is actually
+       above rather than assuming. The header's 57px was hard-coded here, and it
+       was right until something else appeared above the hero: the dev-only
+       banner is 60px, and it put the name 60px below the centre line it is
+       supposed to be exactly on. A future announcement bar would have done the
+       same. The literal survives as the fallback for the frame between CSS
+       parse and the module script, where the header is still the only thing
+       there.
+
+       Scoped to the animated state, so the ordinary flow is untouched with no
+       script and under reduced motion — which is also why measuring this in
+       script is not a layering violation: the margin only exists on the path
+       where the script is running. */
+    margin-top: calc(var(--hero-lift, calc(3.5rem + 1px)) * -1);
   }
 
   .hero-stage {
@@ -751,7 +763,30 @@ const alt =
       return null;
     }
 
+    /**
+     * How far down the document the hero would start if it were not pulled up.
+     *
+     * It has to be measured rather than assumed, because the card's whole
+     * arrangement is centred on the stage and the stage has to start at the top
+     * of the viewport: anything in the flow above the hero — the sticky header,
+     * the dev-only banner, an announcement bar later — moves the title card
+     * down by exactly its own height.
+     *
+     * Self-correcting on a re-run. The margin currently applied is -lift, so
+     * `rect.top` is already short by that much and adding it back recovers the
+     * same static position whatever the previous value was. Document
+     * coordinates, so the scroll position does not enter into it; `.hero`
+     * itself is not the sticky element, so its box is always its flow box.
+     */
+    function lift() {
+      const rect = section!.getBoundingClientRect();
+      const applied = parseFloat(getComputedStyle(section!).marginTop) || 0;
+      const value = rect.top + window.scrollY - applied;
+      section!.style.setProperty('--hero-lift', `${value}px`);
+    }
+
     function resize() {
+      lift();
       const dpr = Math.min(devicePixelRatio || 1, 2);
       const rect = stage!.getBoundingClientRect();
       canvas!.width = Math.round(rect.width * dpr);
@@ -934,6 +969,7 @@ const alt =
       root.setAttribute('data-hero-passed', '');
       root.style.removeProperty('--hero-chrome-opacity');
       for (const [el, props] of [
+        [section, ['--hero-lift']],
         [stage, ['--hero-object-opacity', '--hero-object-scale', '--hero-zoom']],
         [title, ['--hero-title-opacity', '--hero-title-scale', '--hero-title-y']],
         [intro, ['--hero-intro-opacity', '--hero-intro-scale']],
