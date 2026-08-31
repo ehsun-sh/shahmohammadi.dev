@@ -45,6 +45,32 @@
     U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
+/* The one script face on the site, and it sets one line: the hero's thesis,
+   under the name. That is the whole licence — it is not in `--font-sans`, it
+   has no second use, and giving it one would turn a signature into a texture.
+
+   A single static 400 because Grand Hotel has no other weight, which is also
+   why nothing here may ask it for bold: the browser would synthesise a smear
+   across a connecting script. 19 KB, and deliberately NOT preloaded — the
+   typeface that has to be in the first round trip is the one the whole document
+   is set in, and adding a second preload on all six pages to save a reflow on
+   one line of one of them spends the wrong budget. `swap` covers it: the line
+   arrives in the sans and settles.
+
+   `font-display: swap` and not `optional` for the same reason it is not
+   preloaded — this line is the reason the family is here at all, so it is worth
+   one reflow to be sure it actually renders. */
+@font-face {
+  font-family: 'Grand Hotel';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/grand-hotel-latin-400-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 /* Dark mode is driven by a `data-theme` attribute on <html>, set before first
    paint by the inline script in BaseLayout.astro. It resolves to the OS
    preference unless the visitor has explicitly chosen a theme.
@@ -146,6 +172,12 @@
     sans-serif;
   --font-mono: "SF Mono", ui-monospace, "Cascadia Code", "Roboto Mono",
     Menlo, Consolas, monospace;
+
+  /* One consumer: `.hero-tagline`. It is a token rather than a literal only so
+     the fallback chain lives with the other two — a script face that falls back
+     to the sans changes the line's whole character, and cursive is what keeps
+     it a script while Grand Hotel is in flight. */
+  --font-script: "Grand Hotel", "Segoe Script", "Snell Roundhand", cursive;
 
   /* One radius for every plate on the site: the section cards, the hero
      figure, the project covers and the thumbnails. Corner radius is a material

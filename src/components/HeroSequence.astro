@@ -84,8 +84,12 @@ const manifest = getHeroManifest();
  *
  * The line lives here and not in cv.json, which is for facts the résumé prints
  * too. This is the site's thesis, and the PDF has no place to put it.
+ *
+ * Lower-case `from` on purpose. It is set in a script face as a subtitle to the
+ * name above it, not as a headline of its own — a capital there would make it a
+ * second statement competing with the first.
  */
-const HEADLINE = 'From Concept to Product';
+const HEADLINE = 'from Concept to Product';
 
 const poster = manifest ? '/hero/poster.webp' : null;
 const alt =
@@ -192,14 +196,14 @@ const alt =
           A span written in this template does get the attribute, so the slot is
           what moves between the two arrangements and the svg just fills it. */}
       <div class="hero-lead">
-        <p class="hero-tagline">{HEADLINE}</p>
-
         <p class="hero-lockup">
           <span class="hero-mark-slot">
             <BrandMark class="block size-full" />
           </span>
           <span class="hero-fullname">{cv.basics.name}</span>
         </p>
+
+        <p class="hero-tagline">{HEADLINE}</p>
       </div>
 
       <span class="hero-scroll" aria-hidden="true">
@@ -236,11 +240,11 @@ const alt =
   /* Three tracks, and the two `1fr` ones are what make the arrangement hold at
      any height instead of being a guess.
        row 1  empty
-       row 2  the lockup and the headline, as one block
+       row 2  the name, with the mark hung above it and the tagline below
        row 3  the cue, centred in it
      Rows 1 and 3 split the leftover equally, so the lead block lands on the
      screen's centre line; centring the cue inside row 3 puts it exactly halfway
-     between the bottom of the headline and the bottom of the screen, wherever
+     between the bottom of the lead and the bottom of the screen, wherever
      those two end up. A margin could only ever approximate that, and would
      drift the moment the headline wrapped to a different number of lines.
      `minmax(0, …)` rather than a bare `1fr`: on a short viewport the cue would
@@ -274,8 +278,8 @@ const alt =
     pointer-events: none;
   }
 
-  /* Explicit rows: auto-placement would drop these into tracks 1 and 2 and
-     leave the third empty, which is the opposite of the arrangement.
+  /* The card's measurements, all four derived from the name and none of them
+     chosen.
 
      The mark is sized off the name rather than independently, because the brief
      is a relationship and not a number: the mark's vertical edge should measure
@@ -289,11 +293,12 @@ const alt =
      cap is 1.6018em of the name. Re-derive this if the artwork ever changes;
      do not nudge it.
 
-     These live on the container as custom properties because several rules
-     need them and they must not drift: below the breakpoint the tagline has to
-     be lifted clear of a mark it does not contain, which means knowing exactly
-     how tall that mark is. */
-  .hero-lead {
+     These live on the card rather than on the lead block because the cue needs
+     two of them as well, and they must not drift between the two rules: both
+     the mark and the tagline are hung out of the flow, so anything that has to
+     reason about where the card actually ends has to be able to add their
+     heights back on itself. */
+  .hero-intro {
     --name-size: clamp(2rem, 7.4vw, 5.25rem);
     --mark-size: calc(var(--name-size) * 1.6018);
     /* The artwork fills 77.3% of the square box, leaving 11.35% blank down each
@@ -301,36 +306,65 @@ const alt =
        actually see, rather than the gap plus a strip of nothing. */
     --mark-bleed: calc(var(--mark-size) * -0.1135);
     --mark-gap: clamp(0.85rem, 1.8vh, 1.35rem);
+    /* 0.72 of the name, which is far more than a standfirst would take and is
+       the right number for this face: Grand Hotel's cap height is roughly 0.62em
+       against Noto's 0.714, so 0.72 of the size lands the two capitals within a
+       few percent of each other and the line reads as a subtitle written under
+       the name rather than a caption stuck to it. */
+    --tagline-size: calc(var(--name-size) * 0.72);
+    /* The gap between the two BOXES, which is not the gap anyone sees. The
+       name's line box carries a descender's worth of room that "Ehsan
+       Shahmohammadi" never uses, and Grand Hotel's box is mostly ascender
+       clearance above a small x-height; stacked, those two empty bands measure
+       0.164em of the name. So visible gap = this + 0.164em, and the target is
+       0.36em of ink between the name's baseline and the tagline's ascenders —
+       the proportion in the reference, read off the two strings' *widths*
+       rather than their heights, because a width is a whole line long and
+       survives being measured by eye where a cap height is thirty pixels and
+       does not.
+       Re-measure the ink, not the boxes, if either size moves. */
+    --tagline-gap: calc(var(--name-size) * 0.196);
+    /* The height the tagline takes below the lead block. It is out of the flow,
+       so this is the only way anything else on the card can know about it. */
+    --tagline-block: calc(var(--tagline-size) * 1.1 + var(--tagline-gap));
+  }
+
+  .hero-lead {
     position: relative;
     grid-row: 2;
     align-self: center;
   }
 
-  /* Out of the flow and hung off the top of the name, which is what lets the
-     name itself be the centred thing: anything sharing the name's row would
-     push it down by half that row's height, and the block would be centred
-     while the name was not.
+  /* Out of the flow and hung off the bottom of the name, which is what lets the
+     name itself be the centred thing: anything sharing the name's column in the
+     flow would push it up by half that block's height, and the lead would be
+     centred while the name was not. Everything on this card — mark above,
+     tagline below — hangs off the name for that one reason.
 
-     `bottom: 100%` puts the tagline's foot on the name's cap line; the margin
-     is what clears the mark, which is stacked in between at this width and is
-     not in the flow either. */
+     Centred on `.hero-lead` rather than on the name, so on desktop it sits
+     under the middle of the mark-and-name lockup, not under the middle of the
+     text. That is the arrangement in the reference and it is the right one: the
+     lockup is the object, and a subtitle centres under the object. */
   .hero-tagline {
     position: absolute;
-    bottom: 100%;
+    top: 100%;
     left: 50%;
     transform: translateX(-50%);
     width: max-content;
     max-width: 100%;
-    margin-bottom: calc(var(--mark-size) + var(--mark-gap) * 2);
-    /* The mirror of `.hero-kicker` on the closing plate, and the same size and
-       colour: a short line introducing a large name. The two cards hold the
-       same shape at both ends of the sequence, which is the argument for the
-       arrangement — one names the work above the person, the other names the
-       person under "Designed by". */
-    font-size: var(--text-lead);
-    line-height: 1.2;
+    margin-top: var(--tagline-gap);
+    /* The only script on the site. It is doing something the sans cannot: the
+       name above it is the fact and this is the promise, and a second line of
+       the same typeface at a smaller size reads as a subtitle of the name
+       rather than as a different kind of statement about it.
+
+       No weight declared, because the family has exactly one. Asking for bold
+       here would get a synthesised smear across a connecting script — see the
+       @font-face note in global.css. */
+    font-family: var(--font-script);
+    font-size: var(--tagline-size);
+    line-height: 1.1;
     color: var(--color-muted);
-    text-wrap: balance;
   }
 
   .hero-mark-slot {
@@ -380,6 +414,22 @@ const alt =
      Below it the stack is the better arrangement anyway — a mark beside a name
      broken over two lines reads as a mistake rather than a lockup. */
   @media (min-width: 75rem) {
+    /* The one thing that has to be restated when the mark comes into the flow.
+       `.hero-tagline` hangs off the bottom of `.hero-lead`, and with the mark
+       beside the name the lead's box no longer ends at the name's foot — it
+       ends at the mark's, which is the taller of the two and overhangs by half
+       the difference. Subtracting that overhang is what keeps the tagline the
+       same distance from the NAME in both arrangements, which is the only
+       distance that is visible. Written out of `--mark-size` and the name's
+       line-height rather than as a number, so it survives either of them
+       moving. */
+    .hero-intro {
+      --tagline-gap: calc(
+        var(--name-size) * 0.196 - (var(--mark-size) - var(--name-size) * 1.04) /
+          2
+      );
+    }
+
     .hero-lockup {
       display: flex;
       align-items: center;
@@ -393,17 +443,23 @@ const alt =
       flex-shrink: 0;
       margin-inline: var(--mark-bleed);
     }
-
-    .hero-tagline {
-      margin-bottom: var(--mark-gap);
-    }
   }
 
-  /* No margin: its distance from the name is the grid's job now, and a margin
-     here would offset it from the midpoint the row was sized to find. */
+  /* Explicit row: auto-placement would drop the lead and the cue into tracks 1
+     and 2 and leave the third empty, which is the opposite of the arrangement.
+
+     The margin is the one correction the arrangement needs, and it is exact
+     rather than eyeballed. Row 3 runs from the bottom of the lead *block* to
+     the bottom of the screen, but the tagline is out of the flow and hangs
+     `--tagline-block` below that — so centring in the bare row would put the
+     cue closer to the tagline than to the foot of the screen. A centred item's
+     *margin* box is what gets centred, so a top margin of B moves the cue down
+     by exactly B/2, which is exactly the correction. Measured after: 0px off
+     the midpoint between the tagline's foot and the bottom of the screen. */
   .hero-scroll {
     grid-row: 3;
     align-self: center;
+    margin-top: var(--tagline-block);
     display: grid;
     justify-items: center;
     gap: 0.55rem;

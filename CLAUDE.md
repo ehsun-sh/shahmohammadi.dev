@@ -116,6 +116,24 @@ Deploys happen on push to `main`. Nothing is published from a local machine.
   `hmtx` tables over the real strings, not eyeballed — so the measure, the type
   scale and the OG card's character clamp all held. Any future family change
   gets the same measurement first.
+- **Grand Hotel is the second family and it sets exactly one line:** the hero's
+  thesis, under the name. It reaches the page through `--font-script` and has
+  one consumer, `.hero-tagline`; it is not in `--font-sans`, and giving it a
+  second job would turn a signature into a texture. Static 400 because the
+  family has no other weight — never ask it for bold, the browser would
+  synthesise a smear across a connecting script. Deliberately **not** preloaded:
+  the face that has to be in the first round trip is the one the whole document
+  is set in, and a second preload on all six pages to save one reflow on one
+  line of one of them spends the wrong budget.
+  It is set at 0.72 of the name, which is where Grand Hotel's ~0.62em cap lands
+  within a few percent of Noto's 0.714. **The gap under the name is measured
+  against the ink and not the boxes** — the name's unused descender band plus
+  Grand Hotel's ascender clearance come to 0.164em of nothing, so the box gap is
+  the visible gap minus that, and the tagline is hung out of the flow so the
+  name stays exactly on the screen's centre line. On desktop the mark joins the
+  flow beside the name and the lead's box then ends at the *mark's* foot, so the
+  gap subtracts that overhang to keep the tagline the same distance from the
+  name in both arrangements. Re-measure the ink if either size moves.
 - **Every section uses the same three roles**, which is what makes them look
   like each other: `subhead` for the entry title or skill category, `body` for
   its description, `meta` for dates, tags and notes. Do not give one section its
