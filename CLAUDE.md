@@ -267,7 +267,13 @@ These are load-bearing. Do not trade them away for visual polish.
 2. **Respect `prefers-reduced-motion: reduce`** — a complete static fallback,
    everywhere, not just the hero.
 3. **Hero budget:** total assets < 2 MB, pin distance ≤ 250vh, name/title/CTAs
-   visible at frame 0 and never gated behind the animation.
+   visible at frame 0 and never gated behind the animation. The ceiling is on
+   *pinned* scroll, which is why the opening title card is an ordinary screen
+   ahead of the pin rather than the first slice of it: a held title is not a
+   motion and does not need pinned travel, and folding it in would have come
+   out of the frames — 250vh turns a frame over every ~33px, and a tenth of the
+   section drops that to ~20px, which reads as fast-forward. Anything else that
+   wants time on this screen gets the same treatment.
 4. **Performance:** Lighthouse ≥ 95 across all categories on mobile; landing
    page JS ≤ 50 KB gzipped.
 5. **Accessibility:** semantic landmarks, visible focus states, WCAG AA contrast

@@ -216,6 +216,12 @@ the recruiters this site is for.
 ### Phase 6 — Hero animation ("Concept to Production")
 Four stages, not seven: **Schematic → PCB Layout → Assembled Board → Product.**
 
+Opened by a title card — *From Concept to Product*, with a scroll cue — on its
+own screen ahead of the pin, which is what keeps the 250vh ceiling intact. It
+bookends the sequence: the card names the work, the animation shows it, and the
+closing plate names the person. See the note in `HeroSequence.astro` for why it
+is not folded into the pinned scroll.
+
 Hybrid implementation:
 - Stages 1–2: SVG with `stroke-dashoffset` draw-on. Where possible, generated
   from **real** exported KiCad/Altium artwork — an authentic trace is evidence,

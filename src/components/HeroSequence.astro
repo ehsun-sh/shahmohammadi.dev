@@ -56,6 +56,25 @@ const manifest = getHeroManifest();
  * for dark mode would be worse, not better: dark metal on a black ground loses
  * its silhouette, while the light one keeps its edges against both.
  */
+/**
+ * The opening title card, and why it is its own screen rather than the first
+ * slice of the pin.
+ *
+ * The pin is already at its 250vh ceiling. Folding a held title into it would
+ * have to come out of the frames — at 250vh of travel a frame turns over every
+ * ~33px of scroll, and giving the title even a tenth of the section drops that
+ * to ~20px, which reads as the assembly being fast-forwarded. A title card is a
+ * hold, not a motion, so it does not need pinned scroll: it is one ordinary
+ * screen that scrolls away like any other, and the ceiling is untouched.
+ *
+ * That is also the honest version of the scroll cue. Inside the pin, "Scroll
+ * Down" would be followed by a screen that does not appear to move.
+ *
+ * The line lives here and not in cv.json, which is for facts the résumé prints
+ * too. This is the site's thesis, and the PDF has no place to put it.
+ */
+const HEADLINE = 'From Concept to Product';
+
 const poster = manifest ? '/hero/poster.webp' : null;
 const alt =
   'The product this site is about: a printed circuit board assembling itself ' +
@@ -80,6 +99,34 @@ const alt =
     </script>
   )
 }
+
+{/* A div and not a section: an unnamed <section> is not exposed as a landmark
+    anyway, and naming this one would only add a region a screen reader has to
+    step through to reach a title card it has already read.
+
+    The cue is aria-hidden because it is an affordance, not content — "there is
+    more below" is something the document structure already says, and the skip
+    link in BaseLayout is what actually gets a keyboard past all of this. */}
+<div class="hero-intro">
+  <p class="hero-headline">{HEADLINE}</p>
+
+  <div class="hero-scroll" aria-hidden="true">
+    <span class="hero-scroll-label">Scroll Down</span>
+    <svg
+      class="hero-scroll-mark"
+      width="18"
+      height="10"
+      viewBox="0 0 18 10"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M1 1l8 8 8-8" />
+    </svg>
+  </div>
+</div>
 
 <section
   class="hero"
@@ -155,6 +202,78 @@ const alt =
 </section>
 
 <style>
+  /* ------------------------------------------------------------ intro --- */
+
+  .hero-intro {
+    position: relative;
+    display: grid;
+    place-items: center;
+    /* Not 100dvh. The nav is `sticky` but still takes its 56px + 1px border out
+       of the flow, so a full-viewport box here ends 57px past the fold and takes
+       the scroll cue with it — a cue you have to scroll to find is worse than
+       none. Subtracting the bar is what puts the cue back on the first screen
+       and centres the line in the space a reader actually sees.
+       `.hero` below can afford not to care: it is pinned, so its overhang is
+       scrolled through rather than looked at. */
+    min-height: calc(100dvh - 3.5rem - 1px);
+    padding-inline: 1.5rem;
+    background-color: var(--color-bg);
+    text-align: center;
+  }
+
+  .hero-headline {
+    /* Sized the same way `.hero-name` is — by viewport unit, so the longest
+       line fits a 375px screen without a breakpoint — but deliberately a step
+       under it in size and weight, and not uppercased. The two title moments
+       bookend the sequence and the closing one has to be the heavier of the
+       pair: this screen names the work, the last one names the person, and the
+       payoff should not be the quieter of the two. */
+    font-size: clamp(2.25rem, 7.2vw, 5rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    text-wrap: balance;
+  }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: clamp(1.75rem, 6vh, 3rem);
+    left: 50%;
+    transform: translateX(-50%);
+    display: grid;
+    justify-items: center;
+    gap: 0.6rem;
+    color: var(--color-muted);
+  }
+
+  .hero-scroll-label {
+    font-size: var(--text-meta);
+    line-height: 1;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .hero-scroll-mark {
+    animation: hero-scroll-bob 2.4s ease-in-out infinite;
+  }
+
+  /* 5px, and small on purpose: this has to read as an invitation from the
+     corner of the eye while someone is reading the line above it, not as a
+     thing competing with it. */
+  @keyframes hero-scroll-bob {
+    0%,
+    100% {
+      transform: translateY(0);
+      opacity: 0.65;
+    }
+    50% {
+      transform: translateY(5px);
+      opacity: 1;
+    }
+  }
+
+  /* ------------------------------------------------------------- pin --- */
+
   .hero {
     position: relative;
     /* No script: one screen, no pin. `data-hero-active` is what makes it tall,
@@ -286,6 +405,12 @@ const alt =
   }
 
   @media (prefers-reduced-motion: reduce) {
+    /* The cue stays — it is still true that there is more below — it just
+       stops moving. */
+    .hero-scroll-mark {
+      animation: none;
+    }
+
     /* Belt and braces. The script already refuses to run, and this makes the
        stylesheet independently correct if it ever stops refusing. */
     .hero,
