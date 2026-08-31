@@ -165,7 +165,18 @@ Deploys happen on push to `main`. Nothing is published from a local machine.
 - **The landing page has a rail; no other page does.** `ProfileCard.astro` is
   sticky at `lg:top-20`, holds the page's single `<h1>`, and carries the five
   facts a recruiter needs at any scroll position: who, where, availability,
-  contact, and the PDF. `/services` and `/contact` address clients, and a
+  contact, and the PDF.
+  **The portrait is two files, one per theme, and both ship.** A `<picture>`
+  keyed on `prefers-color-scheme` would fetch one and be wrong for anyone who
+  has used the theme toggle — the theme resolves from localStorage first — so
+  the pair is rendered and the `dark` variant picks. Never give `.portrait` a
+  `display` in the scoped block: Astro compiles it to
+  `.portrait[data-astro-cid-…]`, which outranks Tailwind's `.hidden` and ships
+  both portraits stacked. It is square, inset 16px from the card's top and
+  sides, and capped at 22rem — not at the rail's own 286px, which would bind
+  just under a phone's available width and leave the insets asymmetric, and
+  would jump the size across the 34rem line where the card's padding steps
+  24 → 16. `/services` and `/contact` address clients, and a
   "download my résumé" rail argues against the page it would sit on.
   `lg:items-start` on the grid is load-bearing — a stretched grid item gives
   `position: sticky` nothing to travel inside.

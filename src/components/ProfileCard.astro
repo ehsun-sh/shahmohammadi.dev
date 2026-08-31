@@ -23,16 +23,44 @@ import { site } from '../data/site';
  * the page it is sitting on.
  */
 
-// Same bridge as the project thumbnails: a filename cannot be turned into an
-// ImageMetadata by a runtime `import()`, because the bundler has to know the
-// candidate set statically. One glob, and whatever is there wins.
-const portraits = import.meta.glob<{ default: ImageMetadata }>(
-  '../assets/portrait.{jpg,jpeg,png,webp,avif}',
-  { eager: true },
-);
-const portrait = Object.values(portraits)[0]?.default;
+/**
+ * Two portraits, one per theme, and both are shipped.
+ *
+ * A `<picture>` with `media="(prefers-color-scheme: dark)"` would fetch only
+ * one, and it would be the wrong one for anyone who has used the theme toggle:
+ * this site resolves its theme from localStorage first and the OS preference
+ * only as a default, so the media query is not the source of truth. The `dark`
+ * variant in global.css is — it matches both the attribute and the JS-disabled
+ * fallback — so the pair is rendered and CSS picks. The cost is the unused
+ * file, and at a 288px box that is a few KB against always being right.
+ *
+ * Static imports rather than the glob the thumbnails use: those are optional
+ * and these are not, so a missing file should fail the build rather than
+ * quietly render a card with no face in it.
+ */
+import portraitLight from '../assets/portrait-light.webp';
+import portraitDark from '../assets/portrait-dark.webp';
 
 const { basics } = cv;
+
+/** Identical for both, and only one is ever in the a11y tree — the other is
+ *  `display: none`, which takes it out. */
+const portraitAlt = `${basics.name}, ${basics.label}`;
+
+/**
+ * The three widths the portrait is actually rendered at, in the order the
+ * browser tests them. They are the same three cases the `<style>` block below
+ * reasons about: 286 in the rail, the 22rem cap while the rail is stacked but
+ * the card is wide, and the card's own inner width on a phone — 100vw less the
+ * page's 48px of gutters, 2px of card border and 32px of card padding.
+ *
+ * Worth writing out rather than leaving at a single figure: `sizes` is what
+ * picks from `widths`, so one number here means every other viewport either
+ * upscales a too-small file or downloads a too-big one, and this pair of images
+ * is fetched on the landing page before anything below the fold.
+ */
+const PORTRAIT_SIZES =
+  '(min-width: 64rem) 286px, (min-width: 34rem) 352px, calc(100vw - 82px)';
 
 // Placeholder profile URLs never reach the live site; in dev they render dimmed
 // so the row is visible while cv.json is still being filled in.
@@ -53,32 +81,24 @@ const facts = [
 ---
 
 <div class="card">
-  {
-    portrait ? (
-      <Image
-        src={portrait}
-        alt={`${basics.name}, ${basics.label}`}
-        widths={[80, 160]}
-        sizes="80px"
-        loading="eager"
-        decoding="async"
-        class="size-20 rounded-full object-cover"
-      />
-    ) : (
-      import.meta.env.DEV && (
-        /* Dev only. A portrait is the one thing in this card that cannot come
-           out of cv.json, and an empty circle shipped to a visitor would read
-           as a broken avatar rather than as a deliberate omission — so in
-           production the card simply starts at the name. */
-        <div
-          class="grid size-20 place-items-center rounded-full border border-dashed border-border bg-bg text-center text-meta text-muted"
-          aria-hidden="true"
-        >
-          Photo
-        </div>
-      )
-    )
-  }
+  <Image
+    src={portraitLight}
+    alt={portraitAlt}
+    widths={[286, 352, 572, 704]}
+    sizes={PORTRAIT_SIZES}
+    loading="eager"
+    decoding="async"
+    class="portrait block dark:hidden"
+  />
+  <Image
+    src={portraitDark}
+    alt={portraitAlt}
+    widths={[286, 352, 572, 704]}
+    sizes={PORTRAIT_SIZES}
+    loading="eager"
+    decoding="async"
+    class="portrait hidden dark:block"
+  />
 
   <h1 class="mt-4 text-heading">{basics.name}</h1>
   <p class="mt-1 text-meta text-muted">{basics.label}</p>
@@ -168,3 +188,57 @@ const facts = [
     )
   }
 </div>
+
+<style>
+  /**
+   * The portrait sits nearly full-bleed in the rail, held off the card's edges
+   * by 16px on the top and both sides — inside the 10–20px the brief asked for,
+   * and the same 16px in every arrangement rather than a different number per
+   * breakpoint.
+   *
+   * That takes a negative margin, because the card's own padding is 24px and
+   * the picture has to come back out through 8px of it. Below 34rem the card
+   * is already at 16px, so the pull is removed rather than doubled up — it
+   * would land the picture on 8px there and break the one thing this rule is
+   * for.
+   *
+   * `max-width` is the part that is not obvious. The rail only exists above
+   * `lg`; below it the card is the full page width, and `100% + 1rem` on a
+   * 768px tablet is a 686px portrait sitting in the middle of the page. So
+   * there is a cap — but it is 22rem and not the rail's own 286px, and the
+   * difference matters twice.
+   *
+   * On a phone, a cap at 286 binds just under the 293px actually available and
+   * leaves the picture hung to the left with 17px on one side and 24px on the
+   * other, which is outside the brief and looks like a mistake rather than a
+   * decision. At 22rem it does not bind at all below 430px, so the picture
+   * fills its row and the insets stay symmetric.
+   *
+   * And 34rem is where the card's own padding steps 24 → 16, so a cap that
+   * binds on one side of it and not the other puts a 461px portrait at 543px
+   * and a 286px one at 545px. At 22rem the cap is already binding on both
+   * sides of that boundary and nothing jumps across it.
+   */
+  /* No `display` here, deliberately. Astro compiles a scoped rule to
+     `.portrait[data-astro-cid-…]`, which outranks Tailwind's `.hidden`, so a
+     `display: block` in this block silently un-hides the theme that is meant to
+     be off and ships both portraits stacked. Display belongs to the utilities;
+     this rule owns geometry only. */
+  .portrait {
+    width: calc(100% + 1rem);
+    max-width: 22rem;
+    margin: -0.5rem -0.5rem 0;
+    aspect-ratio: 1;
+    object-fit: cover;
+    /* The one radius on the site. A second one here would read as a second
+       material sitting on the card rather than as part of it. */
+    border-radius: var(--radius-card);
+  }
+
+  @media (width < 34rem) {
+    .portrait {
+      width: 100%;
+      margin: 0;
+    }
+  }
+</style>
