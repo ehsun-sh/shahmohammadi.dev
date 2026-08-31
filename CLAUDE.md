@@ -150,6 +150,27 @@ Deploys happen on push to `main`. Nothing is published from a local machine.
 - **Body prose is justified** via the `.prose-block` class, which pairs
   `text-align: justify` with `hyphens: auto` and drops to ragged-left below
   34rem. Apply it to multi-line prose only — never headings, chips, or labels.
+- **The hero is a title sequence, and it is symmetrical.** One pinned stage,
+  four beats: a title card (mark, name, thesis, scroll cue) holds and dissolves
+  while the product grows in behind it; the frames scrub; the product shrinks
+  away while the closing plate grows in; the plate lifts out and the header
+  fades up behind it. The last third runs the first third backwards on purpose,
+  and every pair overlaps — a gap between two of them reads as two animations,
+  an overlap reads as one handover. The map lives in one comment above
+  `render()` in `HeroSequence.astro`; change a number there and nowhere else.
+  **The header is absent for the whole sequence**, mark included, and arrives
+  last on `--hero-chrome-opacity`. That is why the title card carries its own
+  mark and name: the identity requirement in constraint 3 is met by the card,
+  not by a half-dressed bar. Its `pointer-events` are released by
+  `data-hero-passed` and not by the opacity rule, because a later `auto` loses
+  to the more specific `none` — which shipped a visible bar nobody could click.
+  Everything animated hangs off `data-hero-active`, which only the script sets,
+  so **`html:not([data-hero-active])` is the real "not driving" condition** —
+  reduced motion is only one of the two ways to get there, and keying a
+  fallback on the media query alone leaves JS-disabled-but-motion-allowed
+  broken. Anything the script writes is an inline custom property, so handing
+  the page back mid-visit means removing those properties, not just the
+  attribute.
 - **Images** go through `astro:assets` (`<Image />` / `getImage`). Exception:
   the hero canvas frame sequence, which is fetched directly.
 - **Brand assets.** `src/assets/brand/logo.svg` is the ESM monogram and the only
@@ -266,14 +287,15 @@ These are load-bearing. Do not trade them away for visual polish.
    progressive enhancement. Every page must be fully readable with JS disabled.
 2. **Respect `prefers-reduced-motion: reduce`** — a complete static fallback,
    everywhere, not just the hero.
-3. **Hero budget:** total assets < 2 MB, pin distance ≤ 250vh, name/title/CTAs
-   visible at frame 0 and never gated behind the animation. The ceiling is on
-   *pinned* scroll, which is why the opening title card is an ordinary screen
-   ahead of the pin rather than the first slice of it: a held title is not a
-   motion and does not need pinned travel, and folding it in would have come
-   out of the frames — 250vh turns a frame over every ~33px, and a tenth of the
-   section drops that to ~20px, which reads as fast-forward. Anything else that
-   wants time on this screen gets the same treatment.
+3. **Hero budget:** total assets < 2 MB, pin distance ≤ 300vh, name/title/CTAs
+   visible at frame 0 and never gated behind the animation. The ceiling was
+   250vh while the opening title card was a separate screen ahead of the pin;
+   folding the card in as a beat made the *hero* shorter — 400vh against the
+   450 a screen plus a 350vh pin cost — while giving the frames the same ~23px
+   of scroll per frame they had before. Longer pin, shorter page, and one
+   continuous piece instead of a screen that scrolls away followed by an
+   animation that starts. **If another beat is ever added, the section grows to
+   pay for it; it does not come out of the frames.**
 4. **Performance:** Lighthouse ≥ 95 across all categories on mobile; landing
    page JS ≤ 50 KB gzipped.
 5. **Accessibility:** semantic landmarks, visible focus states, WCAG AA contrast

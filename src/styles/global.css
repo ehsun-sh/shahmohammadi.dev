@@ -697,20 +697,33 @@
      is the ordinary bar. `data-hero-active` means the sequence is running;
      `data-hero-passed` means the visitor has scrolled through it.
 
-     The mark stays visible the whole way. The links go, the plate goes, the
-     identity does not — the name has to be on screen at frame 0, and a header
-     that vanishes entirely for two and a half screens leaves no way out.
+     The whole bar goes, mark included, and comes back on its own cue at the
+     very end — `--hero-chrome-opacity` is written by the scrubber as the
+     closing plate lifts away, so the interface assembles after the title
+     sequence instead of sitting through it. It used to keep the mark visible
+     throughout on the grounds that the identity had to be on screen at frame 0;
+     the title card carries the mark and the name itself now, which is a better
+     answer to the same requirement than a half-dressed bar.
 
-     `:focus-within` is the keyboard's way back in: tab into the header and the
-     bar comes back rather than moving focus through invisible links.
+     `pointer-events` is what makes the invisible bar safe for a mouse, and
+     `:focus-within` is the keyboard's way back in: tab into the header and it
+     comes back at full opacity rather than moving focus through nothing. That
+     still works while pointer-events are off, because Tab is not a pointer.
+     The skip link sits before the header and is untouched by any of this.
   ------------------------------------------------------------------------- */
-  html[data-hero-active]:not([data-hero-passed]) header:not(:focus-within) {
-    background-color: transparent;
-    border-bottom-color: transparent;
+  html[data-hero-active] header:not(:focus-within) {
+    opacity: var(--hero-chrome-opacity, 0);
   }
-  html[data-hero-active]:not([data-hero-passed]) header:not(:focus-within) nav > ul {
-    opacity: 0;
-    visibility: hidden;
+  /* Its own rule, and its own selector rather than a second declaration on the
+     one above: `pointer-events` has to be released when the bar has actually
+     arrived, and the two cannot be keyed off the same condition. Written as an
+     un-suppression of the hidden state rather than as a re-enable afterwards,
+     because a later `auto` loses to the more specific `none` and leaves a
+     visible bar that cannot be clicked — which is exactly what it did.
+     `data-hero-passed` flips at 90% opacity: a bar you can barely see should
+     not be taking clicks either. */
+  html[data-hero-active]:not([data-hero-passed]) header:not(:focus-within) {
+    pointer-events: none;
   }
   header,
   header nav > ul {
@@ -719,6 +732,12 @@
       border-color 0.3s ease,
       opacity 0.3s ease,
       visibility 0.3s ease;
+  }
+  /* The fade is driven frame by frame off the scroll position, so a transition
+     on top of it would lag the scrubbing by its own duration. The transition
+     stays for `:focus-within`, which is a state change rather than a scrub. */
+  html[data-hero-active]:not([data-hero-passed]) header:not(:focus-within) {
+    transition: none;
   }
 
   @media (prefers-reduced-motion: reduce) {

@@ -1,5 +1,6 @@
 ---
 import { getHeroManifest } from '../lib/heroFrames';
+import BrandMark from './BrandMark.astro';
 import { cv } from '../data/cv';
 
 /**
@@ -57,18 +58,29 @@ const manifest = getHeroManifest();
  * its silhouette, while the light one keeps its edges against both.
  */
 /**
- * The opening title card, and why it is its own screen rather than the first
- * slice of the pin.
+ * The opening title card.
  *
- * The pin is already at its 250vh ceiling. Folding a held title into it would
- * have to come out of the frames — at 250vh of travel a frame turns over every
- * ~33px of scroll, and giving the title even a tenth of the section drops that
- * to ~20px, which reads as the assembly being fast-forwarded. A title card is a
- * hold, not a motion, so it does not need pinned scroll: it is one ordinary
- * screen that scrolls away like any other, and the ceiling is untouched.
+ * It is a layer inside the pinned stage, not a screen ahead of it, and that is
+ * a reversal of the first attempt. The argument against folding it in was that
+ * a held title would have to come out of the frames — true at 350vh, where the
+ * frames turn over every ~23px of scroll and giving the title a sixth of the
+ * section drops that to ~18px. The answer is not to keep the card outside the
+ * pin; it is to make the section long enough to carry both. At 400vh the frames
+ * get the same ~23px they had before AND the card gets its beat, and the whole
+ * hero is 400vh instead of the 450vh that a separate screen plus a 350vh pin
+ * cost. Longer pin, shorter page. See constraint 3 in CLAUDE.md, which moved
+ * with it.
  *
- * That is also the honest version of the scroll cue. Inside the pin, "Scroll
- * Down" would be followed by a screen that does not appear to move.
+ * What this buys is that the sequence is now one continuous piece rather than a
+ * screen that scrolls away followed by an animation that starts. The card holds,
+ * dissolves as the object grows in behind it, and the whole thing runs in
+ * reverse at the far end — the object shrinks away, the closing plate grows in,
+ * and the interface arrives last.
+ *
+ * The mark and the name live here rather than in the header for the same
+ * reason: the header is chrome, and chrome arrives after the title sequence,
+ * not during it. The header carries its own copy for every other page and for
+ * the no-JS path, and fades in on the closing plate's exit.
  *
  * The line lives here and not in cv.json, which is for facts the résumé prints
  * too. This is the site's thesis, and the PDF has no place to put it.
@@ -99,34 +111,6 @@ const alt =
     </script>
   )
 }
-
-{/* A div and not a section: an unnamed <section> is not exposed as a landmark
-    anyway, and naming this one would only add a region a screen reader has to
-    step through to reach a title card it has already read.
-
-    The cue is aria-hidden because it is an affordance, not content — "there is
-    more below" is something the document structure already says, and the skip
-    link in BaseLayout is what actually gets a keyboard past all of this. */}
-<div class="hero-intro">
-  <p class="hero-headline">{HEADLINE}</p>
-
-  <div class="hero-scroll" aria-hidden="true">
-    <span class="hero-scroll-label">Scroll Down</span>
-    <svg
-      class="hero-scroll-mark"
-      width="18"
-      height="10"
-      viewBox="0 0 18 10"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-    >
-      <path d="M1 1l8 8 8-8" />
-    </svg>
-  </div>
-</div>
 
 <section
   class="hero"
@@ -191,7 +175,42 @@ const alt =
       )
     }
 
-    {/* Stage three. Present in the HTML from the start — it is the page's
+    {/* Beat one, and the mirror of the plate below it. Identity on top, the
+        thesis in the middle, the cue at the foot — the shape a title card has
+        had since film had titles.
+
+        The cue is aria-hidden because it is an affordance, not content: "there
+        is more below" is something the document structure already says, and the
+        skip link in BaseLayout is what actually gets a keyboard past all of
+        this. The mark is decorative here too — the name is right beside it in
+        real text, so announcing the logo as well would only say it twice. */}
+    <div class="hero-intro" data-hero-intro>
+      <p class="hero-lockup">
+        <BrandMark class="hero-mark" />
+        <span>{cv.basics.name}</span>
+      </p>
+
+      <p class="hero-headline">{HEADLINE}</p>
+
+      <span class="hero-scroll" aria-hidden="true">
+        <span class="hero-scroll-label">Scroll Down</span>
+        <svg
+          class="hero-scroll-mark"
+          width="18"
+          height="10"
+          viewBox="0 0 18 10"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M1 1l8 8 8-8" />
+        </svg>
+      </span>
+    </div>
+
+    {/* Beat four. Present in the HTML from the start — it is the page's
         identity, not a payload the animation delivers — and simply not
         transformed when script is not driving it. */}
     <div class="hero-title" data-hero-title>
@@ -204,21 +223,46 @@ const alt =
 <style>
   /* ------------------------------------------------------------ intro --- */
 
+  /* A layer over the stage, laid out as three rows so the identity sits at the
+     top, the thesis on the optical centre line and the cue at the foot —
+     without any of the three knowing what the others are doing. */
   .hero-intro {
-    position: relative;
+    position: absolute;
+    inset: 0;
+    z-index: 2;
     display: grid;
-    place-items: center;
-    /* Not 100dvh. The nav is `sticky` but still takes its 56px + 1px border out
-       of the flow, so a full-viewport box here ends 57px past the fold and takes
-       the scroll cue with it — a cue you have to scroll to find is worse than
-       none. Subtracting the bar is what puts the cue back on the first screen
-       and centres the line in the space a reader actually sees.
-       `.hero` below can afford not to care: it is pinned, so its overhang is
-       scrolled through rather than looked at. */
-    min-height: calc(100dvh - 3.5rem - 1px);
-    padding-inline: 1.5rem;
-    background-color: var(--color-bg);
+    grid-template-rows: auto 1fr auto;
+    justify-items: center;
+    align-items: center;
+    padding: clamp(1.5rem, 5vh, 2.75rem) 1.5rem;
     text-align: center;
+    /* The exact inverse of what `.hero-title` does on the way out: it fades in
+       while growing from 0.72, so this fades out while shrinking to it. Script
+       writes both; these defaults are the state every fallback path renders. */
+    transform: scale(var(--hero-intro-scale, 1));
+    opacity: var(--hero-intro-opacity, 1);
+    will-change: transform, opacity;
+    /* The cue is the only thing here anyone could want to point at, and it is
+       not interactive. Letting the layer swallow clicks would put an invisible
+       sheet over the canvas for the rest of the sequence. */
+    pointer-events: none;
+  }
+
+  .hero-lockup {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: var(--text-subhead);
+    font-weight: 600;
+    /* The grid row shrinks to content, which let the name wrap under itself
+       into two lines beside the mark. It is 155px at this size and the mark is
+       26 — there is no width this has to survive where breaking it helps. */
+    white-space: nowrap;
+  }
+
+  .hero-mark {
+    width: 26px;
+    height: 26px;
   }
 
   .hero-headline {
@@ -236,10 +280,6 @@ const alt =
   }
 
   .hero-scroll {
-    position: absolute;
-    bottom: clamp(1.75rem, 6vh, 3rem);
-    left: 50%;
-    transform: translateX(-50%);
     display: grid;
     justify-items: center;
     gap: 0.6rem;
@@ -283,11 +323,23 @@ const alt =
   }
 
   :global(html[data-hero-active]) .hero {
-    /* 350vh of section minus the 100vh sticky child = 250vh of travel, the
+    /* 400vh of section minus the 100vh sticky child = 300vh of travel, the
        ceiling in CLAUDE.md. Change one number here and the pin distance
-       changes with it. */
-    height: 350vh;
+       changes with it — and the timings in the script are fractions of it, so
+       they all move together and none of them has to be touched.
+       It was 350 when the title card was a separate screen ahead of the pin;
+       folding the card in and adding its beat here made the hero shorter
+       overall, 400vh against 450. */
+    height: 400vh;
     min-height: 0;
+
+    /* The header is `sticky` and still takes its 57px out of the flow, so
+       without this the pinned stage would start 57px down and hang the same
+       distance past the fold — which put the scroll cue below it. The bar is
+       invisible for the whole sequence, so sliding under it is exactly right,
+       and the negative margin is scoped to the animated state so the ordinary
+       flow is untouched with no script or reduced motion. */
+    margin-top: calc(-3.5rem - 1px);
   }
 
   .hero-stage {
@@ -371,10 +423,17 @@ const alt =
 
   /* With script driving, the name starts invisible and arrives on cue. Without
      it, it is simply there — the one line on this screen that must never
-     depend on the animation running. */
+     depend on the animation running.
+
+     The object is the mirror case: with script it starts absent and grows in
+     behind the title card, without it the poster is simply the picture. */
   :global(html[data-hero-active]) .hero-title {
     --hero-title-opacity: 0;
     --hero-title-scale: 0.72;
+  }
+  :global(html[data-hero-active]) .hero-stage {
+    --hero-object-opacity: 0;
+    --hero-object-scale: 0.55;
   }
 
   .hero-kicker {
@@ -419,7 +478,8 @@ const alt =
       min-height: 100dvh;
     }
     .hero-media,
-    .hero-title {
+    .hero-title,
+    .hero-intro {
       transform: none;
       opacity: 1;
       will-change: auto;
@@ -428,6 +488,27 @@ const alt =
       --hero-title-opacity: 1;
       --hero-title-scale: 1;
     }
+    :global(html[data-hero-active]) .hero-stage {
+      --hero-object-opacity: 1;
+      --hero-object-scale: 1;
+    }
+
+  }
+
+  /* With nothing driving them, the card and the plate are both at full opacity
+     in the middle of one screen — the card absolutely positioned over the
+     stage, the plate centred in it — and they overlap. The card is the one that
+     goes: the plate is the page's identity and the card is its framing, and a
+     static screen only has room to make one of those points. The header is
+     carrying the mark and the name at that point anyway, because none of the
+     chrome fading applies without script either.
+
+     Keyed on the absence of `data-hero-active` rather than on reduced motion,
+     which is the distinction that actually matters: reduced motion is only one
+     of the two ways the script ends up not driving, and writing it the other
+     way left JavaScript-disabled-but-motion-allowed with both on screen. */
+  :global(html:not([data-hero-active])) .hero-intro {
+    display: none;
   }
 </style>
 
@@ -444,10 +525,11 @@ const alt =
   const canvas = document.querySelector<HTMLCanvasElement>('[data-hero-canvas]');
   const stage = section?.querySelector<HTMLElement>('.hero-stage');
   const title = document.querySelector<HTMLElement>('[data-hero-title]');
+  const intro = document.querySelector<HTMLElement>('[data-hero-intro]');
 
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-  if (section && canvas && stage && title && !reduced.matches) {
+  if (section && canvas && stage && title && intro && !reduced.matches) {
     const count = Number(section.dataset.count);
     const widths = (section.dataset.widths ?? '')
       .split(',')
@@ -531,33 +613,66 @@ const alt =
     /** Normalised position of `p` inside [a, b]. */
     const span = (p: number, a: number, b: number) => clamp01((p - a) / (b - a));
 
+    /**
+     * The whole sequence as one map, and it is deliberately symmetrical: the
+     * last third runs the first third backwards. The card holds and dissolves
+     * while the object grows in behind it; at the far end the object shrinks
+     * away while the plate grows in, and the plate leaves upward. Every pair
+     * overlaps rather than abutting — a gap between two of these reads as two
+     * animations, an overlap reads as one handover.
+     *
+     *   0.00–0.06  card holds
+     *   0.06–0.16  card fades out, shrinking to 0.72
+     *   0.12–0.20  object fades in, growing from 0.55
+     *   0.16–0.74  frames scrub, 0 → count-1
+     *   0.74–0.88  object fades out, shrinking to 0.55
+     *   0.78–0.92  plate fades in, growing from 0.72
+     *   0.92–1.00  plate fades out and lifts 35vh
+     *   0.93–1.00  chrome fades in
+     *
+     * The frames get 0.58 of 300vh of travel, which is the same ~23px per frame
+     * they had over 0.70 of 250vh. That equality is the reason the section is
+     * 400vh and not 350: the card's beat is paid for by the section, not by the
+     * animation it introduces.
+     */
     function render() {
       const p = progress();
 
-      // Stage one and two: the frames. They own the first 70% of the travel
-      // because they are the part with something to say.
-      const frame = Math.round(span(p, 0, 0.7) * (count - 1));
+      const frame = Math.round(span(p, 0.16, 0.74) * (count - 1));
       if (frame !== lastDrawn) {
         draw(frame);
         lastDrawn = frame;
       }
 
-      // Stage three: the object recedes and fades as the name comes up. The
-      // two overlap by design — a gap between them reads as two animations
-      // rather than one handover.
-      const recede = span(p, 0.7, 0.86);
-      stage!.style.setProperty('--hero-object-scale', String(1 - recede * 0.45));
-      stage!.style.setProperty('--hero-object-opacity', String(1 - recede));
+      const introLeave = span(p, 0.06, 0.16);
+      intro!.style.setProperty('--hero-intro-opacity', String(1 - introLeave));
+      intro!.style.setProperty('--hero-intro-scale', String(1 - introLeave * 0.28));
 
-      const arrive = span(p, 0.74, 0.9);
-      const exit = span(p, 0.9, 1);
+      // One expression for both ends of the object's life, so it cannot be
+      // present at the start or absent in the middle by getting one of the two
+      // ranges wrong: `enter` takes it to full, `recede` takes it back.
+      const enter = span(p, 0.12, 0.2);
+      const recede = span(p, 0.74, 0.88);
+      stage!.style.setProperty('--hero-object-opacity', String(enter * (1 - recede)));
+      stage!.style.setProperty(
+        '--hero-object-scale',
+        String(0.55 + 0.45 * enter - 0.45 * recede),
+      );
+
+      const arrive = span(p, 0.78, 0.92);
+      const exit = span(p, 0.92, 1);
       title!.style.setProperty('--hero-title-opacity', String(arrive * (1 - exit)));
       title!.style.setProperty('--hero-title-scale', String(0.72 + arrive * 0.28));
       title!.style.setProperty('--hero-title-y', `${exit * -35}vh`);
 
-      // The nav and the CV underneath are revealed on the same cue as the exit,
-      // so the page hands over rather than cutting.
-      root.toggleAttribute('data-hero-passed', p > 0.88);
+      // The header arrives last and on its own cue, fading up as the plate
+      // leaves, so the interface assembles after the title sequence rather than
+      // sitting through it. `data-hero-passed` still flips, because opacity is
+      // not enough on its own — the bar also has to stop swallowing clicks and
+      // start being reachable, and that is an attribute's job, not a number's.
+      const chrome = span(p, 0.93, 1);
+      root.style.setProperty('--hero-chrome-opacity', String(chrome));
+      root.toggleAttribute('data-hero-passed', chrome > 0.9);
     }
 
     let ticking = false;
@@ -625,10 +740,25 @@ const alt =
     });
 
     // If the visitor turns reduced motion on mid-visit, hand the page back.
+    //
+    // Dropping the attribute is not enough on its own. Every value this script
+    // drives is an inline custom property, and inline wins over the stylesheet
+    // no matter which attributes are on <html> — so the object and the closing
+    // plate would keep whatever opacity the scroll position had left them at,
+    // which for anyone who had not reached the end is invisible. Removing the
+    // properties is what actually hands them back to the CSS defaults, all of
+    // which resolve to the static state.
     reduced.addEventListener('change', (event) => {
-      if (event.matches) {
-        root.removeAttribute('data-hero-active');
-        root.setAttribute('data-hero-passed', '');
+      if (!event.matches) return;
+      root.removeAttribute('data-hero-active');
+      root.setAttribute('data-hero-passed', '');
+      root.style.removeProperty('--hero-chrome-opacity');
+      for (const [el, props] of [
+        [stage, ['--hero-object-opacity', '--hero-object-scale', '--hero-zoom']],
+        [title, ['--hero-title-opacity', '--hero-title-scale', '--hero-title-y']],
+        [intro, ['--hero-intro-opacity', '--hero-intro-scale']],
+      ] as const) {
+        for (const prop of props) el.style.removeProperty(prop);
       }
     });
   }
