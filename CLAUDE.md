@@ -179,7 +179,16 @@ Deploys happen on push to `main`. Nothing is published from a local machine.
   **The header is absent for the whole sequence**, mark included, and arrives
   last on `--hero-chrome-opacity`. That is why the title card carries its own
   mark and name: the identity requirement in constraint 3 is met by the card,
-  not by a half-dressed bar. Its `pointer-events` are released by
+  not by a half-dressed bar.
+  **The card's every measurement is a ratio of the name**, and the name is
+  `min(7.4vw, 5.25rem)` — no floor, because that coefficient exists to keep the
+  longest name in `cv.json` on one line down to 312px and a floor is what breaks
+  it. **The mark has two ratios and they are the same rule at two scales:**
+  1.6018em beside the name, where its vertical edge measures the cap height of
+  the E it sits next to, and exactly twice that stacked above it, where there is
+  no E alongside for the relationship to be visible and the single ratio only
+  makes the mark look like a badge. Derive, never nudge — and if the artwork
+  changes, both move together because one is two of the other. Its `pointer-events` are released by
   `data-hero-passed` and not by the opacity rule, because a later `auto` loses
   to the more specific `none` — which shipped a visible bar nobody could click.
   Everything animated hangs off `data-hero-active`, which only the script sets,

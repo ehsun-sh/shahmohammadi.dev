@@ -283,15 +283,9 @@ const alt =
 
      The mark is sized off the name rather than independently, because the brief
      is a relationship and not a number: the mark's vertical edge should measure
-     the same as the cap height of the E beside it.
-
-     Solving it needs three facts out of logo.svg. The artwork spans 891.2 of
-     the 1000-unit viewBox vertically; its outer vertical edges measure 445.7;
-     and 891.2 / 445.7 = 1.9993, so the artwork is exactly twice its own edge.
-     Edge = cap height therefore means artwork = 2 cap heights, and the svg box
-     is 1000/891.2 larger again — 2.2435 cap heights, which at Noto Sans' 0.714
-     cap is 1.6018em of the name. Re-derive this if the artwork ever changes;
-     do not nudge it.
+     the same as the cap height of the E beside it. That solves to 1.6018em —
+     the derivation is in the 75rem block, where the two are actually beside
+     each other. Stacked, it is twice that; see below.
 
      These live on the card rather than on the lead block because the cue needs
      two of them as well, and they must not drift between the two rules: both
@@ -310,12 +304,29 @@ const alt =
        name in 327px of room — two lines. The floor was protecting a legibility
        the viewport unit never threatened; at 320px this is still 23.7px. */
     --name-size: min(7.4vw, 5.25rem);
-    --mark-size: calc(var(--name-size) * 1.6018);
+    /* Stacked, and deliberately DOUBLE the ratio the mark takes beside the
+       name — 4 cap heights of artwork rather than 2.
+
+       The "edge = cap height of the E" rule is a relationship between two
+       things sitting on one line, and it is the right rule there. Above the
+       name there is no E next to it to be read against, so the rule is not
+       visible and all it does is make the mark small: at 1.6018em it reads as a
+       badge stuck on top of a line of type rather than as the top of a lockup.
+       Doubling it is the same rule applied at the scale that is actually
+       legible in this arrangement, and it is a doubling and not a fit — the
+       desktop value is the one number, this is two of it, and if the artwork
+       ever changes both move together. */
+    --mark-size: calc(var(--name-size) * 3.2036);
     /* The artwork fills 77.3% of the square box, leaving 11.35% blank down each
        side. Pulling that back in is what makes `--mark-gap` the gap you can
        actually see, rather than the gap plus a strip of nothing. */
     --mark-bleed: calc(var(--mark-size) * -0.1135);
-    --mark-gap: clamp(0.85rem, 1.8vh, 1.35rem);
+    /* Stacked, this is a gap between two objects rather than between two words,
+       so it has to scale with them: a fixed 14.6px under a mark that just
+       doubled reads as the mark resting on the name. Proportional to the name
+       like everything else on the card, at 0.93em — which is 0.29 of the mark,
+       and lands 26px at a 375px screen against the 29px the reference holds. */
+    --mark-gap: calc(var(--name-size) * 0.93);
     /* 0.72 of the name, which is far more than a standfirst would take and is
        the right number for this face: Grand Hotel's cap height is roughly 0.62em
        against Noto's 0.714, so 0.72 of the size lands the two capitals within a
@@ -434,6 +445,18 @@ const alt =
        line-height rather than as a number, so it survives either of them
        moving. */
     .hero-intro {
+      /* Back to the one number. Beside the name the E is right there to be read
+         against, so the mark's vertical edge measures its cap height: the
+         artwork spans 891.2 of logo.svg's 1000-unit viewBox and its outer
+         vertical edges measure 445.7, so the artwork is exactly twice its own
+         edge, and the svg box is 1000/891.2 larger again — 2.2435 cap heights,
+         which at Noto Sans' 0.714 cap is 1.6018em. */
+      --mark-size: calc(var(--name-size) * 1.6018);
+      /* Back to a fixed gap too. Beside the name this is horizontal space
+         between a mark and a word on one line, not a stack of two objects, and
+         a proportional value at this size opens it to 78px — the two stop
+         reading as one lockup. */
+      --mark-gap: clamp(0.85rem, 1.8vh, 1.35rem);
       --tagline-gap: calc(
         var(--name-size) * 0.196 - (var(--mark-size) - var(--name-size) * 1.04) /
           2
