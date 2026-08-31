@@ -86,6 +86,7 @@ const alt =
   data-hero
   data-count={manifest?.count}
   data-widths={manifest?.widths.join(',')}
+  data-zoom={manifest && `${manifest.zoom.start},${manifest.zoom.end}`}
   aria-label="Product animation"
 >
   <div class="hero-stage">
@@ -192,6 +193,16 @@ const alt =
     transform: scale(var(--hero-object-scale, 1));
     opacity: var(--hero-object-opacity, 1);
     will-change: transform, opacity;
+  }
+
+  /* The poster is the sequence's last frame, so it is shown at the end of the
+     camera push — otherwise it would jump smaller the moment the canvas took
+     over. `--hero-zoom` is written by script from the manifest and defaults to
+     1, which is also what the no-JS and reduced-motion paths render at. */
+  .hero-poster {
+    transform: scale(
+      calc(var(--hero-zoom, 1) * var(--hero-object-scale, 1))
+    );
   }
 
   /* The canvas is only worth anything once script has drawn something into it.
@@ -326,6 +337,15 @@ const alt =
       widths.find((w) => w >= window.innerWidth * Math.min(devicePixelRatio, 2)) ??
       widths.at(-1)!;
 
+    const [zoomStart = 1, zoomEnd = 1] = (section.dataset.zoom ?? '')
+      .split(',')
+      .map(Number)
+      .filter((n) => Number.isFinite(n) && n > 0);
+
+    // The poster is the last frame, so it wears the end of the push. Set here
+    // rather than in the stylesheet because the value comes from the manifest.
+    stage.style.setProperty('--hero-zoom', String(zoomEnd));
+
     const ctx = canvas.getContext('2d', { alpha: true })!;
     const images: (HTMLImageElement | null)[] = new Array(count).fill(null);
     let loaded = 0;
@@ -359,8 +379,15 @@ const alt =
       const ch = canvas!.height;
       ctx.clearRect(0, 0, cw, ch);
       // `contain`, matching the poster's object-fit, so the two are
-      // interchangeable and the swap between them is invisible.
-      const scale = Math.min(cw / img.naturalWidth, ch / img.naturalHeight);
+      // interchangeable and the swap between them is invisible — times the
+      // camera push, which is why the poster carries the end of that push as a
+      // CSS transform. Anything that overflows is clipped by the canvas itself,
+      // at full source resolution, which is why the push is applied to the draw
+      // rather than by scaling the element.
+      const t = count > 1 ? index / (count - 1) : 1;
+      const zoom = zoomStart + (zoomEnd - zoomStart) * t;
+      const scale =
+        Math.min(cw / img.naturalWidth, ch / img.naturalHeight) * zoom;
       const w = img.naturalWidth * scale;
       const h = img.naturalHeight * scale;
       ctx.drawImage(img, (cw - w) / 2, (ch - h) / 2, w, h);

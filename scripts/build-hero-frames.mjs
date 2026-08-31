@@ -58,6 +58,28 @@ const QUALITY_STEP_DOWN = 10;
 
 /** Alpha above this counts as "object here" when measuring the crop. */
 const ALPHA_FLOOR = 8;
+/**
+ * Fraction of frames the crop must contain whole. The rest are allowed to
+ * bleed off the edges.
+ *
+ * A strict union is the wrong rule for an exploded assembly. The parts fly in
+ * from outside the frame, so in a handful of frames a panel sweeps right across
+ * the canvas and touches every edge — which makes the union the whole canvas
+ * and reclaims nothing, while the subject itself never leaves the middle 60%.
+ * Fitting the canvas then renders the board small with dead space all round it
+ * for the whole sequence, to keep three frames' worth of incoming panel inside
+ * the frame.
+ *
+ * A part bleeding off the edge as it flies in reads as a part flying in from
+ * off-screen, which is what it is. So the box is sized to hold the great
+ * majority of frames and the outliers are allowed past it.
+ *
+ * Worth knowing before reaching for this to save bytes: it mostly will not.
+ * Transparent pixels are nearly free in WebP, so cropping buys composition —
+ * a bigger subject on screen — far more than it buys payload. Frame count is
+ * the lever for payload.
+ */
+const DEFAULT_CONTAIN = 0.9;
 /** Breathing room left around the union box, as a fraction of its size. */
 const CROP_PADDING = 0.02;
 /** Width the bounding box is measured at. Full resolution is not needed to
@@ -73,12 +95,34 @@ const source = args.find((a) => !a.startsWith('--') && !Number.isFinite(Number(a
 
 const TARGET_FRAMES = flag('frames', 100);
 const QUALITY = flag('quality', 72);
+const CONTAIN = flag('contain', DEFAULT_CONTAIN);
+
+/**
+ * A camera push, applied at draw time rather than baked into the pixels.
+ *
+ * One crop box has to hold two very different framings — a square top-down
+ * board at the start and a wide, flat, front-on enclosure at the end — so
+ * whichever box is chosen wastes space at one end or the other. It wastes it at
+ * the end: the finished product occupies about a fifth of the frame's height,
+ * and that is the frame the page comes to rest on.
+ *
+ * Scaling the drawn frame up as the sequence runs fixes it without touching the
+ * render and without costing a byte. It also matches the story the animation is
+ * telling — the camera comes to the front of the device — so it reads as the
+ * shot finishing rather than as a correction. Frames wide enough to bleed are
+ * clipped by the stage, which already hides its overflow.
+ *
+ * Set both to 1 to turn it off, which is the right move if the render is ever
+ * re-shot with the camera closer at the end.
+ */
+const ZOOM_START = flag('zoom-start', 1);
+const ZOOM_END = flag('zoom-end', 1.5);
 /** CLAUDE.md hard constraint #3. Checked against the mobile set. */
 const BUDGET_BYTES = 2 * 1024 * 1024;
 
 if (!source) {
   console.error(
-    'Usage: npm run hero -- <source-dir> [--frames 100] [--quality 72]\n\n' +
+    'Usage: npm run hero -- <source-dir> [--frames 100] [--quality 72] [--contain 0.9]\n\n' +
       'The source directory is the render output — the 200 numbered frames.\n' +
       'It is read, never written to, and does not need to be inside this repo.',
   );
@@ -148,7 +192,8 @@ console.log(
  * minutes to answer a question a thumbnail answers.
  */
 async function unionBox(files) {
-  let box = null;
+  const boxes = [];
+  let scale = 1;
 
   for (const [i, frame] of files.entries()) {
     const { data, info } = await sharp(path.join(source, frame.file))
@@ -171,32 +216,54 @@ async function unionBox(files) {
     }
 
     if (maxX < 0) continue; // fully transparent frame, nothing to contribute
-    box = box
-      ? {
-          minX: Math.min(box.minX, minX),
-          minY: Math.min(box.minY, minY),
-          maxX: Math.max(box.maxX, maxX),
-          maxY: Math.max(box.maxY, maxY),
-          scale: box.scale,
-        }
-      : { minX, minY, maxX, maxY, scale: first.width / w };
+    scale = first.width / w;
+    boxes.push({ index: i, minX, minY, maxX, maxY });
 
     if (i % 25 === 0) process.stdout.write(`  measuring crop: ${i + 1}/${files.length}\r`);
   }
 
-  if (!box) return null;
+  if (boxes.length === 0) return null;
 
-  const s = box.scale;
-  const padX = (box.maxX - box.minX + 1) * s * CROP_PADDING;
-  const padY = (box.maxY - box.minY + 1) * s * CROP_PADDING;
-  const left = Math.max(0, Math.round(box.minX * s - padX));
-  const top = Math.max(0, Math.round(box.minY * s - padY));
+  /**
+   * The value that leaves at most `(1 - CONTAIN)` of frames outside, on one
+   * edge. `dir` is which end of the sorted list is "outward" for that edge.
+   */
+  const cut = (key, dir) => {
+    const values = boxes.map((b) => b[key]).sort((a, b) => a - b);
+    const slack = Math.floor(values.length * (1 - CONTAIN));
+    return dir < 0 ? values[slack] : values[values.length - 1 - slack];
+  };
+
+  // Whatever the percentile says, the first and last frames are never cut: the
+  // page rests on both of them. Frame 0 is what a visitor sees before they
+  // scroll, and the last frame is the poster, the finished product, and the
+  // thing the whole sequence is travelling towards.
+  const anchors = [boxes[0], boxes.at(-1)];
+
+  const box = {
+    minX: Math.min(cut('minX', -1), ...anchors.map((b) => b.minX)),
+    minY: Math.min(cut('minY', -1), ...anchors.map((b) => b.minY)),
+    maxX: Math.max(cut('maxX', +1), ...anchors.map((b) => b.maxX)),
+    maxY: Math.max(cut('maxY', +1), ...anchors.map((b) => b.maxY)),
+  };
+
+  const bled = boxes.filter(
+    (b) =>
+      b.minX < box.minX || b.minY < box.minY || b.maxX > box.maxX || b.maxY > box.maxY,
+  ).length;
+
+  const padX = (box.maxX - box.minX + 1) * scale * CROP_PADDING;
+  const padY = (box.maxY - box.minY + 1) * scale * CROP_PADDING;
+  const left = Math.max(0, Math.round(box.minX * scale - padX));
+  const top = Math.max(0, Math.round(box.minY * scale - padY));
 
   return {
     left,
     top,
-    width: Math.min(first.width - left, Math.round((box.maxX + 1) * s + padX) - left),
-    height: Math.min(first.height - top, Math.round((box.maxY + 1) * s + padY) - top),
+    width: Math.min(first.width - left, Math.round((box.maxX + 1) * scale + padX) - left),
+    height: Math.min(first.height - top, Math.round((box.maxY + 1) * scale + padY) - top),
+    bled,
+    total: boxes.length,
   };
 }
 
@@ -206,7 +273,8 @@ if (crop) {
   const kept = ((crop.width * crop.height) / (first.width * first.height)) * 100;
   console.log(
     `  crop: ${crop.width}×${crop.height} at (${crop.left},${crop.top}) — ` +
-      `${(100 - kept).toFixed(0)}% of the canvas was empty in every frame\n`,
+      `${(100 - kept).toFixed(0)}% of the canvas dropped, ` +
+      `${crop.bled} of ${crop.total} frames bleed past it\n`,
   );
 }
 
@@ -269,6 +337,7 @@ const manifest = {
   quality: QUALITY,
   sourceFrames: frames.length,
   crop: crop ?? null,
+  zoom: { start: ZOOM_START, end: ZOOM_END },
   generated: new Date().toISOString().slice(0, 10),
 };
 fs.writeFileSync(path.join(OUT, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n');

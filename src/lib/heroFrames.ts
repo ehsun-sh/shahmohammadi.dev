@@ -31,6 +31,11 @@ export interface HeroManifest {
    * the frames on disk are already cropped, and nothing at runtime needs it.
    */
   crop: { left: number; top: number; width: number; height: number } | null;
+  /**
+   * The camera push applied at draw time, interpolated across the frame range.
+   * Both 1 means no push. See scripts/build-hero-frames.mjs for why it exists.
+   */
+  zoom: { start: number; end: number };
   generated: string;
 }
 
