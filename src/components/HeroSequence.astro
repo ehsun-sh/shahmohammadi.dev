@@ -277,12 +277,29 @@ const alt =
   /* Explicit rows: auto-placement would drop these into tracks 1 and 2 and
      leave the third empty, which is the opposite of the arrangement.
 
-     The mark's size and the gaps around it live here as custom properties
-     because two different rules need them and they must not drift: below the
-     breakpoint the tagline has to be lifted clear of a mark it does not
-     contain, which means knowing exactly how tall that mark is. */
+     The mark is sized off the name rather than independently, because the brief
+     is a relationship and not a number: the mark's vertical edge should measure
+     the same as the cap height of the E beside it.
+
+     Solving it needs three facts out of logo.svg. The artwork spans 891.2 of
+     the 1000-unit viewBox vertically; its outer vertical edges measure 445.7;
+     and 891.2 / 445.7 = 1.9993, so the artwork is exactly twice its own edge.
+     Edge = cap height therefore means artwork = 2 cap heights, and the svg box
+     is 1000/891.2 larger again — 2.2435 cap heights, which at Noto Sans' 0.714
+     cap is 1.6018em of the name. Re-derive this if the artwork ever changes;
+     do not nudge it.
+
+     These live on the container as custom properties because several rules
+     need them and they must not drift: below the breakpoint the tagline has to
+     be lifted clear of a mark it does not contain, which means knowing exactly
+     how tall that mark is. */
   .hero-lead {
-    --mark-size: clamp(2.25rem, 4.6vw, 3.25rem);
+    --name-size: clamp(2rem, 7.4vw, 5.25rem);
+    --mark-size: calc(var(--name-size) * 1.6018);
+    /* The artwork fills 77.3% of the square box, leaving 11.35% blank down each
+       side. Pulling that back in is what makes `--mark-gap` the gap you can
+       actually see, rather than the gap plus a strip of nothing. */
+    --mark-bleed: calc(var(--mark-size) * -0.1135);
     --mark-gap: clamp(0.85rem, 1.8vh, 1.35rem);
     position: relative;
     grid-row: 2;
@@ -335,8 +352,9 @@ const alt =
        fits a 375px screen without a breakpoint — and deliberately a step under
        it in size and weight, and not uppercased. The closing plate has to stay
        the heavier of the two: this card opens with the name, the last one
-       lands on it, and the payoff should not be the quieter. */
-    font-size: clamp(2rem, 7.4vw, 5.25rem);
+       lands on it, and the payoff should not be the quieter.
+       The value is a variable because the mark is derived from it. */
+    font-size: var(--name-size);
     font-weight: 700;
     letter-spacing: -0.03em;
     line-height: 1.04;
@@ -349,14 +367,19 @@ const alt =
      the row's height is the name's height, because the mark is always the
      shorter of the two, so centring the row still centres the name.
 
-     64rem and not 48: both the name and the mark are sized in `vw`, so the pair
-     grows almost as fast as the screen does and the slack barely improves with
-     width. Measured, mark + gap + name against the available measure leaves
-     2.6% at 768px and 4.8% at 1024. The first is a fit that survives no font
-     substitution; the second is a desktop. Below it the stack is the honest
-     arrangement anyway — a mark beside a name broken over two lines reads as a
-     mistake. */
-  @media (min-width: 64rem) {
+     75rem, and the reason it is that high is worth understanding before anyone
+     lowers it. Both the name and the mark are sized in `vw`, so below the
+     name's clamp ceiling the pair grows exactly as fast as the screen and the
+     slack does not improve at all — it sits at roughly 0% from 768px to 1135px
+     no matter how wide the screen gets. Side by side only becomes possible
+     once the name stops growing and the measure keeps going. Computed against
+     a name that is 11.43em wide and a mark that occupies 1.24em after its
+     blank sides are trimmed: 0% at 1024, 2.2% at 1152, 6.2% at 1200, 12.3% at
+     1280. 1200 is where it first has room to breathe.
+
+     Below it the stack is the better arrangement anyway — a mark beside a name
+     broken over two lines reads as a mistake rather than a lockup. */
+  @media (min-width: 75rem) {
     .hero-lockup {
       display: flex;
       align-items: center;
@@ -368,6 +391,7 @@ const alt =
       position: static;
       transform: none;
       flex-shrink: 0;
+      margin-inline: var(--mark-bleed);
     }
 
     .hero-tagline {
