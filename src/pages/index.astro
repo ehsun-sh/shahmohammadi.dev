@@ -72,12 +72,24 @@ const {
       </aside>
 
       <div class="space-y-5">
-        {/* No title on this one. It is the claim the rest of the page is
-            evidence for, and a heading above it would only name it. */}
-        <section class="card">
-          <p class="prose-block text-lead">{basics.headline}</p>
-          {!heroReady && <HeroVisual class="mt-5" />}
-        </section>
+        {/* The headline used to open the column here, in its own untitled card.
+            It is gone from the page and still in cv.json, which is the right
+            split: the sequence above now makes the claim, and repeating it in
+            prose one screen later made the page say the same thing twice. The
+            field stays because it is this page's meta description and the
+            Person schema's, both of which need a sentence and neither of which
+            is visible. Do not delete it from cv.json to "finish" this.
+
+            What is left is only the placeholder visual, and only until the
+            frames exist — at which point the hero above IS the product shot and
+            the stand-in retires itself. */}
+        {
+          !heroReady && (
+            <section class="card">
+              <HeroVisual />
+            </section>
+          )
+        }
 
         <Section id="about" title="About">
           <p class="prose-block">{basics.summary}</p>

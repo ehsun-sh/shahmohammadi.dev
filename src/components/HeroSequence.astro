@@ -633,6 +633,12 @@ const alt =
   }
 
   .hero-title {
+    /* The plate's own name size, hoisted so the kicker can be a ratio of it the
+       way the title card's tagline is a ratio of `--name-size`. The two cards
+       keep separate variables on purpose: the plate's name is the payoff and is
+       deliberately the heavier and larger of the two, so they are not one
+       number with two users. */
+    --plate-name-size: clamp(1.75rem, 8.2vw, 6rem);
     position: relative;
     z-index: 1;
     text-align: center;
@@ -661,19 +667,43 @@ const alt =
     --hero-object-scale: 0.55;
   }
 
+  /* The same script as the title card's tagline, which is the point: the two
+     cards are the same shape at either end of the sequence — a short line in
+     Grand Hotel and a large name in Noto — and setting this one in the sans
+     while the other was script broke the rhyme.
+
+     Sized off `.hero-name` rather than off the type scale, for the same reason
+     the tagline is sized off `.hero-fullname`: at 0.72 the two capitals land
+     within a few percent of each other, and a fixed 18px under a name that
+     clamps up to 96px is not a kicker, it is a caption.
+
+     `margin-top` on `.hero-name` closes the gap instead of being opened by it,
+     because Grand Hotel's box is mostly ascender clearance — the same 0.164em
+     of stacked empty band the tagline had to overlap. Here it is only the one
+     band, the script's descender under a name with none of its own to meet, so
+     the correction is smaller. */
   .hero-kicker {
-    font-size: var(--text-lead);
-    line-height: 1.2;
+    font-family: var(--font-script);
+    font-size: calc(var(--plate-name-size) * 0.72);
+    line-height: 1.1;
     color: var(--color-muted);
   }
 
   .hero-name {
-    margin-top: 0.35rem;
+    /* Negative, and measured against the ink for the reason the tagline's gap
+       is: Grand Hotel's line box carries a band of ascender clearance under its
+       baseline that "Designed by" only reaches into with the y, and the name
+       under it is uppercase so its box carries a descender band it never uses.
+       0.35rem of positive margin on top of both read as a paragraph break.
+       Solved to 0.22em of ink between the lowest the script reaches — the
+       descenders of "Designed by", which is what can actually collide — and
+       the top of the name's caps. Re-measure the ink if either size moves. */
+    margin-top: calc(var(--plate-name-size) * 0.267);
     /* The one place on the site that reaches past the display role, and it is
        not an arbitrary size: it is the largest the longest name in cv.json can
        be set at without wrapping on a 375px screen, solved by the viewport
        unit rather than by a breakpoint. */
-    font-size: clamp(1.75rem, 8.2vw, 6rem);
+    font-size: var(--plate-name-size);
     font-weight: 800;
     letter-spacing: -0.03em;
     line-height: 1.02;

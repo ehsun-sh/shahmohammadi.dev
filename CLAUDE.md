@@ -116,9 +116,13 @@ Deploys happen on push to `main`. Nothing is published from a local machine.
   `hmtx` tables over the real strings, not eyeballed — so the measure, the type
   scale and the OG card's character clamp all held. Any future family change
   gets the same measurement first.
-- **Grand Hotel is the second family and it sets exactly one line:** the hero's
-  thesis, under the name. It reaches the page through `--font-script` and has
-  one consumer, `.hero-tagline`; it is not in `--font-sans`, and giving it a
+- **Grand Hotel is the second family and it sets exactly two lines:** the hero's
+  thesis under the name on the title card, and "Designed by" on the closing
+  plate. It reaches the page through `--font-script` and has those two consumers
+  only — `.hero-tagline` and `.hero-kicker`, which are the same line at either
+  end of one sequence, a short script over or under a large name. Setting one of
+  them in the sans breaks the rhyme the two cards exist to make. It is not in
+  `--font-sans`, and giving it a
   second job would turn a signature into a texture. Static 400 because the
   family has no other weight — never ask it for bold, the browser would
   synthesise a smear across a connecting script. Deliberately **not** preloaded:
