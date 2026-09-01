@@ -1,7 +1,7 @@
 # CLAUDE.md
 
 Personal portfolio / live CV / services site for Ehsan Shahmohammadi, deployed
-to **shahmohammadi.dev** via GitHub Pages.
+to **shahmohammadi.dev** via Cloudflare.
 
 **Plan and phase order live in [`Docs/ROADMAP.md`](Docs/ROADMAP.md). Read it
 before starting work.** `Docs/Portfolio_Architecture_Blueprint.pdf` is the
@@ -11,7 +11,7 @@ Repo, DNS and Pages setup is in [`Docs/DEPLOY.md`](Docs/DEPLOY.md).
 ## Stack
 
 Astro 7 (static) · Tailwind CSS v4 · GSAP + ScrollTrigger · Typst (PDF) ·
-GitHub Actions → GitHub Pages
+GitHub Actions → Cloudflare Workers (static assets)
 
 Node ≥ 22.12 required by Astro 7.
 
@@ -319,7 +319,7 @@ Deploys happen on push to `main`. Nothing is published from a local machine.
   `9a3c9bf1…` and a refactor that does not move it is a refactor that is safe.
 - **`Portfolio.pdf` is private by not existing on the server.** One page per
   project, built by `npm run portfolio` into `private/`, which is gitignored
-  whole. GitHub Pages is static: there is no server to check who is asking, so
+  whole. The site is static and has no server to check who is asking, so
   every file under `public/` is a public URL, a password in JS is read out of
   the page source, and an unguessable filename is not secrecy when the repo
   naming it is public. Not publishing it is the whole mechanism — never write
@@ -422,8 +422,20 @@ These are load-bearing. Do not trade them away for visual polish.
    page JS ≤ 50 KB gzipped.
 5. **Accessibility:** semantic landmarks, visible focus states, WCAG AA contrast
    in both themes, keyboard-navigable nav and forms.
-6. **`base` stays `"/"`** — a custom domain is in use. `public/CNAME` must
-   survive every deploy.
+6. **`base` stays `"/"`** — a custom domain is in use. The domain is attached to
+   the Worker in Cloudflare, not by a file in the repo, so nothing has to
+   survive the build for it to hold; `public/CNAME` was that file and is gone.
+7. **Every internal link ends in a trailing slash.** Astro's `directory` build
+   emits `/projects/index.html`, so the canonicals and the sitemap say
+   `/projects/`; a link to `/projects` is a redirect on every click and a
+   canonical pointing somewhere other than the link. `trailingSlash: 'always'`
+   makes the dev server refuse the unslashed form so this fails when written.
+8. **`public/_headers` is load-bearing, not decoration.** It is the reason the
+   site is on Cloudflare at all: 7 MB of hero frames and the font sit at fixed,
+   unhashed paths and are served `immutable` for a year. Cloudflare applies
+   *every* matching block and joins same-named headers with a comma, so a
+   `Cache-Control` on `/*` would append `max-age=0` to all of them — never add
+   one. The build asserts the file reaches `dist/`.
 
 ## IP boundary
 

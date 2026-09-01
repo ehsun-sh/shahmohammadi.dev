@@ -6,8 +6,7 @@ import tailwindcss from '@tailwindcss/vite';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://shahmohammadi.dev',
-  // Custom domain via public/CNAME, so the site is served from the root.
-  // Do not change this to a repo subpath.
+  // Served from the root of a custom domain. Do not change this to a subpath.
   base: '/',
   output: 'static',
   // `always`, and it is not a preference — it is making the site agree with

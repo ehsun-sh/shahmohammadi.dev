@@ -1,132 +1,153 @@
 # Deploying shahmohammadi.dev
 
-One-time setup, in order. Steps 1–3 must happen before the first deploy will
-serve on the custom domain; step 5 cannot be done until step 4 finishes.
+GitHub Actions builds; Cloudflare serves. The site is a Worker with static
+assets — `wrangler.jsonc` names it `shahmohammadi` and points it at `dist/`.
+
+Routine deploys are just `git push`. Everything below the first section is
+one-time setup, kept because it is what a rebuild from scratch would need and
+because two of the steps are easy to get subtly wrong.
 
 ---
 
-## 1. Create the repo and push
+## Routine deploys
 
-The repo can have any name — the custom domain is what decides the URL, not the
-repo name. `shahmohammadi.dev` keeps it obvious.
+Push to `main`. That is the whole process: the workflow type-checks, compiles
+the résumé PDF with a pinned Typst, builds, asserts the PDF and `_headers`
+survived into `dist/`, and runs `wrangler deploy`.
 
-```bash
-gh repo create shahmohammadi.dev --public --source=. --remote=origin --push
+**Push to any other branch and you get a preview instead** — the same build,
+uploaded as a version rather than deployed, at
+
+```
+https://<first-8-of-version-id>-shahmohammadi.<account>.workers.dev
 ```
 
-If the repo is **private**, GitHub Pages requires a paid plan. See ROADMAP Q5.
+The version ID is in the run log (`Worker Version ID: …`). Preview URLs must be
+enabled once per Worker under **Settings → Domains & Routes → Preview URLs**;
+without that the URL 404s.
 
-## 2. Point Pages at Actions
+That split is deliberate: `wrangler deploy` on a branch would publish it to the
+live domain. It is two commands in the workflow, not one command with a flag.
 
-Repo → **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+To deploy without a code change, use **Actions → Deploy to Cloudflare → Run
+workflow** on `main`.
 
-Do not pick "Deploy from a branch". `.github/workflows/deploy.yml` publishes
-through `actions/deploy-pages`, and the branch option would fight it.
+---
 
-**That selector does not exist until the repo has a branch.** On a brand new
-repo the Pages settings page shows only "Add domain", which looks like the
-option is missing. It is not — push first, then come back. The first workflow
-run will fail at *Configure Pages* until this is set; re-run it afterwards
-(`gh run rerun <id> --failed`) rather than pushing an empty commit.
+## Why Cloudflare and not GitHub Pages
 
-The workflow cannot do this for itself. `actions/configure-pages` takes an
-`enablement: true` input, but the default `GITHUB_TOKEN` is refused with
-*"Resource not accessible by integration"* — creating a Pages site needs
-repo-admin rights the workflow token does not carry.
+One reason, and it is `public/_headers`.
 
-To skip the failed first run entirely, enable Pages from a real account before
-pushing:
+Pages sends `Cache-Control: public, max-age=0, must-revalidate` on everything
+and offers no way to change it. This site ships ~7 MB of hero frames and a
+self-hosted font at **fixed, unhashed paths** — the font has to be preloadable
+from the HTML, so its URL must be knowable before the build, and the frame URLs
+are built from a frame number by script. Under Pages that payload was
+re-validated on every visit and could not be cached.
 
-```bash
-gh api -X POST repos/ehsun-sh/shahmohammadi.dev/pages -f build_type=workflow
-```
+They are now `immutable` for a year. Everything else followed: real security
+headers, unlimited bandwidth for an image-heavy site, and per-branch previews.
 
-## 3. DNS records at your registrar
+**`immutable` on an unhashed path is a promise the build makes, not a guarantee
+the filename gives.** If the hero is ever re-rendered in a way that must reach
+existing visitors, the fix is a new path (`/hero2/`), not a shorter `max-age`.
 
-Two sets. The apex needs A and AAAA records because a CNAME is not legal at a
-zone apex; `www` gets a CNAME.
+---
 
-**Apex — `shahmohammadi.dev`**
+## One-time setup
 
-| Type | Name | Value |
-|---|---|---|
-| A | `@` | `185.199.108.153` |
-| A | `@` | `185.199.109.153` |
-| A | `@` | `185.199.110.153` |
-| A | `@` | `185.199.111.153` |
-| AAAA | `@` | `2606:50c0:8000::153` |
-| AAAA | `@` | `2606:50c0:8001::153` |
-| AAAA | `@` | `2606:50c0:8002::153` |
-| AAAA | `@` | `2606:50c0:8003::153` |
+### 1. The Worker
 
-**Subdomain — `www`**
+Cloudflare dashboard → **Workers & Pages → Create → Upload your static files**.
+This creates a Worker with static assets, not a Pages project — hence a
+`*.workers.dev` URL. `wrangler.jsonc`'s `name` must match it exactly; a
+mismatch does not fail, it silently creates a *second* Worker.
 
-| Type | Name | Value |
-|---|---|---|
-| CNAME | `www` | `ehsun-sh.github.io` |
+Upload anything to get the project created. The first CI run replaces it.
 
-Note the value has no repo name and no trailing path — it is the *account*
-subdomain, not the project URL. Some panels also want a trailing dot
-(`ehsun-sh.github.io.`); add it only if the panel rejects the value without it.
+### 2. Repository secrets
 
-Add all four A records and all four AAAA records. GitHub load-balances across
-them; a partial set works until the one host you configured has a bad day.
+Repo → **Settings → Secrets and variables → Actions**:
 
-Verify propagation before moving on:
+| Secret | Where to find it |
+|---|---|
+| `CLOUDFLARE_API_TOKEN` | My Profile → API Tokens → Custom token, permission **Account → Workers Scripts → Edit** |
+| `CLOUDFLARE_ACCOUNT_ID` | Workers & Pages → right-hand column |
 
-```bash
-dig +short shahmohammadi.dev A
-```
+The permission is **Workers Scripts**, not Cloudflare Pages. Pages is a
+different product and its token is rejected here.
 
-## 4. Set the custom domain in the repo
+### 3. DNS — the zone first, the domain second
 
-Repo → **Settings → Pages → Custom domain** → `shahmohammadi.dev` → Save.
+These are two different screens and the order is not optional.
 
-`public/CNAME` already contains the domain and the build copies it into `dist`,
-which is what keeps the domain attached on every subsequent deploy. The workflow
-asserts the file survived the build, because when it silently disappears the
-symptom is a dead domain rather than a failed build.
+**Account level → Domains → Add a Domain.** This makes Cloudflare the
+authoritative DNS for the zone, and it is the *only* place the nameservers are
+shown. Cloudflare scans the existing records; check the
+`google-site-verification` TXT came across.
 
-GitHub then runs a DNS check and issues a Let's Encrypt certificate. This
-usually takes a few minutes and can take up to 24 hours.
+Then set those two nameservers at the registrar (Porkbun → Domain Management →
+Authoritative Nameservers), replacing the registrar's own. Wait for Cloudflare
+to mark the zone active.
 
-## 5. Enforce HTTPS
+**Then** Worker → **Settings → Domains & Routes → Add Custom Domain** →
+`shahmohammadi.dev`. Cloudflare creates the DNS record itself, which is why the
+zone has to be on Cloudflare first.
 
-Once the certificate is issued, the **Enforce HTTPS** checkbox on the same page
-becomes available. Tick it. It is greyed out until the certificate exists —
-that is expected, not a misconfiguration.
+> **Delete every A, AAAA and CNAME record at `@` and `www` before this step.**
+> Add Custom Domain refuses to run while any record exists at the hostname, and
+> reports it as *"already has externally managed DNS records"* — which is
+> misleading once the zone is already on Cloudflare. It means "a record is in
+> the way", not "your DNS is elsewhere". Keep the TXT.
+
+Finally set **SSL/TLS → Full (strict)**.
+
+### 4. Turn GitHub Pages off
+
+Repo → **Settings → Pages → Source: None**. Nothing deploys there any more, but
+while it is enabled it will keep serving its last build to anyone holding a
+cached DNS answer.
 
 ---
 
 ## Verifying a deploy
 
 ```bash
-curl -sSI https://shahmohammadi.dev | head -n 1
+curl -sI https://shahmohammadi.dev | head -1
 ```
 
-Then check the things that are easy to get silently wrong:
+Then the things that are easy to get silently wrong:
 
-- `https://shahmohammadi.dev/og.png` returns a 1200×630 PNG
-- `https://shahmohammadi.dev/sitemap-index.xml` resolves
-- `https://shahmohammadi.dev/robots.txt` lists the sitemap
-- `https://shahmohammadi.dev/favicon.ico` resolves
+```bash
+# Caching — the reason the site is here at all
+curl -sI https://shahmohammadi.dev/hero/w720/000.webp | grep -i cache-control
+# want: public, max-age=31536000, immutable
+
+# No redirects on internal routes (every link must be slashed)
+curl -so /dev/null -w '%{http_code} %{num_redirects}\n' https://shahmohammadi.dev/projects/
+# want: 200 0
+```
+
+- `/og.png` returns a 1200×630 PNG
+- `/sitemap-index.xml` resolves
+- `/robots.txt` still lists the sitemap — Cloudflare **prepends** a managed
+  block of AI-crawler rules to it, so the file is much longer than the one in
+  `dist/`; ours survives underneath
+- `/resume.pdf` is non-empty
+- A nonsense path returns **404**, not 200 — `not_found_handling: "404-page"`
 - Paste the URL into the [LinkedIn Post Inspector](https://www.linkedin.com/post-inspector/)
   to confirm the social card renders and to prime LinkedIn's cache
-
-## Routine deploys
-
-Push to `main`. That is the whole process. The workflow type-checks, builds,
-verifies the CNAME, and publishes.
-
-To deploy without a code change (for example after editing repo settings), use
-**Actions → Deploy to GitHub Pages → Run workflow**.
 
 ## When something breaks
 
 | Symptom | Cause |
 |---|---|
-| Domain reverts to `<user>.github.io` after a deploy | `dist/CNAME` missing — the workflow's verify step should have caught this |
-| 404 on every path | Pages source still set to a branch instead of GitHub Actions |
+| A second Worker appeared | `name` in `wrangler.jsonc` does not match the real Worker |
+| Deploy fails on auth | Token has the Cloudflare Pages permission instead of Workers Scripts |
+| Add Custom Domain refuses | An A/AAAA/CNAME record still exists at that hostname |
+| Domain resolves but TLS fails | Universal SSL still issuing on a new zone — minutes to a few hours |
+| Assets revalidate on every visit | `dist/_headers` missing, or a `Cache-Control` was added to `/*` and is being appended to the specific rules |
+| Every internal link 307s | A link is missing its trailing slash; `trailingSlash: 'always'` should have caught it in dev |
 | CSS and assets 404 but HTML loads | `base` in `astro.config.mjs` is not `/` |
-| Certificate never issues | A/AAAA records incomplete, or an old CAA record blocks Let's Encrypt |
+| Preview URL 404s | Preview URLs not enabled on the Worker |
 | Build fails only in CI | Node version — Astro 7 needs ≥ 22.12; the workflow pins 22 |

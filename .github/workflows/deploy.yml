@@ -75,7 +75,7 @@ jobs:
           test -s dist/resume.pdf || { echo "::error::dist/resume.pdf missing or empty"; exit 1; }
           echo "resume.pdf -> $(stat -c%s dist/resume.pdf) bytes"
 
-      # `_headers` is the whole reason for moving off GitHub Pages, and it
+      # `_headers` is the whole reason the site moved off GitHub Pages, and it
       # reaches the deployment only by being copied out of public/ by the Astro
       # build. If that ever stops happening the site keeps working and silently
       # loses a year of caching on 7 MB of assets — which is exactly the kind of

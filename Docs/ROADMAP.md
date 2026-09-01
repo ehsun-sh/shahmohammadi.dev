@@ -12,14 +12,14 @@ this file wins. See the "Deviations from the blueprint" section for why.
 
 | Decision | Value | Notes |
 |---|---|---|
-| Domain | `shahmohammadi.dev` | Custom domain on GitHub Pages. `base: "/"`, `site: "https://shahmohammadi.dev"`. Requires `public/CNAME`. |
+| Domain | `shahmohammadi.dev` | Custom domain attached to the Cloudflare Worker. `base: "/"`, `site: "https://shahmohammadi.dev"`. No CNAME file — the domain is bound in Cloudflare, not in the repo. |
 | Repo name | `shahmohammadi.dev` | Any name works with a custom domain; naming it after the domain keeps things obvious. |
 | Framework | Astro 7 (static output) | Latest stable as of 2026-07 — the blueprint's "Astro 5" is two majors behind. Content Layer API and `src/content.config.ts` are unchanged; `output: "hybrid"` was removed. |
 | Styling | Tailwind CSS v4 via `@tailwindcss/vite` | The `@astrojs/tailwind` integration is deprecated and must not be used. |
 | Animation | GSAP + ScrollTrigger, hybrid SVG/canvas | Loaded only on the landing page, only above the mobile breakpoint, only when motion is allowed. |
 | CV source of truth | `src/data/cv.json` | Consumed by both the Astro site and the Typst PDF build. Never duplicated. |
 | PDF engine | Typst | Via `typst-community/setup-typst` in CI. Reads `cv.json` with Typst's native `json()`. |
-| Deploy | GitHub Actions → `actions/deploy-pages` | Official Pages flow with OIDC, not `peaceiris/actions-gh-pages`. |
+| Deploy | GitHub Actions → `wrangler deploy` | Built in CI (pinned Typst, font assertion) and uploaded to a Cloudflare Worker with static assets. Moved off GitHub Pages for `_headers` — see Docs/DEPLOY.md. |
 | Language | English only for v1 | See open question Q1. |
 | Analytics | GoatCounter or Cloudflare Web Analytics | Privacy-friendly, no cookie banner needed. |
 | Contact backend | Web3Forms | Static-host friendly; no server. |
