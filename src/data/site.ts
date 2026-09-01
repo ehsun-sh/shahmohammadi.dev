@@ -15,8 +15,19 @@ export const site = {
    * channels only rather than a form that silently fails.
    */
   web3formsKey: '01525581-4ba4-4749-87e2-63cd1fc140a5',
-  /** Flip to true when /projects has at least one non-draft entry (Phase 5). */
-  projectsReady: false,
+  /**
+   * Flip to true when /projects has at least one non-draft entry (Phase 5).
+   * Met by `maiman-studio`, which builds a real page. The other four entries
+   * still list on /projects without links, which is the page's own rule: the
+   * list a visitor sees is the list the résumé carries, and an entry whose
+   * write-up is unpublished is text rather than a broken promise.
+   *
+   * Gates two things, and they are one decision: the "All projects" link at the
+   * foot of the landing page's Featured Projects, and whether the nav's
+   * "Projects" points at `/projects` or at the `/#projects` anchor. Both are
+   * only true once the page is worth arriving at.
+   */
+  projectsReady: true,
   /** Flip to true when /notes ships (Phase 7). */
   notesReady: false,
 
