@@ -2,6 +2,11 @@
 dist/
 .astro/
 
+# wrangler's local state: miniflare's sqlite caches and the bundles it writes
+# while `wrangler dev` is running. Regenerated on every run, machine-specific,
+# and nothing here is an input to a deploy — CI builds dist/ and uploads it.
+.wrangler/
+
 # dependencies
 node_modules/
 

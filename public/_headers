@@ -9,7 +9,22 @@
 # visit. Every rule below is about that.
 #
 # Syntax: a path pattern on its own line, then indented `Header: value` lines.
-# First matching block wins per header, so the specific paths come before /*.
+#
+# **EVERY matching block is applied, and values for the same header are joined
+# with a comma. A later block does not override an earlier one.** This is the
+# trap in this file and it was shipped and caught by measurement: with
+# `Cache-Control` declared in both a specific block and `/*`, the hero frames
+# came back as
+#
+#     Cache-Control: public, max-age=31536000, immutable, public, max-age=0, must-revalidate
+#
+# — a header with two `max-age` values and a `must-revalidate`, which is
+# undefined behaviour that different caches resolve differently, and the most
+# likely resolution is the one that throws the year away. So `/*` sets the
+# security headers and deliberately does NOT set `Cache-Control`: HTML wants
+# `max-age=0, must-revalidate`, and that is already what Cloudflare serves for
+# anything with no rule of its own. Never add a `Cache-Control` line to `/*` to
+# "make it explicit" — it would silently re-break every rule above it.
 
 # ---------------------------------------------------------------- immutable ---
 #
@@ -60,13 +75,12 @@
 /og.png
   Cache-Control: public, max-age=604800
 
-# --------------------------------------------------------------------- html ---
+# ------------------------------------------------------------------ every ---
 #
-# Everything else, which in practice is the HTML. Deliberately revalidated on
-# every request: a page is the one thing that must never be stale, and it is
-# also the cheapest thing on the site to re-fetch. `must-revalidate` plus a
-# CDN-side cache means Cloudflare still serves it from the edge and only asks
-# the origin whether it changed.
+# No `Cache-Control` here — see the note at the top. Anything without a rule of
+# its own already gets `public, max-age=0, must-revalidate` from Cloudflare,
+# which is what HTML should have: a page is the one thing that must never be
+# stale and the cheapest thing on the site to re-fetch.
 #
 # The security headers sit here rather than on a narrower path because they
 # should apply to every response, including the ones added later by someone who
@@ -82,7 +96,6 @@
 # silently wrong (a broken form fails quietly, on the page a client uses), so it
 # belongs in its own commit with the form tested after it, not smuggled in here.
 /*
-  Cache-Control: public, max-age=0, must-revalidate
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   X-Frame-Options: DENY
