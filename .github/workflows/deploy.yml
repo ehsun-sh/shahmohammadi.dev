@@ -1,24 +1,26 @@
-name: Deploy to GitHub Pages
+name: Deploy to Cloudflare
 
 on:
   push:
-    branches: [main]
+    branches: ['**']
   workflow_dispatch:
 
-# Required by the official Pages flow: `deploy-pages` authenticates with OIDC
-# rather than a token, so `id-token: write` is not optional.
+# Only what wrangler needs. The Pages flow required `pages: write` and
+# `id-token: write` for OIDC; neither applies now — Cloudflare authenticates
+# with an API token from repository secrets.
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
-# Let a running deploy finish rather than cancelling it half-published.
+# Per branch, not one global group. The old `group: pages` was right when there
+# was a single published site and a second deploy would fight the first; now a
+# preview build on one branch has nothing to do with a production build on
+# another, and serialising them would only make previews slow.
 concurrency:
-  group: pages
+  group: deploy-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -40,6 +42,12 @@ jobs:
       # Pinned to the version the layout was proofed against. Typst's own
       # renderer changes between releases, and this PDF is a document someone
       # applies for a job with — it should not shift under it.
+      #
+      # This step, and the two below it, are why the site is built here and
+      # uploaded rather than built by Cloudflare from the repository. Cloudflare
+      # would have meant reproducing the version pin and the font assertion
+      # inside its build image, which is duplicating a CI that already works to
+      # gain nothing.
       - name: Set up Typst
         uses: typst-community/setup-typst@v5
         with:
@@ -57,27 +65,8 @@ jobs:
             || { echo "::error::Noto Sans TTFs missing — the résumé would silently fall back to a serif"; exit 1; }
           npm run resume
 
-      # Pages has to be enabled on the repo before this step can succeed, and it
-      # cannot enable itself: `enablement: true` was tried here and the default
-      # GITHUB_TOKEN is refused with "Resource not accessible by integration",
-      # because creating a Pages site needs repo-admin rights the workflow token
-      # does not carry. It is a one-time setup step done with a real account —
-      # Settings → Pages → Source: GitHub Actions, which only appears once the
-      # repo has a branch, or `gh api -X POST repos/OWNER/REPO/pages -f
-      # build_type=workflow` before the first push. See Docs/DEPLOY.md.
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-
       - name: Build
         run: npm run build
-
-      # public/CNAME is copied into dist by the build, which is what keeps the
-      # custom domain attached across deploys. If this ever fails, the domain
-      # silently detaches — hence the explicit check rather than trust.
-      - name: Verify custom domain survived the build
-        run: |
-          test -f dist/CNAME || { echo "::error::dist/CNAME missing"; exit 1; }
-          echo "CNAME -> $(cat dist/CNAME)"
 
       # The site links to /resume.pdf unconditionally once site.resumeReady is
       # on, so a missing PDF is a broken download button on a live page.
@@ -86,18 +75,43 @@ jobs:
           test -s dist/resume.pdf || { echo "::error::dist/resume.pdf missing or empty"; exit 1; }
           echo "resume.pdf -> $(stat -c%s dist/resume.pdf) bytes"
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./dist
+      # `_headers` is the whole reason for moving off GitHub Pages, and it
+      # reaches the deployment only by being copied out of public/ by the Astro
+      # build. If that ever stops happening the site keeps working and silently
+      # loses a year of caching on 7 MB of assets — which is exactly the kind of
+      # regression nobody notices, so it is asserted rather than trusted.
+      - name: Verify the cache headers made it into the build
+        run: |
+          test -s dist/_headers || { echo "::error::dist/_headers missing"; exit 1; }
+          grep -q 'immutable' dist/_headers \
+            || { echo "::error::dist/_headers has no immutable rule"; exit 1; }
+          echo "_headers -> $(grep -c '^/' dist/_headers) path blocks"
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      # main is production and lands on the custom domain; every other branch
+      # uploads a version and gets its own preview URL, which is what makes it
+      # possible to look at an unmerged redesign on a real host before it is
+      # merged. `wrangler deploy` on a branch would publish it to the live site,
+      # so the two are deliberately different commands rather than one command
+      # with a flag.
+      # `wranglerVersion` must equal the `wrangler` pin in package.json. The
+      # action installs its own copy and defaults to latest, so without this the
+      # deploy tool would float while every other tool in this pipeline is
+      # pinned — Node, Typst, the fonts. package.json is the source of truth;
+      # change it there first and copy the version to both steps below.
+      - name: Deploy to production
+        if: github.ref == 'refs/heads/main'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: '4.127.1'
+          command: deploy
+
+      - name: Upload preview version
+        if: github.ref != 'refs/heads/main'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: '4.127.1'
+          command: versions upload

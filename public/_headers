@@ -1,0 +1,90 @@
+# Response headers, served by Cloudflare. Copied into dist/ by the Astro build
+# like everything else in public/, and read from the root of the deployment.
+#
+# THIS FILE IS THE REASON THE SITE MOVED OFF GITHUB PAGES.
+#
+# Pages sends `Cache-Control: public, max-age=0, must-revalidate` on everything
+# and gives you no way to change it. That is defensible for HTML and wrong for
+# the 7 MB of hero frames, which never change and are requested 68 times a
+# visit. Every rule below is about that.
+#
+# Syntax: a path pattern on its own line, then indented `Header: value` lines.
+# First matching block wins per header, so the specific paths come before /*.
+
+# ---------------------------------------------------------------- immutable ---
+#
+# These three are safe to cache forever, but for two different reasons and it
+# is worth knowing which is which.
+#
+# /_astro/* is content-hashed by Astro: a change produces a new filename, so the
+# old URL can be cached forever because nothing will ever need to replace it.
+#
+# /hero/* and /fonts/* are NOT hashed — they are at fixed paths on purpose. The
+# font has to be preloadable from the HTML, which means its URL must be known
+# before the build, and the hero frames are fetched by a script that builds
+# their URLs from a frame number. So `immutable` here is a promise the build
+# makes rather than a fact the filename guarantees: regenerating them with
+# `npm run hero` or `npm run fonts` reuses the same URLs, and a visitor holding
+# the old bytes will keep them for a year.
+#
+# That is the right trade — the frames are a finished render and the font is a
+# pinned package — but it is a trade. **If the hero is ever re-rendered in a way
+# that must reach existing visitors, the fix is a new path, not a shorter
+# max-age.** Bump the directory (`/hero2/`) or add the manifest's `generated`
+# date to it; do not quietly drop this to an hour and make every first-time
+# visitor pay for a change almost nobody needs.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/hero/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# ------------------------------------------------------------------ a while ---
+#
+# Generated but replaceable at the same URL, so they get a week rather than a
+# year. resume.pdf is rebuilt from cv.json on every deploy and is the one file
+# here a visitor might be handed a stale copy of that actually matters — a week
+# is short enough that a corrected résumé reaches anyone who looks twice, long
+# enough that it is not re-fetched on every visit. The OG cards are the same
+# shape of problem with lower stakes; social platforms cache them far longer
+# than we ask anyway.
+/resume.pdf
+  Cache-Control: public, max-age=604800
+
+/og/*
+  Cache-Control: public, max-age=604800
+
+/og.png
+  Cache-Control: public, max-age=604800
+
+# --------------------------------------------------------------------- html ---
+#
+# Everything else, which in practice is the HTML. Deliberately revalidated on
+# every request: a page is the one thing that must never be stale, and it is
+# also the cheapest thing on the site to re-fetch. `must-revalidate` plus a
+# CDN-side cache means Cloudflare still serves it from the edge and only asks
+# the origin whether it changed.
+#
+# The security headers sit here rather than on a narrower path because they
+# should apply to every response, including the ones added later by someone who
+# has not read this file.
+#
+# No Content-Security-Policy yet, and its absence is deliberate rather than an
+# oversight. The site runs three inline scripts that cannot be removed — the
+# theme resolver and the hero's activation script both have to execute before
+# first paint, and the JSON-LD block — so a useful policy needs per-script
+# hashes generated at build time. The contact form also POSTs to
+# api.web3forms.com and fetches it from script, so `form-action` and
+# `connect-src` have to name it. That is a real change with a real way to get
+# silently wrong (a broken form fails quietly, on the page a client uses), so it
+# belongs in its own commit with the form tested after it, not smuggled in here.
+/*
+  Cache-Control: public, max-age=0, must-revalidate
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), interest-cohort=()
+  Cross-Origin-Opener-Policy: same-origin

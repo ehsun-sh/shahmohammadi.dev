@@ -1,0 +1,37 @@
+/**
+ * Cloudflare Workers static-assets config. Deployed by
+ * .github/workflows/deploy.yml — never with a local `wrangler deploy`, for the
+ * same reason nothing else here is published from a machine: the résumé PDF is
+ * built by CI against a pinned Typst, and a local deploy would ship whatever
+ * happened to be in dist/ at the time.
+ *
+ * A Worker, not a Pages project, and that was Cloudflare's choice rather than
+ * ours — "Upload your static files" now creates a Worker with static assets
+ * (hence a *.workers.dev URL rather than *.pages.dev). It is the path
+ * Cloudflare is steering new static sites onto, it serves `_headers` and
+ * `_redirects` the same way Pages does, so there was nothing to gain by
+ * insisting on the older product.
+ *
+ * There is no `main`: this is an assets-only Worker, so no script runs on a
+ * request and there is no origin behind it. That is the whole point — the site
+ * is static and should stay that way. Adding a `main` here would put a
+ * server in the request path of every page load to solve a problem this site
+ * does not have.
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "shahmohammadi",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./dist",
+    /**
+     * Serve dist/404.html for a path that matches nothing, rather than
+     * Cloudflare's own bare 404. The site has a designed 404 that carries the
+     * nav and a way back; `none` would throw it away and `single-page-
+     * application` would serve index.html for every miss, which on a static
+     * multi-page site turns a typo into a page that looks like the home page
+     * and returns 200 to a crawler.
+     */
+    "not_found_handling": "404-page"
+  }
+}
