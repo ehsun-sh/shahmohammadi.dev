@@ -8,6 +8,19 @@ node_modules/
 # generated — never commit, CI builds this from src/data/cv.json
 public/resume.pdf
 
+# Portfolio.pdf and the JSON it is built from. Ignored as a whole directory,
+# and that is the entire privacy mechanism — see the header of
+# src/resume/portfolio.typ.
+#
+# The site is static and served by GitHub Pages: there is no server, so nothing
+# can check who is asking, and every file under public/ is a public URL to
+# anyone who knows it. A password in JavaScript is read out of the page source
+# and an unguessable filename is not secrecy when the repo naming it is public.
+# So this document is not published at all — built locally by `npm run
+# portfolio`, never committed, never copied into dist/, never built in CI.
+# Writing it anywhere under public/ would undo that in one line.
+private/
+
 # Raw hero renders: ~200 transparent PNGs at 2400px, about a gigabyte. The
 # committed artefact is public/hero/, which `npm run hero` builds from these.
 # They live under images/ with the other source artwork the site does not read.
