@@ -72,17 +72,33 @@ const projects = cv.projects.map((project) => {
   // on every single line.
   const str = (v) => (typeof v === 'string' ? v.trim() : '');
 
-  // The cover the website uses, as a path rooted at the repo — Typst resolves
-  // a leading `/` against `--root`, and rejects an OS-absolute path outright
-  // ("path contains invalid component `D:`"). Empty when there is no cover, so
+  // The picture the project page shows, resolved the same way ProjectLayout
+  // resolves it: the frontmatter `cover` if there is one, and cv.json's
+  // thumbnail otherwise. Getting that order wrong is not fatal but it is
+  // wrong — it put the logo card in the PDF while the website showed the
+  // editor, which is the drift these two documents exist to avoid.
+  //
+  // `cover` is written relative to the markdown file, because that is what
+  // Astro's `image()` wants; Typst resolves a leading `/` against `--root` and
+  // rejects an OS-absolute path outright ("path contains invalid component
+  // `D:`"), so it is re-rooted here. Empty when there is no picture at all, so
   // the template can skip the block rather than test for a missing file.
-  const image =
-    project.image && fs.existsSync(path.join(ASSETS, project.image))
+  const resolveAsset = (p) => {
+    const abs = path.resolve(WRITEUPS, p);
+    return fs.existsSync(abs)
+      ? '/' + path.relative(ROOT, abs).split(path.sep).join('/')
+      : '';
+  };
+
+  const image = data.cover
+    ? resolveAsset(data.cover)
+    : project.image && fs.existsSync(path.join(ASSETS, project.image))
       ? `/src/assets/projects/${project.image}`
       : '';
 
   return {
     name: project.name,
+    tagline: str(project.tagline),
     year: project.year,
     summary: project.summary,
     tags: project.tags ?? [],

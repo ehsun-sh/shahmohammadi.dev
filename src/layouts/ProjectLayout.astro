@@ -28,8 +28,19 @@ interface Props {
 
 const { page, prev, next } = Astro.props;
 const { cv: project, entry } = page;
-const { role, context, tools, team, licence, status, cover, coverAlt, specs, links } =
-  entry.data;
+const {
+  role,
+  context,
+  tools,
+  team,
+  licence,
+  status,
+  cover,
+  coverAlt,
+  gallery,
+  specs,
+  links,
+} = entry.data;
 
 // A dedicated cover is better cropped for the full measure, but demanding two
 // pictures per project is how projects end up with none. The thumbnail is
@@ -106,7 +117,30 @@ const rows = [
           by weight — 700 against the summary's 400 — which is how every
           section card on the site already separates its title from its
           content. */}
-      <h1 class="text-heading">{project.name}</h1>
+      {/* Two lines: the name, then the phrase that finishes it for someone who
+          has never heard of it. The second is inside the <h1> as a block-level
+          span rather than a <p> after it, so the accessible name of the heading
+          is "Maiman Studio modular simulator for optical communication links" —
+          which is what a screen reader user needs from a page title — while the
+          two still set as separate lines with their own size and colour.
+          Rendered only when there is one: a name that already describes itself
+          would otherwise repeat. */}
+      <h1 class="text-heading">
+        {project.name}
+        {/* An explicit space, and it is not decoration. The accessible name of
+            a heading is its text content concatenated, and with a block-level
+            span and no whitespace node between them it computed as "Maiman
+            Studiomodular simulator…". The space renders as nothing, because the
+            span is a block and starts its own line either way. */}
+        {' '}
+        {
+          project.tagline && (
+            <span class="mt-1 block text-meta font-normal text-muted">
+              {project.tagline}
+            </span>
+          )
+        }
+      </h1>
       {/* Body, and in ink. It was lead-size and muted, which is the standfirst
           treatment `PageHeader` gives `/projects` and `/services` — right for
           a page that introduces a list, wrong for a page whose own subject
@@ -250,6 +284,51 @@ const rows = [
     <article class="card prose-doc sm:p-8">
       <slot />
     </article>
+
+    {
+      gallery.length > 0 && (
+        /* After the write-up, not before it. The cover's job is to say what the
+           thing is before anyone reads a word; these are evidence, and evidence
+           is read after the argument it supports. A gallery above the prose
+           would also push the first heading below the fold on a phone.
+
+           One column, full measure. A two-up grid halves every picture to save
+           scrolling, which is the wrong trade for a board photo or a scope
+           capture — the detail IS the point, and a 430px-wide thermal image
+           proves nothing. */
+        <Section id="gallery" title="Gallery">
+          <ul class="space-y-6">
+            {gallery.map((item) => (
+              <li>
+                <figure>
+                  {/* `widths` tops out at 1792 for the 896px column at 2x.
+                      Loaded lazily, unlike the cover: everything here is below
+                      the write-up and nobody sees it at first paint. */}
+                  <Image
+                    src={item.src}
+                    alt={item.alt}
+                    widths={[448, 896, 1792]}
+                    sizes="(min-width: 48rem) 44rem, 100vw"
+                    loading="lazy"
+                    decoding="async"
+                    class="w-full rounded-card border border-border"
+                  />
+                  {item.caption && (
+                    /* Meta, muted, and that is one of the rare content
+                       exceptions the colour rule allows: a caption is chrome
+                       attached to a picture rather than body copy, the same
+                       call the section note gets. */
+                    <figcaption class="mt-2.5 text-meta text-muted">
+                      {item.caption}
+                    </figcaption>
+                  )}
+                </figure>
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )
+    }
 
     {
       (prev || next) && (

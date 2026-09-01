@@ -91,6 +91,34 @@ const projects = defineCollection({
         coverAlt: z.string().optional(),
 
         /**
+         * Further pictures, for the projects that need them — a board top and
+         * bottom, a scope capture, a thermal image, an enclosure. Optional and
+         * empty by default: most projects are carried by one cover, and a
+         * gallery of one picture is a cover with extra steps.
+         *
+         * `image()` rather than a string, so every entry is resolved and
+         * optimised at build time and a typo fails the build instead of
+         * shipping a hole. `alt` is required for the same reason `coverAlt` is
+         * refined below — a picture nobody can see is not evidence. `caption`
+         * is optional and is what most of these want anyway: on an engineering
+         * page the picture is usually the claim and the caption is the number.
+         *
+         * IP boundary (CLAUDE.md) applies here more than anywhere else on the
+         * site. Photographs are the easiest way to publish a layout by
+         * accident: no Gerbers, no schematics, no legible silkscreen on a
+         * client's board.
+         */
+        gallery: z
+          .array(
+            z.object({
+              src: image(),
+              alt: z.string().min(1),
+              caption: z.string().optional(),
+            }),
+          )
+          .default([]),
+
+        /**
          * The SECOND table, and it is optional. Free-form label/value pairs for
          * the engineering numbers, which cannot be fixed fields: a transceiver
          * is described by line rate, wavelength and reach, a relay by sampling

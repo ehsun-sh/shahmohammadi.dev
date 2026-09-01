@@ -264,6 +264,24 @@ Deploys happen on push to `main`. Nothing is published from a local machine.
   reword it, and never let `tools` drift into a copy of `cv.json`'s `tags` —
   tags are domain keywords for scanning ("SDR", "Optical"), `tools` is what you
   would be asked to prove you can drive.
+  **A project is titled on two lines**: `name`, then `tagline` under it at meta
+  size in muted grey. The tagline lives in `cv.json` beside the name and is
+  optional on purpose — it is the phrase that finishes the name for someone who
+  has never heard of it, so "Maiman Studio" needs one and "Digital Motor
+  Protection Relay" does not, and forcing one everywhere writes the same words
+  twice. Lower case, no full stop. It renders inside the `<h1>`/`<h3>` as a
+  block-level `<span>`, never as a sibling paragraph, so the heading's
+  accessible name is both lines — and it needs an explicit `{' '}` before it,
+  because without a whitespace node the two concatenate as "Maiman Studiomodular
+  simulator…". The link wraps the name only. `resume.pdf` deliberately does not
+  print it: there the summary is already the next line.
+  **`gallery` is how a project shows more than one picture** — an array of
+  `{src, alt, caption?}` in the frontmatter, `image()`-typed so a bad path fails
+  the build. It renders after the write-up, one column at full measure: the
+  cover's job is to say what the thing is before anything is read, a gallery is
+  evidence, and evidence comes after the argument. Never halve these into a
+  two-up grid — a board photo or a scope capture is the detail, and the detail
+  is the point.
   The two halves are joined by slug in `src/lib/projects.ts`: `cv.json` owns
   name, year, summary and tags because `resume.pdf` prints them, and the
   frontmatter deliberately cannot restate any of the four. Ordering comes from

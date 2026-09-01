@@ -114,14 +114,23 @@
   // Within this document the accent bar has exactly one job, which is the same
   // rationing rule the résumé and the site follow — one colour, one job — read
   // per document rather than across the pair.
+  // Name, then the tagline, then the state line — the same two-line title the
+  // website gives a project, with the portfolio's own third line under it. The
+  // masthead takes its lines as a list precisely so a document can add one; the
+  // tagline uses the résumé's name-to-headline gap and the state line the
+  // headline-to-contact gap, which is what makes this page and the résumé's
+  // header the same shape rather than merely the same size.
   #masthead(project.name, (
-    (gap: 15.4pt, body: text[
+    if project.tagline != "" {
+      (gap: 15.4pt, body: text[#project.tagline])
+    },
+    (gap: if project.tagline != "" { 13.6pt } else { 15.4pt }, body: text[
       #project.year
       #if project.status != "" [ · #project.status ]
       #if project.draft [ · write-up unpublished ]
       #if not project.featured [ · not on the CV page ]
     ]),
-  ))
+  ).filter(l => l != none))
 
   #section([Summary], above: 36.7pt - cap * 10pt - 3.6pt)
 

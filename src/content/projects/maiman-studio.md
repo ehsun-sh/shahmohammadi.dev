@@ -5,6 +5,12 @@ context: 'Personal project, developed and released in the open.'
 tools: 'Python 3.11+, NumPy/SciPy, optional CuPy GPU backend, pytest in CI'
 licence: 'Apache-2.0'
 status: in-progress
+cover: ../../assets/projects/maiman-studio-editor.webp
+coverAlt: 'The Maiman Studio schematic editor showing a 16-QAM coherent link, with the constellation and its EVM, SNR and BER in the results dock below'
+gallery:
+  - src: ../../assets/projects/maiman-studio.webp
+    alt: 'The Maiman Studio interface with a coherent link on the canvas and the results dock open'
+    caption: 'The planned interface, built from a real engine run — every figure in the results dock is measured, not mocked.'
 specs:
   - label: 'Signal model'
     value: 'Multi-band complex field, Ex/Ey, plus separate noise bins'

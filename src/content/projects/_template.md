@@ -5,6 +5,14 @@ context: 'Who it was for: an employer, a named client, a university, or yourself
 tools: 'Languages, toolchains and instruments — the things you would be asked to prove you can drive.'
 licence: 'Apache-2.0, or "Client-owned, unpublished". Delete the line if there is nothing to say.'
 status: prototype
+# Optional. Delete the block if one cover says it. Every entry needs alt text;
+# `caption` is what most of these actually want, because on an engineering page
+# the picture is the claim and the caption is the number.
+# No Gerbers, no schematics, no legible silkscreen on a client's board.
+gallery:
+  - src: ../../assets/projects/example-board-top.webp
+    alt: 'What the picture shows, for someone who cannot see it.'
+    caption: 'Rev B, top side. The 5 V rail moved off the switcher return.'
 specs:
   - label: 'Board'
     value: '6-layer, 1.6 mm FR-4, 80 × 45 mm'

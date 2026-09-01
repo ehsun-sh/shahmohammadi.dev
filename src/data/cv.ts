@@ -53,6 +53,21 @@ const offering = z.object({
  *  content collection; `slug` links the two when a write-up exists. */
 const projectEntry = z.object({
   name: z.string(),
+  /**
+   * One short line under the name, everywhere the project is titled. Not a
+   * second summary — this is the phrase that finishes the name for someone who
+   * has never heard of it, which is why "Maiman Studio" needs one and "Digital
+   * Motor Protection Relay" does not.
+   *
+   * Optional for exactly that reason. A tagline on a name that already
+   * describes itself is the same words twice, and forcing every project to have
+   * one is how that happens. Lower case, no full stop: it reads as a
+   * continuation of the name, not as a sentence after it.
+   *
+   * The résumé deliberately does not print it. There the summary sits directly
+   * under the name and would say the same thing a line later.
+   */
+  tagline: z.string().default(''),
   year: dateish,
   summary: z.string(),
   tags: z.array(z.string()).default([]),

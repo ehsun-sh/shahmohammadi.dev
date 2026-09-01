@@ -65,6 +65,20 @@ const standfirst =
                 ) : (
                   project.name
                 )}
+                {/* Explicit — see the note in ProjectLayout: without a
+                    whitespace node the heading's accessible name runs the two
+                    together. */}
+                {' '}
+                {/* Inside the heading, outside the link — same split as the
+                    landing page. Here it matters twice over: the link's ::after
+                    already covers the whole cell, so putting the tagline in the
+                    anchor would announce it as part of a link that is also the
+                    picture and the blurb. */}
+                {project.tagline && (
+                  <span class="mt-0.5 block text-meta font-normal text-muted">
+                    {project.tagline}
+                  </span>
+                )}
               </h2>
               <p class="mt-1 text-meta text-muted tabular-nums">
                 {project.year}

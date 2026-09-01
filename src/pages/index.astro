@@ -214,6 +214,12 @@ const featuredProjects = projects.filter((project) => project.featured);
                       class="sm:w-40"
                     />
                     <div class="min-w-0 flex-1">
+                      {/* The tagline is inside the heading, not a line after
+                          it, so a screen reader announces the name and what it
+                          is as one heading — and the link stays wrapped around
+                          the name alone, because "Maiman Studio" is what the
+                          link goes to and reading the description as part of
+                          the link text would only make it longer. */}
                       <h3 class="text-subhead">
                         {project.slug && linkedProjects.has(project.slug) ? (
                           <a
@@ -224,6 +230,15 @@ const featuredProjects = projects.filter((project) => project.featured);
                           </a>
                         ) : (
                           project.name
+                        )}
+                        {/* Explicit — see the note in ProjectLayout: without a
+                            whitespace node the heading's accessible name runs
+                            the two together. */}
+                        {' '}
+                        {project.tagline && (
+                          <span class="mt-0.5 block text-meta font-normal text-muted">
+                            {project.tagline}
+                          </span>
                         )}
                       </h3>
                       <p class="mt-0.5 text-meta tabular-nums">
