@@ -97,7 +97,7 @@ const rows = [
         the page appears to be about. */}
     <nav aria-label="Breadcrumb">
       <a
-        href="/projects"
+        href="/projects/"
         class="inline-flex items-center gap-1.5 text-meta text-muted transition-colors hover:text-text"
       >
         <span aria-hidden="true">&larr;</span>
@@ -346,7 +346,7 @@ const rows = [
               WDM", because a block-level child does not insert a space. */}
           {prev && (
             <a
-              href={`/projects/${prev.slug}`}
+              href={`/projects/${prev.slug}/`}
               class="card group transition-colors hover:border-border"
               aria-label={`Previous project: ${prev.cv.name}`}
             >
@@ -358,7 +358,7 @@ const rows = [
           )}
           {next && (
             <a
-              href={`/projects/${next.slug}`}
+              href={`/projects/${next.slug}/`}
               class="card group transition-colors hover:border-border sm:col-start-2 sm:text-right"
               aria-label={`Next project: ${next.cv.name}`}
             >

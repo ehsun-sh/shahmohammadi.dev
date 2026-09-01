@@ -39,7 +39,7 @@ const standfirst =
         cv.projects.map((project) => {
           const href =
             project.slug && linked.has(project.slug)
-              ? `/projects/${project.slug}`
+              ? `/projects/${project.slug}/`
               : null;
 
           return (

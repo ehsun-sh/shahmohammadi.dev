@@ -223,7 +223,7 @@ const featuredProjects = projects.filter((project) => project.featured);
                       <h3 class="text-subhead">
                         {project.slug && linkedProjects.has(project.slug) ? (
                           <a
-                            href={`/projects/${project.slug}`}
+                            href={`/projects/${project.slug}/`}
                             class="transition-colors hover:text-accent"
                           >
                             {project.name}
@@ -259,7 +259,7 @@ const featuredProjects = projects.filter((project) => project.featured);
 
               {site.projectsReady && (
                 <a
-                  href="/projects"
+                  href="/projects/"
                   class="mt-6 inline-flex items-center gap-1.5 text-meta text-accent transition-colors hover:underline"
                 >
                   All projects

@@ -18,11 +18,11 @@ const links = [
   { href: '/', label: 'Home', show: true },
   { href: '/#experience', label: 'Experience', show: true },
   { href: '/#projects', label: 'Projects', show: !site.projectsReady },
-  { href: '/projects', label: 'Projects', show: site.projectsReady },
-  { href: '/services', label: 'Services', show: site.servicesReady },
-  { href: '/notes', label: 'Notes', show: site.notesReady },
+  { href: '/projects/', label: 'Projects', show: site.projectsReady },
+  { href: '/services/', label: 'Services', show: site.servicesReady },
+  { href: '/notes/', label: 'Notes', show: site.notesReady },
   { href: '/resume.pdf', label: 'Résumé', show: site.resumeReady },
-  { href: '/contact', label: 'Contact', show: site.servicesReady },
+  { href: '/contact/', label: 'Contact', show: site.servicesReady },
 ].filter((link) => link.show);
 
 // Both sides go through the same normalizer. Stripping the trailing slash
