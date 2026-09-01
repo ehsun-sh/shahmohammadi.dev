@@ -28,7 +28,8 @@ interface Props {
 
 const { page, prev, next } = Astro.props;
 const { cv: project, entry } = page;
-const { role, status, cover, coverAlt, specs, links } = entry.data;
+const { role, context, tools, team, licence, status, cover, coverAlt, specs, links } =
+  entry.data;
 
 // A dedicated cover is better cropped for the full measure, but demanding two
 // pictures per project is how projects end up with none. The thumbnail is
@@ -36,9 +37,31 @@ const { role, status, cover, coverAlt, specs, links } = entry.data;
 const image = cover ?? resolveProjectImage(project.image, project.name);
 const imageAlt = cover ? (coverAlt ?? '') : project.imageAlt;
 
-// Role leads the table because "what did you actually do" is the first thing a
-// technical reader wants settled — especially on team projects.
-const rows = [{ label: 'Role', value: role }, ...specs];
+/**
+ * The fixed table. Same rows, same order, on every project page.
+ *
+ * Built here rather than in each file's frontmatter, which is the point: a
+ * table assembled from free-form label/value pairs is only as consistent as
+ * whoever last edited it, and these are the questions asked of every project
+ * regardless of what it is. Two of them are not in the frontmatter at all —
+ * `year` comes from cv.json because the résumé prints it, and `status` had a
+ * field already — so nothing is written down twice to appear here.
+ *
+ * Role leads because "what did you actually do" is the first thing a technical
+ * reader wants settled, and Team is directly under it because it is the same
+ * question from the other side. Only Team and Licence are optional, and an
+ * absent one drops its row rather than printing an empty cell: a blank value
+ * reads as an oversight, where a missing row reads as not applicable.
+ */
+const rows = [
+  { label: 'Role', value: role },
+  ...(team ? [{ label: 'Team', value: team }] : []),
+  { label: 'Context', value: context },
+  { label: 'Year', value: project.year },
+  { label: 'Status', value: STATUS_LABEL[status] },
+  { label: 'Tools', value: tools },
+  ...(licence ? [{ label: 'Licence', value: licence }] : []),
+];
 ---
 
 <BaseLayout
@@ -74,14 +97,15 @@ const rows = [{ label: 'Role', value: role }, ...specs];
     <header class="card sm:p-8">
       <h1 class="text-display">{project.name}</h1>
       <p class="prose-block mt-4 text-lead text-muted">{project.summary}</p>
-      <p class="mt-5 text-meta text-muted">
-        <span class="tabular-nums">{project.year}</span>
-        <span aria-hidden="true"> · </span>
-        {STATUS_LABEL[status]}
-      </p>
+      {/* Year and status used to sit here as a meta line. They are rows in the
+          table now, which begins immediately under this card — repeating them
+          would be the same two facts twice within one screen, and the point of
+          the table is that it is the one place every project answers the same
+          questions. The tags stay: they are domain keywords for scanning, not
+          an answer to any of those questions. */}
       {
         project.tags.length > 0 && (
-          <ul class="mt-4 flex flex-wrap gap-1.5">
+          <ul class="mt-5 flex flex-wrap gap-1.5">
             {project.tags.map((tag) => (
               <li class="tag">{tag}</li>
             ))}
@@ -133,18 +157,57 @@ const rows = [{ label: 'Role', value: role }, ...specs];
       }
     </header>
 
-    {
-      rows.length > 0 && (
-        <Section id="specifications" title="Specifications">
-          {/* A spec sheet is read down a column, not across a card. Hairline
-              per row, label in the meta role, value in body — the same two
-              roles the Skills list uses, so the two blocks look related.
+    <Section id="project-details" title="Project details">
+      {/* A spec sheet is read down a column, not across a card. Hairline per
+          row, label in the meta role, value in body — the same two roles the
+          Skills list uses, so the two blocks look related.
 
-              The rules are the soft grey: inside a card they divide rows of one
-              table, and at --color-border a stack of them read as a stack of
-              card edges. */}
+          The rules are the soft grey: inside a card they divide rows of one
+          table, and at --color-border a stack of them read as a stack of card
+          edges. */}
+      <dl class="border-t border-subtle">
+        {rows.map((row) => (
+          <div class="grid gap-1 border-b border-subtle py-3 sm:grid-cols-[11rem_1fr] sm:gap-6">
+            <dt class="text-meta text-muted">{row.label}</dt>
+            <dd class="min-w-0">{row.value}</dd>
+          </div>
+        ))}
+        {/* Written out rather than mapped with the rest, because these values
+            are anchors and the others are strings. It is one row however many
+            links there are — a project with a repo, a paper and a demo should
+            not get three rows where every other project gets one. */}
+        {
+          links.length > 0 && (
+            <div class="grid gap-1 border-b border-subtle py-3 sm:grid-cols-[11rem_1fr] sm:gap-6">
+              <dt class="text-meta text-muted">
+                {links.length > 1 ? 'Links' : 'Link'}
+              </dt>
+              <dd class="flex min-w-0 flex-wrap gap-x-4 gap-y-1">
+                {links.map((link) => (
+                  <a
+                    href={link.href}
+                    rel="noopener"
+                    class="text-accent transition-colors hover:underline"
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </dd>
+            </div>
+          )
+        }
+      </dl>
+    </Section>
+
+    {
+      specs.length > 0 && (
+        /* The per-project engineering numbers, below the uniform table and
+           only when there are any. Two projects are not expected to match
+           here — a transceiver has a line rate and a relay has trip classes —
+           which is exactly why this is the second table and not the first. */
+        <Section id="specifications" title="Specifications">
           <dl class="border-t border-subtle">
-            {rows.map((row) => (
+            {specs.map((row) => (
               <div class="grid gap-1 border-b border-subtle py-3 sm:grid-cols-[11rem_1fr] sm:gap-6">
                 <dt class="text-meta text-muted">{row.label}</dt>
                 <dd class="min-w-0">{row.value}</dd>
@@ -162,26 +225,6 @@ const rows = [{ label: 'Role', value: role }, ...specs];
     <article class="card prose-doc sm:p-8">
       <slot />
     </article>
-
-    {
-      links.length > 0 && (
-        <Section id="links" title="Links">
-          <ul class="space-y-2.5">
-            {links.map((link) => (
-              <li>
-                <a
-                  href={link.href}
-                  rel="noopener"
-                  class="text-accent transition-colors hover:underline"
-                >
-                  {link.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </Section>
-      )
-    }
 
     {
       (prev || next) && (

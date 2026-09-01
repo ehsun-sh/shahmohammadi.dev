@@ -1,5 +1,9 @@
 ---
 role: 'TODO — confirm your scope. Seeded as: PCB design in Altium, optical sub-assembly selection and characterisation, prototype bring-up.'
+team: 'TODO — solo, or how many and who did what.'
+context: 'TODO — which employer or client, or say it was your own.'
+tools: 'Altium Designer. TODO — add the instruments: BERT, sampling scope, optical power meter?'
+licence: 'TODO — usually "Client-owned, unpublished" for work like this. Delete the line if there is nothing to say.'
 status: prototype
 specs:
   - label: 'Line rate'
@@ -12,8 +16,6 @@ specs:
     value: 'TODO — laser driver, TIA and limiting amplifier parts'
   - label: 'Management'
     value: 'TODO — digital diagnostics over I²C (SFF-8472)?'
-  - label: 'Tools'
-    value: 'Altium Designer'
 links: []
 draft: true
 ---

@@ -1,5 +1,9 @@
 ---
 role: 'TODO — confirm your scope. Seeded as: system architecture, SDR hardware design, and optical link bring-up.'
+team: 'TODO — solo, or how many and who did what.'
+context: 'TODO — employer, client, or a university/research project. Name the institution if it was academic.'
+tools: 'TODO — schematic/layout tool, HDL or firmware toolchain, and the instruments used to bring it up.'
+licence: 'TODO — usually "Client-owned, unpublished" for work like this. Delete the line if there is nothing to say.'
 status: prototype
 specs:
   - label: 'Signal'

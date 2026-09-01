@@ -1,5 +1,9 @@
 ---
 role: 'TODO — confirm your scope. Resume.MD says you led a five-person team on the modular DWDM system (transponders, mux/demux, power, fans).'
+team: 'TODO — confirm. Seeded from Resume.MD as: led a five-person team.'
+context: 'TODO — which employer or client, or say it was your own.'
+tools: 'TODO — schematic/layout tool, firmware toolchain, and the instruments used to bring it up.'
+licence: 'TODO — usually "Client-owned, unpublished" for work like this. Delete the line if there is nothing to say.'
 status: shipped
 specs:
   - label: 'Architecture'

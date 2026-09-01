@@ -264,6 +264,16 @@
 
   "projects": [
     {
+      "name": "Maiman Studio — Optical Link Simulator",
+      "year": "2026",
+      "summary": "Open-source Python simulator for optical communication links: multi-band signal model, adaptive split-step fibre propagation, and coherent DSP up to 256 Gb/s dual-polarization 256-QAM over 1000 km. Every physics block is asserted against a closed-form result in CI.",
+      "tags": ["Python", "Coherent DSP", "Simulation"],
+      "slug": "maiman-studio",
+      "image": "maiman-studio.webp",
+      "imageAlt": "The Maiman Studio schematic editor showing a 16-QAM coherent link, with the constellation and its EVM, SNR and BER in the results dock below",
+      "featured": true
+    },
+    {
       "name": "MRI Radio Coil with Optical Transmission",
       "year": "2024",
       "summary": "Replaced coaxial cabling in MRI receive coils with optical fibre, improving SNR and cutting thermal effects. Designed an SDR to digitize and transmit coil signals at 63.875 MHz over fibre.",

@@ -1,5 +1,9 @@
 ---
 role: 'TODO — confirm your scope. Seeded as: hardware design and firmware.'
+team: 'TODO — solo, or how many and who did what.'
+context: 'TODO — which employer or client, or say it was your own.'
+tools: 'TODO — schematic/layout tool, PIC toolchain, and the instruments used to bring it up.'
+licence: 'TODO — usually "Client-owned, unpublished" for work like this. Delete the line if there is nothing to say.'
 status: shipped
 specs:
   - label: 'Controller'

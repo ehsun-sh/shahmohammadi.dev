@@ -248,6 +248,22 @@ Deploys happen on push to `main`. Nothing is published from a local machine.
   `src/content/projects/`, so a new project is a markdown file and nothing
   else — no route, no component. Anything that tempts you to hand-write one
   project's page belongs in the collection schema as a field.
+  **A project page has two tables and the difference is the point.** The first
+  is fixed — Role, Team, Context, Year, Status, Tools, Licence, Link, in that
+  order — and `ProjectLayout.astro` builds it, so every project answers the same
+  questions in the same places and a reader who has seen one knows where to look
+  on the next. Year and Status are not frontmatter: year is `cv.json`'s because
+  the résumé prints it, status had a field already. Team and Licence are the
+  only optional rows, and an absent one drops its row rather than printing an
+  empty cell — a blank value reads as an oversight, a missing row reads as not
+  applicable. `links` renders as that table's last row, however many there are;
+  it is not a section of its own. The second table is `specs`, free-form
+  label/value, optional, and below the first: two projects are not expected to
+  match on line rate or trip classes, which is exactly why that content must not
+  be what the top of the page is made of. Never move a fixed row into `specs` to
+  reword it, and never let `tools` drift into a copy of `cv.json`'s `tags` —
+  tags are domain keywords for scanning ("SDR", "Optical"), `tools` is what you
+  would be asked to prove you can drive.
   The two halves are joined by slug in `src/lib/projects.ts`: `cv.json` owns
   name, year, summary and tags because `resume.pdf` prints them, and the
   frontmatter deliberately cannot restate any of the four. Ordering comes from

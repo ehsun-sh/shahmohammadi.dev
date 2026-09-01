@@ -1,5 +1,9 @@
 ---
 role: 'What you personally owned — be honest about scope on team projects.'
+team: 'Solo, or how many and who did what. Delete the line if it adds nothing.'
+context: 'Who it was for: an employer, a named client, a university, or yourself.'
+tools: 'Languages, toolchains and instruments — the things you would be asked to prove you can drive.'
+licence: 'Apache-2.0, or "Client-owned, unpublished". Delete the line if there is nothing to say.'
 status: prototype
 specs:
   - label: 'Board'
@@ -26,10 +30,19 @@ draft: true
   Which is also why there is no title, summary, year or tag list up there.
   Those live in cv.json because resume.pdf prints them. Never restate them.
 
-  `specs` is free-form label/value, because a transceiver and a relay are not
-  described by the same fields. Reuse the labels above where they apply so the
-  spec tables across projects still line up. Numbers belong here; adjectives
-  do not.
+  Two tables, and the difference between them matters.
+
+  `role`, `team`, `context`, `tools`, `licence` and `links` — plus year and
+  status, which come from cv.json and the field below — are the FIXED table.
+  The layout builds it, in the same order, on every project page, so a reader
+  who has seen one project knows where to look on the next. You cannot reorder
+  or rename those rows from here, and that is the point.
+
+  `specs` is the SECOND table and it is optional: free-form label/value for the
+  engineering numbers, because a transceiver and a relay are not described by
+  the same fields. Numbers belong here; adjectives do not, and anything needing
+  a sentence belongs in the write-up below. Leave it empty and the section does
+  not render.
 
   IP boundary (see CLAUDE.md): no employer or client schematics, Gerbers,
   layouts, or firmware source. Block diagrams, outcomes and reasoning only.
