@@ -67,7 +67,7 @@
       "endDate": null,
       "summary": "End-to-end hardware ownership across multiple electronic products, from prototype through mass production.",
       "highlights": [
-        "Cut production costs 30% by building internal manufacturing and lifecycle tooling that also raised assembly throughput.",
+      "Cut production costs 30% by building PCBA Manager, an internal manufacturing and lifecycle tool that also raised assembly throughput.",
         "Designed 4-layer PCBs and embedded Linux systems for mission-critical 24/7 operation.",
         "Engineered for regulatory compliance from the first schematic, folding UL (incl. UL94 flammability) and FCC EMC/EMI requirements into early design decisions.",
         "Coordinated design, validation testing and component sourcing directly with external suppliers and contract manufacturers."
@@ -275,15 +275,26 @@
       "featured": true
     },
     {
-      "name": "MRI Radio Coil with Optical Transmission",
-      "tagline": "replacing coaxial cabling in MRI receive coils with an optical link",
-      "year": "2024",
-      "summary": "Replaced coaxial cabling in MRI receive coils with optical fibre, improving SNR and cutting thermal effects. Designed an SDR to digitize and transmit coil signals at 63.875 MHz over fibre.",
-      "tags": ["SDR", "Optical", "Medical"],
-      "slug": "mri-optical-coil",
-      "image": null,
-      "imageAlt": "",
-      "featured": true
+      "name": "PCBA Manager",
+      "tagline": "from design files to a per-supplier purchase list",
+      "year": "2026",
+      "summary": "Production-management tool for electronics boards: BOM import and validation, multi-supplier pricing behind one adapter interface, Canadian landed cost, and sourcing optimisation that outputs a purchase list per supplier. Built to run my own production, and used at Teqware.",
+      "tags": ["TypeScript", "Manufacturing", "Tooling"],
+      "slug": "pcba-manager",
+      "image": "pcba-manager.webp",
+      "imageAlt": "The PCBA Manager build-and-cost page for a 100-board run: line and placement counts across the top, then the total and per-board cost split into BOM parts, other parts and shipping with a bar per line, the costs beyond the BOM listed underneath, and a schedule derived from the quoted lead times.",
+      "featured": false
+    },
+    {
+      "name": "Optical Network Management System",
+      "tagline": "real-time monitoring and control for DWDM transport equipment",
+      "year": "2019",
+      "summary": "Mission-critical .NET network management software for optical transport equipment, managing 2,000+ nodes around the clock. Dockerised services over RabbitMQ, SNMP v1/v2c/v3 down to the shelf slot, and a 70% cut in memory footprint.",
+      "tags": ["SNMP", ".NET", "Telecom"],
+      "slug": "optical-nms",
+      "image": "optical-nms.webp",
+      "imageAlt": "A render of the NMS topology view on a laptop beside two DWDM transport chassis, showing six network elements linked across cities with a critical link-down alarm raised on one of them",
+      "featured": false
     },
     {
       "name": "Optical Transmitter System with WDM",
@@ -292,8 +303,19 @@
       "summary": "Modular WDM optical transmitter carrying multiple services and protocols over a single fibre, with SFP/XFP transceiver cards and an embedded Linux control plane.",
       "tags": ["WDM", "Embedded Linux", "Telecom"],
       "slug": "wdm-optical-transmitter",
-      "image": null,
-      "imageAlt": "",
+      "image": "wdm-optical-transmitter.webp",
+      "imageAlt": "A render of the transponder shelf with eight populated SFP cages, each patched by a differently coloured fibre into a passive multiplexer whose wavelengths combine onto one outgoing fibre",
+      "featured": true
+    },
+    {
+      "name": "MRI Radio Coil with Optical Transmission",
+      "tagline": "replacing coaxial cabling in MRI receive coils with an optical link",
+      "year": "2015",
+      "summary": "Replaced coaxial cabling in MRI receive coils with optical fibre, improving SNR and cutting thermal effects. Designed an SDR to digitize and transmit coil signals at 63.875 MHz over fibre.",
+      "tags": ["SDR", "Optical", "Medical"],
+      "slug": "mri-optical-coil",
+      "image": "mri-optical-coil.webp",
+      "imageAlt": "A render of the intravascular MRI coil connected by a single optical fibre to the receiver unit, whose lid is cut away to show the SDR and the electrical-to-optical stage inside",
       "featured": true
     },
     {
@@ -303,8 +325,8 @@
       "summary": "4.25 Gbps SFP optical transceiver on a 4-layer Altium design. Prototyped and characterized ROSA/TOSA optics plus the amplification and laser-control ICs.",
       "tags": ["SFP", "High-speed PCB", "Optics"],
       "slug": "sfp-4g25-transceiver",
-      "image": null,
-      "imageAlt": "",
+      "image": "sfp-4g25-transceiver.webp",
+      "imageAlt": "A render of the transceiver's four-layer board with its gold edge fingers, laser driver and limiting amplifier fitted, beside the assembled SFP module with a duplex fibre in its LC receptacle",
       "featured": true
     },
     {
@@ -314,9 +336,31 @@
       "summary": "Three-phase motor protection built on PIC18F67K22 with an ADE7758 metering front end, providing real-time monitoring and fault logging.",
       "tags": ["PIC", "Power", "Industrial"],
       "slug": "motor-protection-relay",
-      "image": null,
-      "imageAlt": "",
+      "image": "motor-protection-relay.webp",
+      "imageAlt": "A render of the DMP-2 relay showing per-phase currents, average voltage, frequency and power on its display, wired through a terminal block to a three-phase motor",
       "featured": true
+    },
+    {
+      "name": "Cellular Network Measurement and Optimization",
+      "tagline": "drive-test hardware and GIS analysis software for network optimisation",
+      "year": "2012",
+      "summary": "Drive-test system in two halves: a handheld unit logging GSM radio parameters against high-precision GPS over USB, and a C# desktop application that analysed the stream and replayed it inside a GIS map. Won a special honour at the Kharazmi Festival.",
+      "tags": ["GSM", "RF", "GIS"],
+      "slug": "cellular-drive-test",
+      "image": "cellular-drive-test.webp",
+      "imageAlt": "A render of the handheld drive-test unit with two antennas, showing RX level, cell identifiers and GPS fix, cabled to a laptop running the analysis software with a neighbour-cell table and a mapped route",
+      "featured": false
+    },
+    {
+      "name": "City Bus Location Display System",
+      "tagline": "solar-powered arrival displays for Tehran's first smart transit pilot",
+      "year": "2012",
+      "summary": "Pilot intelligent transit system for the Municipality of Tehran: solar-powered LED arrival displays at stops, sub-$30 bus transponder tags, and a Zigbee-plus-GPRS hybrid that estimated arrivals without grid power or 3G.",
+      "tags": ["Zigbee", "GSM/GPRS", "Solar"],
+      "slug": "city-bus-arrival-display",
+      "image": "city-bus-arrival-display.webp",
+      "imageAlt": "A render of a solar-powered LED arrival display at a bus stop listing four routes with their destinations and minutes remaining, as a bus on route 42 approaches",
+      "featured": false
     }
   ],
 

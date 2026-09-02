@@ -1,84 +1,121 @@
 ---
-role: 'TODO — confirm your scope. Seeded as: hardware design and firmware.'
-team: 'TODO — solo, or how many and who did what.'
-context: 'TODO — which employer or client, or say it was your own.'
-tools: 'TODO — schematic/layout tool, PIC toolchain, and the instruments used to bring it up.'
-licence: 'TODO — usually "Client-owned, unpublished" for work like this. Delete the line if there is nothing to say.'
+role: 'The analog and digital hardware, the three boards and the enclosure, and the embedded firmware — including the protection curves, the calibration and the EMC and immunity testing.'
+context: 'Mobtaker Sanat Pazhuh.'
+tools: 'Altium Designer, PIC embedded firmware, I²C, SPI, RS-485 (Modbus), industrial EMC and immunity test equipment.'
+licence: 'Employer-owned, unpublished.'
 status: shipped
+gallery:
+  - src: ../../assets/projects/motor-protection-relay-block-diagram.webp
+    alt: 'Block diagram: a three-phase supply runs through a contactor to the motor, with current-transformer and voltage taps dropping into a signal-conditioning board. Across an isolation boundary, an ADE7758 metering IC feeds a PIC18F67K22 over SPI; the microcontroller drives a trip back up to the contactor, and also drives the front panel and an RS-485 Modbus port.'
+    caption: 'The measurement is a loop, not a chain: everything the relay senses comes back out as one decision at the contactor.'
+  - src: ../../assets/projects/motor-protection-relay-front-panel.webp
+    alt: 'The finished DMP-2 in its panel-mount case, front on: a backlit character LCD above COMM, READY, RUN and TRIP indicators and a five-key navigation pad, with the vented body visible behind the bezel.'
+    caption: 'The front panel is the whole user interface: four states an electrician can read across a switchroom, and a keypad for the trip curve behind them.'
 specs:
+  - label: 'Motors protected'
+    value: 'Three-phase, up to 440 V, 1–600 kW'
   - label: 'Controller'
     value: 'PIC18F67K22'
   - label: 'Metering front end'
     value: 'ADE7758, three-phase'
-  - label: 'Sensing'
-    value: 'TODO — CT ratio, burden, voltage divider or PT'
-  - label: 'Protection functions'
-    value: 'TODO — which ones: thermal overload, phase loss, imbalance, locked rotor, earth fault'
+  - label: 'Measurement'
+    value: 'True-RMS current and voltage, active and reactive power'
+  - label: 'Boards'
+    value: 'CT signal conditioning, MCU mainboard, front-panel HMI'
   - label: 'Interface'
-    value: 'TODO — display, keypad, relay outputs, comms'
-  - label: 'Logging'
-    value: 'TODO — storage medium and depth'
-links: []
-draft: true
+    value: 'LCD and keypad; RS-485 (Modbus), I²C, SPI'
+  - label: 'Enclosure'
+    value: 'DIN / panel mount, model DMP-2'
+  - label: 'Standards'
+    value: 'NEMA, IEC 62053-22'
 ---
-
-<!-- Seeded from Docs/Resume.MD and cv.json. TODO markers block publication. -->
 
 ## Problem
 
-A three-phase induction motor fails in a small number of well-understood ways —
-it overheats under sustained overload, it loses a phase, it stalls, its supply
-goes out of balance — and every one of them is cheap to detect and expensive to
-miss. The device that watches for them has to be more reliable than the thing
-it is protecting, and it has to decide fast enough to matter without tripping
-on a normal start.
+A three-phase induction motor fails in a small number of well-understood ways.
+It overheats under sustained overload. It loses a phase. Its rotor stalls. Its
+supply goes out of balance, or the phases arrive in the wrong order. Every one
+of those is cheap to detect and expensive to miss, and the device that watches
+for them has to be more reliable than the motor it is protecting.
 
-That last clause is the whole design. A motor draws several times its rated
-current for the first seconds of every start, so a protection relay that simply
-compares current to a threshold is either useless or it never lets the motor
-run.
+The whole design sits in one clause of that: it has to decide fast enough to
+matter without tripping on a normal start. A motor draws several times its
+rated current for the first seconds of every start, so a relay that simply
+compares current against a threshold is either useless or it never lets the
+motor run. The difference between a fault and a healthy start is not the
+magnitude of the current — it is how long the current stays there, which means
+the relay has to hold a model of the motor's heating rather than a number.
+
+Doing that across a range from 1 kW to 600 kW, on supplies up to 440 V, in a
+panel next to contactors that switch hundreds of amps, is what makes it an
+industrial product rather than a comparator.
 
 ## Architecture
 
-<!-- TODO: block diagram into src/assets/projects/. CTs and voltage sensing →
-     ADE7758 → SPI → PIC18F67K22 → trip relay, display, and log storage, with
-     the supply and isolation boundary marked. -->
+Three boards, split along the boundaries that matter.
 
-The ADE7758 does the measurement and the PIC does the judgement. Handing RMS
-current, voltage and power computation to a dedicated three-phase metering part
-leaves the microcontroller free to run the protection curves and the interface,
-and it makes the accuracy of the measurement a property of a characterised IC
-rather than of firmware.
+A current-transformer signal-conditioning board takes the CT and voltage inputs
+and presents them to an ADE7758, a dedicated three-phase energy-measurement IC
+that computes true-RMS current and voltage, active power and reactive power. A
+mainboard carries a PIC18F67K22, which reads those measurements and runs the
+protection logic, the trip decision and the event log. A front-panel board
+carries the LCD and keypad. The whole thing lives in a DIN- or panel-mount
+industrial enclosure as the DMP-2.
 
-TODO — a paragraph on the sensing front end: what the CTs were, what the burden
-resistors were sized for, and where the isolation boundary sits between the
-mains side and the logic.
+The split is deliberate: the board handling mains-referenced signals is
+physically separate from the board doing the judging, and the board a human
+touches is separate from both.
 
 ## Design decisions
 
-**A metering IC rather than sampling into the MCU.** TODO — expand: the
+**A metering IC rather than sampling into the microcontroller.** The
 PIC18F67K22 has an ADC and could have sampled three currents and three voltages
-directly. What made the dedicated part the right answer — accuracy over
-temperature, firmware effort, or the headroom it left the MCU?
+itself. Handing that to the ADE7758 makes the accuracy of the measurement a
+characterised property of a part rather than an emergent property of firmware
+and an interrupt schedule — and it frees the microcontroller to run the
+protection curves, the interface and the logging without any of those competing
+with a sampling deadline.
 
-**TODO — the trip curve.** Which standard class, and how the thermal model was
-implemented: an I²t accumulator, a lookup, or something else. Include how it
-distinguishes a start from a fault, because that is the interesting part.
+**True RMS, not average-responding.** A motor's current is not a clean sine
+wave, and an average-responding measurement scaled to read RMS is wrong by an
+amount that depends on the waveform — which is to say, wrong by more exactly
+when the motor is misbehaving. Protection thresholds are only meaningful if the
+quantity underneath them is the real heating current.
 
-**TODO — fault logging.** What was recorded, where it was stored, and how it
-survived the loss of supply that a trip usually accompanies.
+**Configurable trip zones and curves rather than fixed thresholds.** A 1 kW
+motor and a 600 kW motor do not share a thermal model, and neither do two
+installations of the same motor doing different work. Making the curve a
+setting rather than a constant is what lets one product cover the range, and it
+moves the decision to the person who knows the load.
+
+**Protection breadth as a design target.** The device detects overload, startup
+overtime, current imbalance, stalled rotor, undercurrent, short circuit, phase
+failure, phase reversal, undervoltage and overvoltage. Several of those cost
+almost nothing once true three-phase voltage and current are already being
+measured accurately — phase reversal and imbalance in particular — which is a
+second argument for the metering front end: it made most of the protection list
+a firmware question.
+
+**Event and fault logging.** A relay that trips and says nothing leaves the
+plant guessing, and the guess usually resolves as "the relay is faulty". Logging
+what was measured at the moment of the trip is what turns a trip into
+information.
 
 ## Validation
 
-TODO — what proved it:
+Calibration against the measurement chain, then the part that separates
+industrial equipment from bench equipment: EMC and immunity testing. A
+protection relay sits in a panel with contactors and motor drives, and it has
+to keep measuring correctly while they switch — a relay that nuisance-trips on
+its neighbour's inrush will be removed from the panel by the first electrician
+who works out what is happening.
 
-- Measurement accuracy against a reference source, per phase.
-- Trip timing against the published curve, at several overload multiples.
-- Behaviour on a real motor start — no nuisance trip, with margin.
-- Phase-loss and imbalance detection thresholds and response time.
+The design was carried out to NEMA and IEC 62053-22, the latter being the
+accuracy class standard for the measurement it bases every decision on.
 
 ## What shipped
 
-TODO — where it was deployed and for how long. A protection relay that ran in
-an industrial installation without a false trip is the claim worth making, and
-it is not one a bench test can support on its own.
+It shipped as a product, the DMP-2, in an industrial DIN- and panel-mount
+enclosure. For a protection relay the claim worth making is a negative one —
+years in a panel with no false trip — and it is the claim only field service
+can support, never a bench.
