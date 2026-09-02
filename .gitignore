@@ -54,3 +54,16 @@ pnpm-debug.log*
 .idea/
 .DS_Store
 Thumbs.db
+
+# Client and employer source artwork. This folder is where raw exports land,
+# and several already in it are Altium 3D renders — every trace, via and
+# reference designator, with silkscreen naming the client and the board
+# revision. This repo is public, and the IP boundary in CLAUDE.md says those
+# must never be committed; git history would keep them even after a delete.
+#
+# Ignored as a whole directory rather than file by file, because the failure
+# mode is a new export dropped in here and swept up by the next `git add -A`.
+# Nothing is lost: the site reads src/assets/, and what it publishes is
+# committed there. `images/others/Maiman Studio Logo.jpg` predates this rule
+# and stays tracked — ignoring a directory does not untrack what is already in.
+images/others/
