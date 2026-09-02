@@ -18,9 +18,26 @@ interface Props {
   /** The caller owns the width — beside a CV entry it is a fixed 160px, in the
    *  index grid it fills its column. The ratio is not negotiable either way. */
   class?: string;
+  /**
+   * And because the caller owns the width, it has to own `sizes` too.
+   *
+   * These defaults describe the CV entry: a fixed 160px slot. `/projects`
+   * renders the same component at ~302px and must say so — a `sizes` that
+   * under-reports makes the browser pick the 160w candidate and stretch it,
+   * which is a blurred thumbnail that no amount of source resolution fixes.
+   */
+  sizes?: string;
+  widths?: number[];
 }
 
-const { image, alt, name, class: className } = Astro.props;
+const {
+  image,
+  alt,
+  name,
+  class: className,
+  sizes = '(min-width: 640px) 160px, 100vw',
+  widths = [160, 320, 640],
+} = Astro.props;
 
 const resolved = resolveProjectImage(image, name);
 
@@ -38,8 +55,8 @@ const RATIO = '16 / 10';
       <Image
         src={resolved}
         alt={alt}
-        widths={[160, 320, 640]}
-        sizes="(min-width: 640px) 160px, 100vw"
+        widths={widths}
+        sizes={sizes}
         loading="lazy"
         decoding="async"
         class="size-full rounded-card border border-subtle object-cover"

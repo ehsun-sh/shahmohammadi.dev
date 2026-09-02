@@ -44,10 +44,19 @@ const standfirst =
 
           return (
             <li class="card group relative transition-colors hover:border-border">
+              {/* The thumb fills its grid column here, not the CV entry's
+                  fixed 160px, so it has to say so: `max-w-page` (48rem) less
+                  the 24px gutters is 720px, less the 20px gap and halved is a
+                  350px column, less the card's 24px padding is 302px. Below
+                  `sm` the grid is one column and the card's padding is the
+                  only inset left. Leaving the default 160px here is what made
+                  these render from the 160w candidate. */}
               <ProjectThumb
                 image={project.image}
                 alt={project.imageAlt}
                 name={project.name}
+                widths={[320, 640, 960]}
+                sizes="(min-width: 48rem) 302px, (min-width: 40rem) calc((100vw - 68px) / 2 - 48px), calc(100vw - 80px)"
               />
               <h2 class="mt-4 text-subhead">
                 {/* Only the title is the link, but its ::after covers the whole
