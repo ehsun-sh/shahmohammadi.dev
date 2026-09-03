@@ -328,9 +328,8 @@
       "summary": "4.25 Gbps SFP optical transceiver on a 4-layer Altium design. Prototyped and characterized ROSA/TOSA optics plus the amplification and laser-control ICs.",
       "tags": ["SFP", "High-speed PCB", "Optics"],
       "slug": "sfp-4g25-transceiver",
-      "image": "sfp-4g25-transceiver.webp",
-      "imageAlt": "A render of the transceiver's four-layer board with its gold edge fingers, laser driver and limiting amplifier fitted, beside the assembled SFP module with a duplex fibre in its LC receptacle",
-      "imageCredit": "Concept mockup",
+      "image": "sfp-4g25-transceiver-module.webp",
+      "imageAlt": "Cutaway view of the assembled SFP module: the metal housing opened along its length to show the board inside, the gold edge fingers at the rear, and the transmit and receive optical sub-assemblies at the front with their gold pigtails bent back to the board and meeting a duplex LC receptacle",
       "featured": true
     },
     {
