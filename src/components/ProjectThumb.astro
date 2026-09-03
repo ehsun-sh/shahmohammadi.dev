@@ -52,6 +52,11 @@ const RATIO = '16 / 10';
 >
   {
     resolved ? (
+      /* `bg-bg` on the image is load-bearing now that project artwork ships
+         with its alpha intact — a transparent cover with no fill behind it
+         sits straight on the white card and loses its edges. It is the same
+         ground the carousel's frame uses, so a picture reads the same at
+         160px as it does at the full measure. */
       <Image
         src={resolved}
         alt={alt}
@@ -59,7 +64,7 @@ const RATIO = '16 / 10';
         sizes={sizes}
         loading="lazy"
         decoding="async"
-        class="size-full rounded-card border border-subtle object-cover"
+        class="size-full rounded-card border border-subtle bg-bg object-cover"
       />
     ) : (
       /* Not a broken-image icon and not invisible: a deliberate empty frame,

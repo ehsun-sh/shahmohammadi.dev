@@ -5,7 +5,8 @@ context: 'Who it was for: an employer, a named client, a university, or yourself
 tools: 'Languages, toolchains and instruments — the things you would be asked to prove you can drive.'
 licence: 'Apache-2.0, or "Client-owned, unpublished". Delete the line if there is nothing to say.'
 status: prototype
-# Optional. Delete the block if one cover says it. Every entry needs alt text;
+# PHOTOGRAPHS. Optional — delete the block if one cover says it. These join the
+# cover in the carousel at the top of the page. Every entry needs alt text;
 # `caption` is what most of these actually want, because on an engineering page
 # the picture is the claim and the caption is the number.
 # No Gerbers, no schematics, no legible silkscreen on a client's board.
@@ -13,6 +14,20 @@ gallery:
   - src: ../../assets/projects/example-board-top.webp
     alt: 'What the picture shows, for someone who cannot see it.'
     caption: 'Rev B, top side. The 5 V rail moved off the switcher return.'
+    # Delete this line for a photograph or a screenshot of the real thing —
+    # that is what a reader already assumes. Keep it whenever the assumption
+    # would be wrong: 'Concept mockup', 'Concept illustration', 'CAD render'.
+    credit: 'Concept mockup'
+# DRAWINGS, and a separate field because they want the opposite treatment.
+# A photograph is looked at, so it goes in the carousel's fixed 16:10 frame; a
+# diagram is read, so it renders after the write-up at the full measure and at
+# its own aspect ratio, where the labels survive and where the argument it
+# illustrates has already been made. Split by what the picture IS — never move
+# a photograph here just to get it out of the carousel.
+diagrams:
+  - src: ../../assets/projects/example-block-diagram.webp
+    alt: 'Every block and every arrow, spelled out for someone who cannot see it.'
+    caption: 'What the drawing is claiming, in one line.'
 specs:
   - label: 'Board'
     value: '6-layer, 1.6 mm FR-4, 80 × 45 mm'

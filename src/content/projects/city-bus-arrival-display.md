@@ -4,12 +4,13 @@ context: 'Municipality of Tehran.'
 tools: 'Altium Designer, PIC18F embedded firmware, Zigbee (IEEE 802.15.4), GSM/GPRS, C# multi-threaded socket server.'
 status: shipped
 gallery:
-  - src: ../../assets/projects/city-bus-arrival-display-block-diagram.webp
-    alt: 'Block diagram: a bus transponder tag reaches the stop over a Zigbee mesh. At the stop, a solar panel and charge controller power a station gateway and a station monitor driving an outdoor LED display; the gateway alone carries a 2G GPRS link up to a multi-threaded C# socket server and back down.'
-    caption: 'The tags talk for free and only the stop pays for airtime. That single boundary is what puts a tag under $30 and a complete station under $300.'
   - src: ../../assets/projects/city-bus-arrival-display-installed.webp
     alt: 'A pilot display installed on a wall at a bus stop, showing the route as a vertical chain of named stops linked by arrows, with the approaching bus marked partway down the list.'
     caption: 'A pilot unit in service. The route is drawn as the sequence of stops rather than as a countdown, so a passenger reads position rather than having to trust an estimate.'
+diagrams:
+  - src: ../../assets/projects/city-bus-arrival-display-block-diagram.webp
+    alt: 'Block diagram: a bus transponder tag reaches the stop over a Zigbee mesh. At the stop, a solar panel and charge controller power a station gateway and a station monitor driving an outdoor LED display; the gateway alone carries a 2G GPRS link up to a multi-threaded C# socket server and back down.'
+    caption: 'The tags talk for free and only the stop pays for airtime. That single boundary is what puts a tag under $30 and a complete station under $300.'
 specs:
   - label: 'Bus tag'
     value: 'Under $30 each'

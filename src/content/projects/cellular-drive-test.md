@@ -4,12 +4,16 @@ context: 'Kharazmi Festival award winner.'
 tools: 'Altium Designer, embedded firmware, C# (Windows GUI), USB serial / CDC, GIS mapping.'
 status: prototype
 gallery:
-  - src: ../../assets/projects/cellular-drive-test-block-diagram.webp
-    alt: 'Block diagram: an RF antenna feeds a multi-band GSM engine and a GPS antenna feeds a GPS receiver, both entering a microcontroller that pairs each radio reading with its own fix; a power-management block supplies them. Over USB serial the paired records reach a C# desktop application, which logs them and drives operator recognition, a GIS map with a coloured trajectory, and playback.'
-    caption: 'The pairing happens in the handheld, not on the host — which is why a record is either complete or absent, and never carries the wrong coordinates.'
+  - src: ../../assets/projects/cellular-drive-test-board.webp
+    alt: 'Render of the board inside the handheld unit: a SIMCom SIM800F GSM module at the top beside two SMA antenna connectors, a shielded GPS receiver can to their right, the microcontroller and its crystal at the centre, a SIM socket and a microSD socket down the left edge, a flat-flex display connector at the middle and a micro-USB port at the foot.'
+    caption: 'Both radios and the microcontroller that pairs them, on one board — which is the whole design, because a reading and its fix have to be timestamped by the same clock.'
   - src: ../../assets/projects/cellular-drive-test-software.webp
     alt: 'The analysis application: serving-cell fields with RxLev and power bars, a dedicated-channel block, a six-row neighbour table carrying MCC, MNC, LAC, cell, BSIC, ARFCN and RxLev per neighbour, a live GPS panel, and the handset and operator identification down the right.'
     caption: 'The neighbour table is the reason the tool exists — the serving cell says what the subscriber got, and those six rows say what they nearly got.'
+diagrams:
+  - src: ../../assets/projects/cellular-drive-test-block-diagram.webp
+    alt: 'Block diagram: an RF antenna feeds a multi-band GSM engine and a GPS antenna feeds a GPS receiver, both entering a microcontroller that pairs each radio reading with its own fix; a power-management block supplies them. Over USB serial the paired records reach a C# desktop application, which logs them and drives operator recognition, a GIS map with a coloured trajectory, and playback.'
+    caption: 'The pairing happens in the handheld, not on the host — which is why a record is either complete or absent, and never carries the wrong coordinates.'
 specs:
   - label: 'Radio'
     value: 'Multi-band GSM engine'

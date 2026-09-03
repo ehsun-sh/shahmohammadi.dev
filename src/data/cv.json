@@ -294,6 +294,7 @@
       "slug": "optical-nms",
       "image": "optical-nms.webp",
       "imageAlt": "A render of the NMS topology view on a laptop beside two DWDM transport chassis, showing six network elements linked across cities with a critical link-down alarm raised on one of them",
+      "imageCredit": "Concept mockup",
       "featured": false
     },
     {
@@ -305,6 +306,7 @@
       "slug": "wdm-optical-transmitter",
       "image": "wdm-optical-transmitter.webp",
       "imageAlt": "A render of the transponder shelf with eight populated SFP cages, each patched by a differently coloured fibre into a passive multiplexer whose wavelengths combine onto one outgoing fibre",
+      "imageCredit": "Concept mockup",
       "featured": true
     },
     {
@@ -316,6 +318,7 @@
       "slug": "mri-optical-coil",
       "image": "mri-optical-coil.webp",
       "imageAlt": "A render of the intravascular MRI coil connected by a single optical fibre to the receiver unit, whose lid is cut away to show the SDR and the electrical-to-optical stage inside",
+      "imageCredit": "Concept illustration",
       "featured": true
     },
     {
@@ -327,6 +330,7 @@
       "slug": "sfp-4g25-transceiver",
       "image": "sfp-4g25-transceiver.webp",
       "imageAlt": "A render of the transceiver's four-layer board with its gold edge fingers, laser driver and limiting amplifier fitted, beside the assembled SFP module with a duplex fibre in its LC receptacle",
+      "imageCredit": "Concept mockup",
       "featured": true
     },
     {
@@ -336,8 +340,8 @@
       "summary": "Three-phase motor protection built on PIC18F67K22 with an ADE7758 metering front end, providing real-time monitoring and fault logging.",
       "tags": ["PIC", "Power", "Industrial"],
       "slug": "motor-protection-relay",
-      "image": "motor-protection-relay.webp",
-      "imageAlt": "A render of the DMP-2 relay showing per-phase currents, average voltage, frequency and power on its display, wired through a terminal block to a three-phase motor",
+      "image": "motor-protection-relay-final-product.webp",
+      "imageAlt": "Photograph of the finished DMP-2, three-quarter view: a blue panel-mount front plate labelled Model DMP-2, carrying a backlit character LCD, COMM, READY, RUN and TRIP indicator lamps, and a five-key navigation pad around an OK button",
       "featured": true
     },
     {
@@ -349,6 +353,7 @@
       "slug": "cellular-drive-test",
       "image": "cellular-drive-test.webp",
       "imageAlt": "A render of the handheld drive-test unit with two antennas, showing RX level, cell identifiers and GPS fix, cabled to a laptop running the analysis software with a neighbour-cell table and a mapped route",
+      "imageCredit": "Concept mockup",
       "featured": false
     },
     {
@@ -360,6 +365,7 @@
       "slug": "city-bus-arrival-display",
       "image": "city-bus-arrival-display.webp",
       "imageAlt": "A render of a solar-powered LED arrival display at a bus stop listing four routes with their destinations and minutes remaining, as a bus on route 42 approaches",
+      "imageCredit": "Concept mockup",
       "featured": false
     }
   ],

@@ -5,6 +5,13 @@ tools: 'Altium Designer, high-speed signal-integrity and impedance analysis, opt
 licence: 'Employer-owned, unpublished.'
 status: prototype
 gallery:
+  - src: ../../assets/projects/sfp-4g25-transceiver-board.webp
+    alt: 'Render of the transceiver board, three-quarter view: a small stepped four-layer card with gold edge fingers at the left, the laser driver in a leadless package near the centre and the limiting amplifier in a smaller package to its right, surrounded by 0402 passives, with the optical sub-assembly pads at the right-hand end.'
+    caption: 'The whole module is this board. Everything is placed around two differential pairs, and the free space is where the two optical sub-assemblies land.'
+  - src: ../../assets/projects/sfp-4g25-transceiver-module.webp
+    alt: 'Cutaway view of the assembled SFP module: the metal housing opened along its length to show the board inside, the gold edge fingers at the rear, and the transmit and receive optical sub-assemblies at the front with their gold pigtails bent back to the board and meeting a duplex LC receptacle.'
+    caption: 'The bent gold pigtails are the assembly problem in one picture: the optics are aligned to the fibre first, and the board has to meet them where they end up.'
+diagrams:
   - src: ../../assets/projects/sfp-4g25-transceiver-block-diagram.webp
     alt: 'Block diagram of the module: the host reaches the board through gold edge fingers, where the transmit differential pair drives a laser driver into a TOSA and the receive path runs from a ROSA through a limiting amplifier back out to the host; both optics meet a duplex LC receptacle and the fibre beyond it, and a separate path carries supply and heat from the host cage.'
     caption: 'The two differential pairs are the design at 4.25 Gbps, and they are the one thing a photograph of the finished module cannot show.'

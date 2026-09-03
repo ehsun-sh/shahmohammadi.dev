@@ -275,13 +275,74 @@ Deploys happen on push to `main`. Nothing is published from a local machine.
   because without a whitespace node the two concatenate as "Maiman Studiomodular
   simulator…". The link wraps the name only. `resume.pdf` deliberately does not
   print it: there the summary is already the next line.
-  **`gallery` is how a project shows more than one picture** — an array of
-  `{src, alt, caption?}` in the frontmatter, `image()`-typed so a bad path fails
-  the build. It renders after the write-up, one column at full measure: the
-  cover's job is to say what the thing is before anything is read, a gallery is
-  evidence, and evidence comes after the argument. Never halve these into a
-  two-up grid — a board photo or a scope capture is the detail, and the detail
-  is the point.
+  **`gallery` is photographs and `diagrams` is drawings, and the split is the
+  point.** Both are arrays of `{src, alt, caption?}` in the frontmatter,
+  `image()`-typed so a bad path fails the build, and they get opposite
+  treatments because they are read in opposite ways. A photograph is looked at,
+  so **the cover and the gallery are one sequence in one place**, shown by
+  `ProjectGallery.astro` at the top of the page: a fixed 16:10 stage, a
+  thumbnail strip under it, two arrows on it, and each picture's caption under
+  the frame. A diagram is *read* — it is wide and full of small labels, and
+  letterboxing a 2.6:1 drawing into a 16:10 frame shrinks the only thing worth
+  showing — so `diagrams` renders after the write-up, one column, at the full
+  measure and at its own aspect ratio, which is also where it is useful,
+  because a diagram means something only once the argument it illustrates has
+  been made. **Split by what the picture IS, never by where you want it**, and
+  never move a photograph into `diagrams` to get it out of the carousel.
+  **A picture that is not what it looks like says so, in `credit`.** Optional
+  on every gallery and diagram entry, and `imageCredit` in `cv.json` for the
+  cover. Absent for a photograph or a screenshot of the real thing, because
+  that is the reader's default assumption and repeating it is noise. Present
+  whenever that assumption would be wrong — a concept mockup, an illustration,
+  a CAD render standing in for hardware that shipped a decade ago in someone
+  else's factory and cannot be photographed now. Those mockups are legitimate
+  and often the only picture there is; what is not legitimate is letting a
+  photoreal image of equipment in the field be read as evidence that the
+  equipment was photographed. It is the same rule the schema already applies
+  to `role` — an inflated claim is the one thing a technical interview finds,
+  and the credibility it costs is charged against the whole page, including
+  everything on it that is real.
+  It renders ahead of the caption on the same line, separated by a middot and
+  **set apart by weight alone** — same size, same muted grey. Not its own
+  line, because the carousel is as tall as its tallest caption and a label on
+  every slide would spend a line of every slide's height; not a colour,
+  because colour has four jobs; and not folded into the caption sentence,
+  because a caption argues about what the picture shows and this says what the
+  picture is. Keep it to two or three words.
+  The gallery used to be a second section down there with the diagrams, which
+  put half of a project's photographs four thousand pixels below the other
+  half, where a reader who had seen the cover had no reason to think they
+  existed. The cover keeps its job either way: it is still the first frame and
+  still the thing seen before a word is read.
+  **It is a scroll-snapped overflow container, not a JS slider,** and that is
+  what keeps constraint 1: with JS off the track still scrolls and snaps and
+  the thumbnails are real fragment links to the slide ids. Only the arrows need
+  the script, so they are `display: none` until it sets `data-pg-ready` — never
+  ship a control that does nothing. Easing is decided in the script and
+  `scroll-behavior` is deliberately **not** declared on the track, because
+  `scrollTo({behavior: 'auto'})` means "whatever CSS says" and not "instant",
+  so a declared smooth would animate for a reader who asked for reduced motion.
+  Every image is drawn `contain` in the fixed frame and never `cover`: these do
+  not share a ratio — a block diagram is 2.6:1 and a product shot is square —
+  and cropping a diagram to 16:10 cuts the diagram. The letterbox is
+  `--color-bg`, per the inset rule, which is also why **project artwork is
+  exported with its alpha intact**: one transparent file sits correctly on the
+  light ground and the dark one, where a baked-in background is right in
+  exactly one theme. The caption band and the arrow plates are translucent over
+  arbitrary pixels, so the arrow plate's opacity is a contrast floor and not a
+  taste. **The caption goes under the frame, never across it** — an overlaid
+  band covers the bottom of every picture and reads as a bad crop, and out on
+  the card it is a known surface, so the caption is what every other caption on
+  the site is: meta size, muted grey. The arrows hang off an overlay that is
+  the frame's own 16:10 rather than the stage, because the stage is now a
+  picture *plus* a caption and centring in it would drop them onto the longest
+  caption. Selection is marked in ink, not accent: colour has four jobs and a
+  current thumbnail is not one of them.
+  **`npm run dev` renders these renders on black and the build does not.**
+  Astro's dev `/_image` endpoint drops the alpha channel when it is asked for
+  `f=webp` — it emits a plain `VP8 ` chunk where the build emits `VP8X` — so
+  transparency is only true from `npm run preview` onwards. Check a
+  transparency question against the build, never against the dev server.
   The two halves are joined by slug in `src/lib/projects.ts`: `cv.json` owns
   name, year, summary and tags because `resume.pdf` prints them, and the
   frontmatter deliberately cannot restate any of the four. Ordering comes from

@@ -4,7 +4,7 @@ team: 'Solo.'
 context: 'MS thesis.'
 tools: 'Altium Designer, C#, USB device interfacing, signal-integrity analysis.'
 status: prototype
-gallery:
+diagrams:
   - src: ../../assets/projects/mri-optical-coil-block-diagram.webp
     alt: 'Block diagram: RF antenna into an LNA, then an SDR containing an RF tuner, an A/D converter, a digital downconverter built from a digital mixer, a digital local oscillator and a lowpass filter, then a digital processor; its output drives an optical transmitter with a laser diode, over fibre, into an optical receiver that returns an electrical signal.'
     caption: 'The signal path end to end. Everything left of the laser diode is electrical and sits in the bore; everything between the two dotted boxes is glass.'

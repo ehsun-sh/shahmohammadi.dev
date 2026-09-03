@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import BaseLayout from './BaseLayout.astro';
 import Section from '../components/Section.astro';
+import ProjectGallery from '../components/ProjectGallery.astro';
 import { resolveProjectImage } from '../lib/projectImages';
 import { STATUS_LABEL, type ProjectPage } from '../lib/projects';
 
@@ -38,6 +39,7 @@ const {
   cover,
   coverAlt,
   gallery,
+  diagrams,
   specs,
   links,
 } = entry.data;
@@ -47,6 +49,30 @@ const {
 // exported at 1600px, which covers an 896px column, so it stands in.
 const image = cover ?? resolveProjectImage(project.image, project.name);
 const imageAlt = cover ? (coverAlt ?? '') : project.imageAlt;
+// Only cv.json covers carry one — a `cover` in the frontmatter is a picture
+// chosen for this page, and it can say so in its own gallery entry instead.
+const imageCredit = cover ? undefined : project.imageCredit || undefined;
+
+/**
+ * Cover and gallery are one sequence, shown in one place.
+ *
+ * They used to be two: a still cover under the summary, and a "Gallery"
+ * section after the write-up. That put the second half of a project's evidence
+ * below several thousand pixels of prose, where a reader who had already seen
+ * the cover had no reason to suspect it existed. Folding them together makes
+ * the picture slot answer the question once — and the cover keeps its job,
+ * because it is still the first frame and still the thing a reader sees before
+ * they read a word.
+ *
+ * Order is the frontmatter's order after the cover, which is the order the
+ * write-up argues in.
+ */
+const slides = [
+  ...(image
+    ? [{ src: image, alt: imageAlt, caption: undefined, credit: imageCredit }]
+    : []),
+  ...gallery,
+];
 
 /**
  * The fixed table. Same rows, same order, on every project page.
@@ -166,46 +192,38 @@ const rows = [
       }
 
       {
-        image ? (
-        /* The cover is the largest thing above the fold on this page, so it is
-           the LCP element — eager and high priority, unlike every other image
-           on the site, which is lazy. */
-        <Image
-          src={image}
-          alt={imageAlt}
-          widths={[640, 896, 1792]}
-          sizes="(min-width: 56rem) 896px, 100vw"
-          loading="eager"
-          fetchpriority="high"
-          decoding="async"
-          class="mt-7 w-full rounded-card border border-subtle object-cover"
-          style="aspect-ratio: 16 / 10"
-        />
-      ) : (
-        import.meta.env.DEV && (
-          /* Dev only, unlike the dashed frame on the CV list, which ships.
-             Size decides it: at 160px a placeholder is a design element that
-             holds the row's shape, but at 896×560 it is a hole halfway down
-             the page. A published project with no picture is better off going
-             straight from the tags to the spec table.
-
-             Kept visible while writing so the slot, its exact ratio and the
-             filename it wants are all in front of you on the page itself. */
-          <div
-            class="mt-7 flex w-full flex-col items-center justify-center gap-1 rounded-card border border-dashed border-border bg-bg text-center"
-            style="aspect-ratio: 16 / 10"
-          >
-            <p class="text-subhead text-muted">Cover image</p>
-            <p class="text-meta text-muted">
-              16:10 · 1600 × 1000 · set <code class="font-mono">image</code> on
-              this project in <code class="font-mono">cv.json</code>
-            </p>
-            <p class="text-meta text-muted">
-              Dev only — this frame is not in the build.
-            </p>
+        slides.length > 0 ? (
+          /* Everything the project has to show, in one stage with a thumbnail
+             strip and two arrows. The cover is its first frame — see the note
+             where `slides` is built. */
+          <div class="mt-7">
+            <ProjectGallery slides={slides} idPrefix={`${page.slug}-image`} />
           </div>
+        ) : (
+          import.meta.env.DEV && (
+            /* Dev only, unlike the dashed frame on the CV list, which ships.
+               Size decides it: at 160px a placeholder is a design element that
+               holds the row's shape, but at 896×560 it is a hole halfway down
+               the page. A published project with no picture is better off going
+               straight from the tags to the spec table.
+
+               Kept visible while writing so the slot, its exact ratio and the
+               filename it wants are all in front of you on the page itself. */
+            <div
+              class="mt-7 flex w-full flex-col items-center justify-center gap-1 rounded-card border border-dashed border-border bg-bg text-center"
+              style="aspect-ratio: 16 / 10"
+            >
+              <p class="text-subhead text-muted">Cover image</p>
+              <p class="text-meta text-muted">
+                16:10 · 1600 × 1000 · set <code class="font-mono">image</code> on
+                this project in <code class="font-mono">cv.json</code>
+              </p>
+              <p class="text-meta text-muted">
+                Dev only — this frame is not in the build.
+              </p>
+            </div>
+          )
         )
-      )
       }
     </header>
 
@@ -286,24 +304,28 @@ const rows = [
     </article>
 
     {
-      gallery.length > 0 && (
-        /* After the write-up, not before it. The cover's job is to say what the
-           thing is before anyone reads a word; these are evidence, and evidence
-           is read after the argument it supports. A gallery above the prose
-           would also push the first heading below the fold on a phone.
+      diagrams.length > 0 && (
+        /* After the write-up, and that is the difference between a diagram and
+           a photograph. The carousel's job at the top of the page is to say
+           what the thing IS before anything is read. A diagram is the opposite:
+           it explains how the thing works, which only means something once the
+           argument has been made — and it is read rather than looked at, so it
+           needs the full measure at its own aspect ratio instead of a fixed
+           16:10 frame that letterboxes a wide drawing down to nothing.
 
-           One column, full measure. A two-up grid halves every picture to save
-           scrolling, which is the wrong trade for a board photo or a scope
-           capture — the detail IS the point, and a 430px-wide thermal image
-           proves nothing. */
-        <Section id="gallery" title="Gallery">
+           One column. A two-up grid halves every drawing to save scrolling,
+           which is exactly backwards: the labels ARE the content. */
+        <Section
+          id="diagrams"
+          title={diagrams.length > 1 ? 'Diagrams' : 'Diagram'}
+        >
           <ul class="space-y-6">
-            {gallery.map((item) => (
+            {diagrams.map((item) => (
               <li>
                 <figure>
-                  {/* `widths` tops out at 1792 for the 896px column at 2x.
-                      Loaded lazily, unlike the cover: everything here is below
-                      the write-up and nobody sees it at first paint. */}
+                  {/* No fixed ratio and no `object-fit`: a diagram is whatever
+                      shape it was drawn, and cropping one crops the drawing.
+                      `widths` tops out at 1792 for the 896px column at 2x. */}
                   <Image
                     src={item.src}
                     alt={item.alt}
@@ -311,14 +333,24 @@ const rows = [
                     sizes="(min-width: 48rem) 44rem, 100vw"
                     loading="lazy"
                     decoding="async"
-                    class="w-full rounded-card border border-border"
+                    class="w-full rounded-card border border-subtle bg-bg"
                   />
-                  {item.caption && (
-                    /* Meta, muted, and that is one of the rare content
-                       exceptions the colour rule allows: a caption is chrome
-                       attached to a picture rather than body copy, the same
-                       call the section note gets. */
+                  {(item.caption || item.credit) && (
+                    /* Meta, muted — chrome attached to a picture, the same
+                       call the carousel's captions and the section notes
+                       get. The credit leads and is set apart by weight, for
+                       the same reason it is in the carousel: it says what the
+                       picture IS, where the caption argues about what it
+                       shows. */
                     <figcaption class="mt-2.5 text-meta text-muted">
+                      {item.credit && (
+                        <>
+                          <span class="font-semibold">{item.credit}</span>
+                          {item.caption && (
+                            <span aria-hidden="true">{' · '}</span>
+                          )}
+                        </>
+                      )}
                       {item.caption}
                     </figcaption>
                   )}

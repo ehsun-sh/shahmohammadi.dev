@@ -114,6 +114,45 @@ const projects = defineCollection({
               src: image(),
               alt: z.string().min(1),
               caption: z.string().optional(),
+              /** Provenance, when a reader would otherwise assume wrong — a
+               *  concept mockup, an illustration, a CAD render. Absent for a
+               *  photograph or a screenshot of the real thing. See the long
+               *  note on `imageCredit` in src/data/cv.ts. */
+              credit: z.string().optional(),
+            }),
+          )
+          .default([]),
+
+        /**
+         * Drawings, as opposed to pictures — a block diagram, a signal chain,
+         * a state machine. Same shape as `gallery` and deliberately a separate
+         * field, because the two want opposite treatments and one array cannot
+         * give them both.
+         *
+         * A photograph is looked at: it belongs in the carousel at the top,
+         * where a fixed 16:10 frame keeps the page from resizing as the reader
+         * pages through, and where its job is to say what the thing is before a
+         * word is read. A drawing is READ: it is wide, it is full of small
+         * labels, and letterboxing a 2.6:1 diagram into a 16:10 frame shrinks
+         * the one thing that makes it worth showing. So diagrams render after
+         * the write-up, one column, at the full measure and at their own
+         * aspect ratio — which is also where they are useful, because a diagram
+         * only means anything once the argument it illustrates has been made.
+         *
+         * The split is by what the picture IS, not by where you want it. Never
+         * move a photograph here to get it out of the carousel.
+         */
+        diagrams: z
+          .array(
+            z.object({
+              src: image(),
+              alt: z.string().min(1),
+              caption: z.string().optional(),
+              /** Provenance, when a reader would otherwise assume wrong — a
+               *  concept mockup, an illustration, a CAD render. Absent for a
+               *  photograph or a screenshot of the real thing. See the long
+               *  note on `imageCredit` in src/data/cv.ts. */
+              credit: z.string().optional(),
             }),
           )
           .default([]),

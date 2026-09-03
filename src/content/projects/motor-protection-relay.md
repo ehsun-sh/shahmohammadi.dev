@@ -5,12 +5,26 @@ tools: 'Altium Designer, PIC embedded firmware, I²C, SPI, RS-485 (Modbus), indu
 licence: 'Employer-owned, unpublished.'
 status: shipped
 gallery:
+  - src: ../../assets/projects/motor-protection-relay.webp
+    credit: 'Concept mockup'
+    alt: 'Render of the DMP-2 wired into a three-phase installation: the relay on the left with per-phase currents, average voltage, frequency and power on its display, connected through a terminal block by red, yellow and blue cables to an industrial motor.'
+    caption: 'What the box is for. Everything the relay knows about the motor arrives through those three cables, and the only thing it sends back is the decision to open the contactor.'
+  - src: ../../assets/projects/motor-protection-relay-ct-board.webp
+    alt: 'Render of the current-transformer board, three-quarter view: four toroidal current transformers stand over the lower half of the board beside a row of wide spade terminals, with a common-mode choke, X-class capacitors and a bridge rectifier along the mains edge and a pin header carrying the conditioned signals off the board.'
+    caption: 'The board that touches the mains: transformers, terminals and the supply filter on one plate, with only a header leaving it.'
+  - src: ../../assets/projects/motor-protection-relay-mainboard.webp
+    alt: 'Render of the mainboard, three-quarter view: the PIC18F67K22 in a square quad-flat package near the centre, the ADE7758 in a wide SOIC below it, two crystals, a coin-cell holder for the real-time clock, a row of relay-drive transistors down the left edge next to gold contact pads, and a tall two-row header on the right.'
+    caption: 'Everything that judges sits here — metering IC, microcontroller, clock and log — one connector away from anything at line potential.'
+  - src: ../../assets/projects/motor-protection-relay-hmi-board.webp
+    alt: 'Render of the front-panel board, face on: a backlit character LCD module across the top half, four indicator LEDs, a buzzer, and eight tactile keys laid out as a navigation pad below it.'
+    caption: 'The panel board carries no protection logic at all. It is a display, four lamps and eight keys, and that is the whole reason it is its own board.'
+  - src: ../../assets/projects/motor-protection-relay-boards-assembled.webp
+    alt: 'Render of the three boards assembled into a stack: the front-panel board at the front, the mainboard standing perpendicular behind it, and the current-transformer board behind that, joined by board-to-board headers and a ribbon cable.'
+    caption: 'Stacked, the split becomes a shape: the boards meet only at headers, and the depth between them is the isolation.'
+diagrams:
   - src: ../../assets/projects/motor-protection-relay-block-diagram.webp
     alt: 'Block diagram: a three-phase supply runs through a contactor to the motor, with current-transformer and voltage taps dropping into a signal-conditioning board. Across an isolation boundary, an ADE7758 metering IC feeds a PIC18F67K22 over SPI; the microcontroller drives a trip back up to the contactor, and also drives the front panel and an RS-485 Modbus port.'
     caption: 'The measurement is a loop, not a chain: everything the relay senses comes back out as one decision at the contactor.'
-  - src: ../../assets/projects/motor-protection-relay-front-panel.webp
-    alt: 'The finished DMP-2 in its panel-mount case, front on: a backlit character LCD above COMM, READY, RUN and TRIP indicators and a five-key navigation pad, with the vented body visible behind the bezel.'
-    caption: 'The front panel is the whole user interface: four states an electrician can read across a switchroom, and a keypad for the trip curve behind them.'
 specs:
   - label: 'Motors protected'
     value: 'Three-phase, up to 440 V, 1–600 kW'

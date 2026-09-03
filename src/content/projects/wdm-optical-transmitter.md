@@ -6,6 +6,19 @@ tools: 'Altium Designer, embedded Linux (OS porting and driver development), SNM
 licence: 'Employer-owned, unpublished.'
 status: shipped
 gallery:
+  - src: ../../assets/projects/wdm-optical-transmitter-backplane.webp
+    alt: 'Render of the multi-slot backplane: sixteen card-edge connectors stand in a row across a wide green board, with a larger power connector at the left end, a ribbon header at the top corner and a bank of high-current terminal blocks below the board edge.'
+    caption: 'Sixteen slots and no active parts. A backplane is the one board in a chassis that cannot be revised once the metalwork exists, which is why it does nothing but carry.'
+  - src: ../../assets/projects/wdm-optical-transmitter-transponder-card.webp
+    alt: 'Render of the 10 G transponder card, an L-shaped board: a column of stacked SFP cages runs down the front edge, a card-edge connector meets the backplane at the right, and two Traco isolated DC-DC converters sit near the centre beside the switching regulators and control logic.'
+    caption: 'One card, both sides of the argument: pluggable optics along the front edge where the customer is, and the fixed line optic and its power behind them.'
+  - src: ../../assets/projects/wdm-optical-transmitter-fan-control.webp
+    alt: 'Render of the fan-control board, a long narrow card: two DC-DC modules at the right, a microcontroller and its crystal at the left, an Ethernet magnetics jack and a debug header along the top edge, and two multi-way fan connectors between them.'
+    caption: 'Thermal management is a managed subsystem, not a fan on a rail. It has its own controller and its own link, so the chassis can be asked why it is running hot.'
+  - src: ../../assets/projects/wdm-optical-transmitter-chassis.webp
+    alt: 'SolidWorks assembly of the chassis, parts coloured by component: a sheet-metal shell with a card cage of coloured guide rails, the backplane standing at the rear, a perforated floor over a row of fans across the bottom, and a mounting bracket on each side for a rack.'
+    caption: 'The mechanical design is where the airflow argument is actually settled: fans at the floor, perforations above them, and the cards standing in the path rather than beside it.'
+diagrams:
   - src: ../../assets/projects/wdm-optical-transmitter-block-diagram.webp
     alt: 'Block diagram: three unlike client services enter a chassis, each into a transponder card split between a pluggable SFP/XFP client side and a fixed-wavelength line optic; the three line optics feed a passive multiplexer onto one fibre, and a passive demultiplexer at the far end reverses it. Below the transponders, a backplane carries control, power and fan-control cards, and the control card reaches an operator NMS over Ethernet.'
     caption: 'Several unlike services in, one strand out. The dashed split inside each card is the decision the product rests on: pluggable where the customer is, fixed where the grid is.'

@@ -1,0 +1,532 @@
+---
+import { Image } from 'astro:assets';
+
+/**
+ * The project page's pictures, in one place: a single stage at the top of the
+ * page that every image passes through, a thumbnail strip under it, and two
+ * arrows on the stage itself.
+ *
+ * It replaced a static cover at the top and a separate "Gallery" section at
+ * the bottom. Two galleries on one page is two answers to "where are the
+ * pictures", and the second one was 4,000px below the first — a reader who
+ * had seen the cover had no reason to believe there were five more.
+ *
+ * The mechanism is a scroll-snapped overflow container and NOT a JS slider,
+ * which is what makes constraint 1 hold: with JS off the track still scrolls
+ * and snaps, the thumbnails are real fragment links that scroll their target
+ * into view, and every image and caption is reachable. The arrows are the one
+ * part that cannot work without a script, so they are hidden until the script
+ * marks the component ready rather than sitting there dead.
+ *
+ * The stage is a fixed 16:10 frame and every image is drawn `contain` inside
+ * it. The alternative — `cover` — crops, and the pictures here do not share a
+ * ratio: a block diagram is 2.6:1 and a product shot is square. Cropping a
+ * diagram to 16:10 cuts the diagram. Letterboxing costs some ground and keeps
+ * the frame from resizing under the reader as they page through, which is
+ * worth more than the ground.
+ *
+ * The letterbox is `--color-bg` and not `--color-surface`, because this sits
+ * on a card and the card is already surface — see the inset rule in CLAUDE.md.
+ * It is also why the renders are exported with their alpha intact: one
+ * transparent file sits correctly on the light ground and the dark one, where
+ * a baked-in background is right in exactly one theme.
+ */
+
+interface Slide {
+  src: ImageMetadata;
+  alt: string;
+  caption?: string;
+  /** Provenance, shown ahead of the caption when a reader would otherwise
+   *  assume the picture is a photograph of the real thing. */
+  credit?: string;
+}
+
+interface Props {
+  slides: Slide[];
+  /** Prefix for the per-slide ids the thumbnail links target. */
+  idPrefix?: string;
+}
+
+const { slides, idPrefix = 'project-image' } = Astro.props;
+const multiple = slides.length > 1;
+---
+
+<div class="pg" data-project-gallery>
+  <div class="pg-stage">
+    {/*
+      Focusable, but only when there is somewhere to go. It is a scrollable
+      region, and a keyboard user who cannot reach it cannot page through the
+      images at all — arrow keys scroll a focused overflow container natively,
+      snap included, which is what makes the arrows and the thumbnails
+      enhancements over something that already works. A project with one
+      picture has nothing to scroll, so it does not get a tab stop or a group
+      announcing "1 in total".
+    */}
+    <ul
+      class="pg-track"
+      data-pg-track
+      tabindex={multiple ? 0 : undefined}
+      role={multiple ? 'group' : undefined}
+      aria-label={multiple ? `Project images, ${slides.length} in total` : undefined}
+    >
+      {
+        slides.map((slide, i) => (
+          <li class="pg-slide" id={`${idPrefix}-${i + 1}`}>
+            <figure class="pg-figure">
+              <div class="pg-frame">
+                {/* The first slide is the largest thing above the fold and so
+                    is the LCP element — eager and high priority, like the cover
+                    it replaced. The rest are lazy: they are inside the
+                    horizontal overflow and nobody has scrolled to them at first
+                    paint. */}
+                <Image
+                  src={slide.src}
+                  alt={slide.alt}
+                  widths={[448, 896, 1792]}
+                  sizes="(min-width: 48rem) 44rem, 100vw"
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                  fetchpriority={i === 0 ? 'high' : 'auto'}
+                  decoding="async"
+                  class="pg-image"
+                />
+              </div>
+              {(slide.caption || slide.credit) && (
+                /* Under the frame, not across it. An overlaid band covers the
+                   bottom of every picture and reads as a bad crop — the
+                   caption starts arguing with the thing it is describing. Out
+                   here it is on the card, which is a known surface, so it goes
+                   back to exactly what every other caption on the site is:
+                   meta size, muted grey, chrome attached to a picture. */
+                <figcaption class="pg-caption">
+                  {slide.credit && (
+                    /* Ahead of the caption and set apart by weight, because it
+                       is a different KIND of statement: the caption argues
+                       about what the picture shows, this says what the picture
+                       IS. Folding it into the sentence would bury the one part
+                       a reader must not miss, and giving it its own line would
+                       spend a line of every slide's height on it — the track
+                       is as tall as its tallest caption. */
+                    <>
+                      <span class="pg-credit">{slide.credit}</span>
+                      {slide.caption && (
+                        <span class="pg-credit-sep" aria-hidden="true">
+                          {' · '}
+                        </span>
+                      )}
+                    </>
+                  )}
+                  {slide.caption}
+                </figcaption>
+              )}
+            </figure>
+          </li>
+        ))
+      }
+    </ul>
+
+    {
+      multiple && (
+        /* Pinned to the frame rather than to the stage. The stage is now as
+           tall as a picture PLUS its caption, so centring in it would drop the
+           arrows onto the caption of whichever slide has the longest one. This
+           overlay is the frame's own 16:10, so the arrows sit on the picture's
+           centre line however tall the captions get. It is inert except for the
+           buttons themselves — otherwise it would eat the swipe. */
+        <div class="pg-controls">
+          <button
+            type="button"
+            class="pg-arrow pg-arrow-prev"
+            data-pg-prev
+            aria-label="Previous image"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M15 5 8 12l7 7" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            class="pg-arrow pg-arrow-next"
+            data-pg-next
+            aria-label="Next image"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="m9 5 7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      )
+    }
+  </div>
+
+  {
+    multiple && (
+      /* Real links to the slide ids, not buttons. That is the whole no-JS
+         story: a fragment link scrolls its target's nearest scrollable
+         ancestor, so the strip works before a byte of script runs. The script
+         then cancels the default so paging does not push a history entry or
+         jump the page. */
+      <ul class="pg-thumbs" data-pg-thumbs>
+        {slides.map((slide, i) => (
+          <li>
+            <a
+              class="pg-thumb"
+              href={`#${idPrefix}-${i + 1}`}
+              data-pg-thumb
+              aria-label={`Show image ${i + 1} of ${slides.length}`}
+              aria-current={i === 0 ? 'true' : undefined}
+            >
+              <Image
+                src={slide.src}
+                alt=""
+                widths={[128, 256]}
+                sizes="80px"
+                loading="lazy"
+                decoding="async"
+                class="pg-thumb-image"
+              />
+            </a>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</div>
+
+<style>
+  /* Only a positioning context and a clip. The frame carries the plate now,
+     because the stage is a picture plus a caption and the caption belongs on
+     the card, not inside a bordered box with the image. */
+  .pg-stage {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pg-track {
+    display: flex;
+    /* Stretch, so every slide is as tall as the tallest caption and the
+       thumbnail strip below does not move as the reader pages through. The
+       frame's own height never changes, so the picture stays put. */
+    align-items: stretch;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    /* No `scroll-behavior: smooth` here, deliberately. Easing is decided in
+       the script, because `scrollTo({behavior: 'auto'})` does not mean
+       "instant" — it means "whatever CSS says", so a declared smooth here
+       would keep animating for a reader who asked for reduced motion. The
+       no-JS path lands on the CSS default, which is instant, and a fragment
+       link that jumps straight to its slide is the right behaviour anyway. */
+    /* The bar would sit across the bottom of every picture. The track is
+       paged by arrows, thumbnails, arrow keys and a swipe, so it is not the
+       only way through. */
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+  }
+
+  .pg-track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .pg-track:focus-visible {
+    outline: 2px solid var(--color-accent);
+    /* Inside, not offset: the stage clips its overflow, so an outset ring on
+       the track is drawn under the frame's edge and disappears. */
+    outline-offset: -2px;
+  }
+
+  .pg-slide {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  .pg-figure {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    margin: 0;
+  }
+
+  /* The picture's plate: fixed 16:10 so the frame never resizes under the
+     reader as they page, inset with the ground rather than the surface because
+     it sits on a card — see the inset rule in CLAUDE.md. */
+  .pg-frame {
+    flex: none;
+    aspect-ratio: 16 / 10;
+    border-radius: var(--radius-card);
+    border: 1px solid var(--color-subtle);
+    background-color: var(--color-bg);
+    overflow: hidden;
+  }
+
+  .pg-image {
+    width: 100%;
+    height: 100%;
+    /* Never `cover`. These do not share a ratio — see the note at the top. */
+    object-fit: contain;
+  }
+
+  /* Same size and colour as the caption it sits on — the distinction is
+     carried by weight alone, which is how this site separates a title from its
+     body everywhere else. A second colour here would be a fifth job for colour
+     and would also make the disclaimer louder than the picture. */
+  .pg-credit {
+    font-weight: 600;
+  }
+
+  .pg-credit-sep {
+    /* The separator is not part of either statement, so it steps back rather
+       than joining the credit in bold. */
+    font-weight: 400;
+  }
+
+  .pg-caption {
+    margin-top: 0.625rem;
+    font-size: var(--text-meta);
+    line-height: 1.5;
+    /* Muted, like every other caption on the site. It is on the card now, a
+       known surface, so the contrast argument that forced ink while it was a
+       translucent band over the picture no longer applies. */
+    color: var(--color-muted);
+    text-wrap: pretty;
+  }
+
+  /* Absent until the script says otherwise. They are the one control here that
+     a fragment link cannot stand in for, so without JS they would be two
+     buttons that do nothing. */
+  /* Matches the frame exactly, so "vertically centred" means centred on the
+     picture and not on the picture-plus-caption. */
+  .pg-controls {
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    aspect-ratio: 16 / 10;
+    pointer-events: none;
+  }
+
+  .pg-arrow {
+    display: none;
+    position: absolute;
+    top: 50%;
+    translate: 0 -50%;
+    pointer-events: auto;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 999px;
+    border: 1px solid var(--color-border);
+    background-color: color-mix(in srgb, var(--color-surface) 82%, transparent);
+    color: var(--color-text);
+    transition:
+      color 0.18s ease,
+      border-color 0.18s ease,
+      opacity 0.18s ease;
+  }
+
+  @supports (backdrop-filter: blur(1px)) {
+    .pg-arrow {
+      background-color: color-mix(in srgb, var(--color-surface) 72%, transparent);
+      backdrop-filter: blur(12px) saturate(1.4);
+    }
+  }
+
+  [data-project-gallery][data-pg-ready] .pg-arrow {
+    display: flex;
+  }
+
+  .pg-arrow svg {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+
+  .pg-arrow:hover {
+    /* Hover is one of the four jobs colour is allowed to do. The arrow sits on
+       a near-surface plate, which is where accent text is legal. */
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  /* Disabled rather than wrapping. A carousel that loops has no ends, and the
+     reader loses the one thing the strip is telling them — where they are in
+     a sequence that was ordered on purpose. */
+  .pg-arrow[disabled] {
+    opacity: 0.35;
+    pointer-events: none;
+  }
+
+  .pg-arrow-prev {
+    left: 0.625rem;
+  }
+
+  .pg-arrow-next {
+    right: 0.625rem;
+  }
+
+  .pg-thumbs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0.625rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .pg-thumb {
+    display: block;
+    width: 4.5rem;
+    aspect-ratio: 16 / 10;
+    border-radius: 0.25rem;
+    border: 1px solid var(--color-subtle);
+    background-color: var(--color-bg);
+    overflow: hidden;
+    /* The unselected ones step back so the current one reads as current
+       without spending colour on it — see the rationing rule in CLAUDE.md. */
+    opacity: 0.55;
+    transition:
+      opacity 0.18s ease,
+      border-color 0.18s ease;
+  }
+
+  .pg-thumb:hover {
+    opacity: 1;
+    border-color: var(--color-border);
+  }
+
+  /* Ink, not accent. Selection is a fifth job and colour only has four. */
+  .pg-thumb[aria-current='true'] {
+    opacity: 1;
+    border-color: var(--color-text);
+  }
+
+  .pg-thumb-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  @media (width < 34rem) {
+    .pg-thumb {
+      width: 3.5rem;
+    }
+
+    .pg-arrow {
+      width: 2rem;
+      height: 2rem;
+    }
+  }
+</style>
+
+<script>
+  /**
+   * Enhancement only. Everything below assumes the markup already works: the
+   * track scrolls and snaps on its own, and the thumbnails are fragment links
+   * that hit the right slide with the script absent. This adds the two arrows,
+   * keeps the current thumbnail marked, and stops a thumbnail click from
+   * writing to the URL or scrolling the page.
+   */
+  const galleries = document.querySelectorAll<HTMLElement>(
+    '[data-project-gallery]',
+  );
+
+  for (const root of galleries) {
+    const track = root.querySelector<HTMLElement>('[data-pg-track]');
+    if (!track) continue;
+
+    const slides = [...track.querySelectorAll<HTMLElement>('.pg-slide')];
+    const thumbs = [...root.querySelectorAll<HTMLElement>('[data-pg-thumb]')];
+    const prev = root.querySelector<HTMLButtonElement>('[data-pg-prev]');
+    const next = root.querySelector<HTMLButtonElement>('[data-pg-next]');
+    if (slides.length < 2) continue;
+
+    // Read once per call rather than caching: the media query can change under
+    // a live page, and this runs only on a click.
+    // 'instant', not 'auto'. `auto` defers to the CSS `scroll-behavior`, so it
+    // is not the opposite of `smooth` — it is "whatever the stylesheet said".
+    const behavior = (): ScrollBehavior =>
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 'instant'
+        : 'smooth';
+
+    const indexOfScroll = () =>
+      Math.min(
+        slides.length - 1,
+        Math.max(0, Math.round(track.scrollLeft / track.clientWidth)),
+      );
+
+    const go = (i: number) => {
+      const clamped = Math.min(slides.length - 1, Math.max(0, i));
+      track.scrollTo({ left: clamped * track.clientWidth, behavior: behavior() });
+      // Paint the new state now instead of waiting for the scroll to settle,
+      // so a click feels answered even at the far end of a smooth scroll.
+      sync(clamped);
+    };
+
+    const sync = (i: number) => {
+      thumbs.forEach((thumb, n) => {
+        if (n === i) thumb.setAttribute('aria-current', 'true');
+        else thumb.removeAttribute('aria-current');
+      });
+      if (prev) prev.disabled = i === 0;
+      if (next) next.disabled = i === slides.length - 1;
+    };
+
+    prev?.addEventListener('click', () => go(indexOfScroll() - 1));
+    next?.addEventListener('click', () => go(indexOfScroll() + 1));
+
+    thumbs.forEach((thumb, i) => {
+      thumb.addEventListener('click', (event) => {
+        // Without this the browser jumps to the fragment, which both writes a
+        // history entry per thumbnail and scrolls the page so the slide's top
+        // meets the viewport.
+        event.preventDefault();
+        go(i);
+      });
+    });
+
+    let frame = 0;
+    track.addEventListener(
+      'scroll',
+      () => {
+        if (frame) return;
+        frame = requestAnimationFrame(() => {
+          frame = 0;
+          sync(indexOfScroll());
+        });
+      },
+      { passive: true },
+    );
+
+    // A resize changes clientWidth, which is the unit every offset above is
+    // measured in, so the track has to be put back on a slide boundary.
+    let resizeFrame = 0;
+    window.addEventListener('resize', () => {
+      if (resizeFrame) cancelAnimationFrame(resizeFrame);
+      resizeFrame = requestAnimationFrame(() => {
+        track.scrollTo({ left: indexOfScroll() * track.clientWidth });
+      });
+    });
+
+    sync(indexOfScroll());
+    root.dataset.pgReady = '';
+  }
+</script>

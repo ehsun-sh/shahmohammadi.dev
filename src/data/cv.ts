@@ -81,6 +81,22 @@ const projectEntry = z.object({
    *  if the image is pure decoration, which for a project shot it is not. */
   imageAlt: z.string().default(''),
   /**
+   * Where the picture came from, when that changes how it should be read.
+   *
+   * Empty for a photograph or a screenshot of the real thing, because that is
+   * what a reader already assumes and repeating it is noise. Set it whenever
+   * the assumption would be WRONG: a concept mockup, an illustration, a CAD
+   * render standing in for hardware nobody can photograph any more. Several of
+   * these projects shipped a decade ago in someone else's factory, so a
+   * mockup is often the only picture there is — which is fine, and is exactly
+   * why it has to say so. An unlabelled mockup is a claim, and it is the kind
+   * of claim an interview finds.
+   *
+   * Rendered next to the caption, not inside it: a caption argues about what
+   * the picture shows, and this is a fact about the picture itself.
+   */
+  imageCredit: z.string().default(''),
+  /**
    * Whether this project appears on the landing page and in `resume.pdf`.
    *
    * `/projects` ignores it and lists everything, which is the point: cv.json is

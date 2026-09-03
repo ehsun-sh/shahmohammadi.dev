@@ -5,7 +5,7 @@ context: 'My own tool, built to run my own production and used at Teqware.'
 tools: 'Next.js 16 (App Router), TypeScript, PostgreSQL, Prisma 7, Auth.js, BullMQ and Redis, Tailwind v4, Docker.'
 licence: 'Proprietary; source not public.'
 status: in-progress
-gallery:
+diagrams:
   - src: ../../assets/projects/pcba-manager-block-diagram.webp
     alt: 'Block diagram: design files and a BOM export enter a two-phase import, then a shared Part Master. A group of supplier adapters behind one interface — Digi-Key .com/.ca over OAuth2, Mouser.ca, LCSC, and a manual RFQ supplier — feeds an async Redis and BullMQ worker. BOM rows and supplier prices meet in a costing run, which passes through landed cost, sourcing optimisation, and out to a purchase list per supplier.'
     caption: 'Unit price is not the answer. Everything to the right of the costing run exists because the cheapest part per unit routinely loses once shipping, minimum order value and import tax are in.'
