@@ -20,7 +20,7 @@ you export here. Do not put these in `public/` — that path skips all of it.
 | Ratio | **16:10** — the same as the hero visual |
 | Size | **1600 × 1000** |
 | Format | WebP, quality 82 (JPG and PNG also work) |
-| Background | Solid, not transparent |
+| Background | **Transparent**, wherever the subject has a real edge |
 | Weight | Under 400 KB each before Astro processes it |
 
 The frame renders at 160 px wide on desktop and full width on phones, and Astro
@@ -33,6 +33,23 @@ survive being 160 px wide, it is the wrong photo.
 
 `object-fit: cover` means anything not 16:10 gets centre-cropped rather than
 squashed, so keep the subject centred and leave a little air at the edges.
+
+## The same file has a second job
+
+A cover is not only the thumbnail. `ProjectGallery` shows it as the first slide
+of the project page's carousel, at the full measure and drawn `contain` — so one
+export is read at 160 px cropped and at ~750 px whole, which is why the crop has
+to be tight *and* the whole subject has to be in the frame.
+
+It is also why the background is transparent rather than solid. Both surfaces
+sit on `--color-bg`, which is a near-white tint in the light theme and black in
+the dark one, so a background baked into the file is correct in exactly one of
+them and a visible plate in the other. Export a render or a cut-out with its
+alpha intact; a photograph that genuinely has a room behind it keeps the room.
+
+Check that against `npm run preview`, never `npm run dev`: Astro's dev image
+endpoint drops the alpha channel when it re-encodes to WebP, so a file that will
+ship with a white box around it looks perfect on the dev server.
 
 ## What must not go in here
 
