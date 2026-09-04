@@ -264,6 +264,18 @@
 
   "projects": [
     {
+      "name": "PoE Paging Amplifier and VoIP Gateway",
+      "tagline": "one cable carries the power, the network and the announcement",
+      "year": "2026",
+      "summary": "Paging amplifier and VoIP gateway for building-wide announcement: a carrier board around an i.MX8M Mini running embedded Linux, powered and connected over one PoE cable, driving 20 W into a 25 V speaker line from a direct-drive Class-D stage, with a containerised application and OTA updates on top.",
+      "tags": ["Embedded Linux", "PoE", "Audio"],
+      "slug": "poe-paging-amplifier",
+      "image": "poe-paging.webp",
+      "imageAlt": "Render of the assembled carrier board seen from above at a slight angle: a finned blue heatsink over the processor module's edge connector on the right, the Class-D output stage and its magnetics across the top with green pluggable screw terminals for the speaker line and the relay contacts, a shielded PoE Ethernet jack, USB-A and USB-C and a coin cell along the bottom edge, and an M.2 card socket at the centre",
+      "imageCredit": "CAD render",
+      "featured": true
+    },
+    {
       "name": "Maiman Studio",
       "tagline": "modular simulator for optical communication links and photonic systems",
       "year": "2026",
@@ -284,6 +296,17 @@
       "image": "pcba-manager.webp",
       "imageAlt": "The PCBA Manager build-and-cost page for a 100-board run: line and placement counts across the top, then the total and per-board cost split into BOM parts, other parts and shipping with a bar per line, the costs beyond the BOM listed underneath, and a schedule derived from the quoted lead times.",
       "featured": false
+    },
+    {
+      "name": "Multi-Protocol IoT Gateway",
+      "tagline": "CAN, BLE and cellular on one gateway, updated over the bus itself",
+      "year": "2024",
+      "summary": "Gateway routing between CAN bus, BLE and cellular on Particle and ESP32 hardware, with a firmware-update path that reaches nodes over the CAN bus rather than around it.",
+      "tags": ["ESP32", "CAN bus", "IoT"],
+      "slug": "multi-protocol-gateway",
+      "image": "multi-protocol-gateway.webp",
+      "imageAlt": "Photograph of the gateway carrier board: a cellular system-in-module soldered down the centre of the green board on two rows of castellated pads, carrying a Quectel BG96 modem under its shield, with a u-blox GNSS receiver at one end, a row of labelled test pads for the cell, Wi-Fi, SWD and GNSS signals down the left, and four mounting holes in the lobed outline",
+      "featured": true
     },
     {
       "name": "Optical Network Management System",
@@ -307,7 +330,7 @@
       "image": "wdm-optical-transmitter.webp",
       "imageAlt": "A render of the transponder shelf with eight populated SFP cages, each patched by a differently coloured fibre into a passive multiplexer whose wavelengths combine onto one outgoing fibre",
       "imageCredit": "Concept mockup",
-      "featured": true
+      "featured": false
     },
     {
       "name": "MRI Radio Coil with Optical Transmission",
@@ -341,7 +364,7 @@
       "slug": "motor-protection-relay",
       "image": "motor-protection-relay-final-product.webp",
       "imageAlt": "Photograph of the finished DMP-2, three-quarter view: a blue panel-mount front plate labelled Model DMP-2, carrying a backlit character LCD, COMM, READY, RUN and TRIP indicator lamps, and a five-key navigation pad around an OK button",
-      "featured": true
+      "featured": false
     },
     {
       "name": "Cellular Network Measurement and Optimization",
