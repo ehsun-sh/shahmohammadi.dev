@@ -113,6 +113,40 @@ const flag = (name, fallback) => {
 };
 const source = args.find((a) => !a.startsWith('--') && !Number.isFinite(Number(a)));
 
+/**
+ * `--swap <output>=<source>`, repeatable. Overrides which source frame one
+ * output frame is taken from, addressed by the number in the source filename
+ * rather than by its position in the list, so it survives a gap in the render's
+ * numbering.
+ *
+ * It exists because an even pick has no opinion about what is IN a frame. The
+ * render's front panel flies into place over a single source frame, and
+ * whichever frame the pick lands on is one the page holds for its whole share
+ * of the scroll — so at 85 frames the sequence caught the panel mid-flight,
+ * crossing the middle of the board like a bar held up in front of the camera.
+ * The real fix is in the render, but these are exports of a scene that is not
+ * re-run for one frame, and substituting the neighbour that has the panel
+ * already seated costs nothing visible. Costs nothing is measured, not assumed:
+ * the gap a swap opens is compared against the spread the even pick already
+ * has between consecutive frames, and it has to stay inside it.
+ *
+ * Recorded in the manifest, so a later reader can see the sequence is not
+ * purely mechanical — and a flag rather than a hand-edited .webp, so the output
+ * stays reproducible from one command.
+ */
+const SWAPS = new Map(
+  args
+    .filter((a, i) => args[i - 1] === '--swap')
+    .map((pair) => {
+      const [out, src] = pair.split('=').map(Number);
+      if (!Number.isInteger(out) || !Number.isInteger(src)) {
+        console.error(`Bad --swap "${pair}". Expected <output index>=<source frame number>.`);
+        process.exit(1);
+      }
+      return [out, src];
+    }),
+);
+
 const TARGET_FRAMES = flag('frames', 100);
 const QUALITY = flag('quality', 72);
 const CONTAIN = flag('contain', DEFAULT_CONTAIN);
@@ -149,7 +183,8 @@ const BUDGET_BYTES = 2 * 1024 * 1024;
 
 if (!source) {
   console.error(
-    'Usage: npm run hero -- <source-dir> [--frames 100] [--quality 72] [--contain 0.9]\n\n' +
+    'Usage: npm run hero -- <source-dir> [--frames 100] [--quality 72] [--contain 0.9]\n' +
+      '                            [--swap <output>=<source frame number>], repeatable\n\n' +
       'The source directory is the render output — the 200 numbered frames.\n' +
       'It is read, never written to, and does not need to be inside this repo.',
   );
@@ -191,6 +226,7 @@ const pick = (list, count) => {
 
 const selected = pick(frames, TARGET_FRAMES);
 
+
 const first = await sharp(path.join(source, selected[0].file)).metadata();
 
 console.log(
@@ -199,6 +235,25 @@ console.log(
     `source ${first.width}×${first.height}` +
     `${first.hasAlpha ? ', transparent' : ', opaque'}\n`,
 );
+
+for (const [out, src] of SWAPS) {
+  if (out < 0 || out >= selected.length) {
+    console.error(
+      `--swap ${out}=${src}: there is no output frame ${out} in a ${selected.length}-frame sequence.`,
+    );
+    process.exit(1);
+  }
+  const replacement = frames.find((f) => f.n === src);
+  if (!replacement) {
+    console.error(`--swap ${out}=${src}: no source frame numbered ${src} in ${source}.`);
+    process.exit(1);
+  }
+  console.log(
+    `  swap: frame ${String(out).padStart(3, '0')} takes ${replacement.file} ` +
+      `instead of ${selected[out].file}`,
+  );
+  selected[out] = replacement;
+}
 
 /**
  * The union of every frame's alpha bounding box.
@@ -372,6 +427,7 @@ const manifest = {
   sourceFrames: frames.length,
   crop: crop ?? null,
   zoom: { start: ZOOM_START, end: ZOOM_END },
+  swaps: SWAPS.size ? Object.fromEntries(SWAPS) : null,
   generated: new Date().toISOString().slice(0, 10),
 };
 fs.writeFileSync(path.join(OUT, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n');

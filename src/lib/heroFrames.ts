@@ -36,6 +36,12 @@ export interface HeroManifest {
    * Both 1 means no push. See scripts/build-hero-frames.mjs for why it exists.
    */
   zoom: { start: number; end: number };
+  /**
+   * Output frames whose source was overridden with `--swap`, as
+   * `{ [output index]: source frame number }`, or null. Provenance only, like
+   * `crop`: the substitution has already happened in the pixels on disk.
+   */
+  swaps: Record<string, number> | null;
   generated: string;
 }
 
