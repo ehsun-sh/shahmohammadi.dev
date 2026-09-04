@@ -328,8 +328,8 @@
       "tags": ["WDM", "Embedded Linux", "Telecom"],
       "slug": "wdm-optical-transmitter",
       "image": "wdm-optical-transmitter.webp",
-      "imageAlt": "A render of the transponder shelf with eight populated SFP cages, each patched by a differently coloured fibre into a passive multiplexer whose wavelengths combine onto one outgoing fibre",
-      "imageCredit": "Concept mockup",
+      "imageAlt": "The transmitter standing on a bench: a brushed stainless chassis with a touchscreen set into its top panel, a card cage below it holding vertical cards whose front edges carry columns of blue LC connectors, aqua patch cords looping from the left-hand cards across the front, and a perforated intake running the width of the base",
+      "imageCredit": "Prototype",
       "featured": false
     },
     {
