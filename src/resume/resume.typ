@@ -94,6 +94,18 @@
 
 #section[Experience]
 
+// The first `max-highlights` bullets of each role, not all of them. Same
+// argument as `featured` below and the same shape: cv.json holds everything
+// because the website has room for everything, and this document has a page
+// count. Without it the résumé runs to a third page carrying nothing but the
+// Awards section, which is worse than any bullet it saves.
+//
+// It is a slice and not a flag, so no fact leaves cv.json and the site keeps
+// every bullet. The cost is that a role's bullets are now ORDERED — the ones
+// that must reach the PDF have to lead — which is the right pressure anyway:
+// a reader who stops after four has stopped after the four you chose.
+#let max-highlights = 4
+
 #for (i, job) in cv.work.enumerate() [
   #entry(
     job.company,
@@ -104,7 +116,7 @@
   )
   #if job.summary != "" [#block(above: 0pt)[#job.summary]]
   #if job.highlights.len() > 0 [
-    #bullets(job.highlights)
+    #bullets(job.highlights.slice(0, calc.min(max-highlights, job.highlights.len())))
   ]
 ]
 

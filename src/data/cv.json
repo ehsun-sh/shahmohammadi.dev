@@ -84,9 +84,9 @@
       "highlights": [
         "Boosted system performance over 80% by rewriting firmware on ESP-IDF and FreeRTOS with WebSocket transport.",
         "Reduced hardware footprint 60% with a compact Altium redesign, with no loss of functionality.",
+        "Designed a 6-layer PCB to UL and FCC standards for EMC/EMI and thermal performance.",
         "Built an OTA firmware update system over CANBus for ESP32 modules integrated with a Particle IoT hub.",
         "Cut RAM usage 15% in memory-constrained embedded systems through firmware refactoring.",
-        "Designed a 6-layer PCB to UL and FCC standards for EMC/EMI and thermal performance.",
         "Programmed Quectel modules with QuecOpen, implementing LTE, GPS and Wi-Fi communication algorithms."
       ],
       "stack": ["ESP-IDF", "FreeRTOS", "CANBus", "Altium", "QuecOpen", "Particle IoT"]
