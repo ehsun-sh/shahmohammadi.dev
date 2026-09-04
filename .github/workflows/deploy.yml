@@ -24,10 +24,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           # Astro 7 requires >= 22.12.
           node-version: 22
@@ -98,9 +98,12 @@ jobs:
       # deploy tool would float while every other tool in this pipeline is
       # pinned — Node, Typst, the fonts. package.json is the source of truth;
       # change it there first and copy the version to both steps below.
+      # That is also the whole of what wrangler-action v4 changed: it moved its
+      # default from wrangler v3 to latest, which is a default this pipeline has
+      # never taken.
       - name: Deploy to production
         if: github.ref == 'refs/heads/main'
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -109,7 +112,7 @@ jobs:
 
       - name: Upload preview version
         if: github.ref != 'refs/heads/main'
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
