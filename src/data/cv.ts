@@ -15,7 +15,7 @@ const dateish = z.string().min(4); // "2023" | "2023-01" | "2023-01-15"
 const profile = z.object({
   network: z.string(),
   username: z.string(),
-  url: z.string().url(),
+  url: z.url(),
 });
 
 const workEntry = z.object({
@@ -116,7 +116,7 @@ const award = z.object({
   title: z.string(),
   issuer: z.string(),
   date: dateish,
-  url: z.string().url().optional(),
+  url: z.url().optional(),
 });
 
 export const cvSchema = z.object({
@@ -129,7 +129,7 @@ export const cvSchema = z.object({
     /** No `phone` field by design. `/resume.pdf` is a public URL and this repo
      *  is readable, so "PDF only" would not have protected it. Keep the number
      *  in a separate private résumé for direct applications. */
-    url: z.string().url(),
+    url: z.url(),
     location: z.object({
       city: z.string(),
       countryCode: z.string(),
@@ -155,7 +155,7 @@ export const cvSchema = z.object({
         name: z.string(),
         issuer: z.string(),
         date: dateish,
-        url: z.string().url().optional(),
+        url: z.url().optional(),
       }),
     )
     .default([]),

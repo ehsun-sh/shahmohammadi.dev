@@ -1,5 +1,6 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
+import { z } from 'astro/zod';
 
 /**
  * Engineering project write-ups.
@@ -180,7 +181,7 @@ const projects = defineCollection({
          *  own: a link is one of the things every project is asked for, so it
          *  belongs where the rest of those answers are. */
         links: z
-          .array(z.object({ label: z.string(), href: z.string().url() }))
+          .array(z.object({ label: z.string(), href: z.url() }))
           .default([]),
 
         /** Draft pages render in `npm run dev` and are excluded from the build,
