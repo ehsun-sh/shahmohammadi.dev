@@ -10,6 +10,7 @@
     "preview": "astro preview",
     "check": "astro check",
     "icons": "node scripts/make-icons.mjs",
+    "banner": "node scripts/make-banner.mjs",
     "fonts": "node scripts/copy-fonts.mjs",
     "hero": "node scripts/build-hero-frames.mjs",
     "resume": "typst compile src/resume/resume.typ public/resume.pdf --root . --ignore-system-fonts --font-path node_modules/@expo-google-fonts/noto-sans",
