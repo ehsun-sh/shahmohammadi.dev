@@ -5,6 +5,7 @@ import Section from '../components/Section.astro';
 import ProjectGallery from '../components/ProjectGallery.astro';
 import { resolveProjectImage } from '../lib/projectImages';
 import { STATUS_LABEL, type ProjectPage } from '../lib/projects';
+import { cv as cvData } from '../data/cv';
 
 /**
  * The one template every project page renders through.
@@ -99,12 +100,70 @@ const rows = [
   { label: 'Tools', value: tools },
   ...(licence ? [{ label: 'Licence', value: licence }] : []),
 ];
+
+/**
+ * What this page is, said in the machine-readable half of the document.
+ *
+ * A project page is not a ProfilePage — the default BaseLayout emits — and
+ * saying so is the whole point: the tags rendered as chips under the summary
+ * are domain keywords a human scans, and this is the same list in the one
+ * place a crawler will read it as keywords rather than as three short
+ * sentences of decoration. `tools` joins them because it answers the query
+ * nobody types into a person search and everybody types into a hiring
+ * search — "Altium", "ESP-IDF", "GStreamer".
+ *
+ * Author points at the Person by `@id` instead of restating the name, so the
+ * site still has exactly one Person node across every page and a crawler that
+ * merges the graph gets one entity with n works attached, not n+1 entities.
+ *
+ * Nothing here is a new fact: every field is already on the page and already
+ * in cv.json or the frontmatter. Structured data that says something the
+ * visible page does not is a spam signal, and it is also just a second copy
+ * to keep in sync.
+ */
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+
+const projectSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'CreativeWork',
+  '@id': `${canonical}#project`,
+  name: project.name,
+  ...(project.tagline && { alternativeHeadline: project.tagline }),
+  description: project.summary,
+  url: canonical,
+  mainEntityOfPage: canonical,
+  inLanguage: 'en',
+  // The chips, plus the row of the fixed table that names instruments and
+  // toolchains. `tools` is one free-text string in the frontmatter, so it is
+  // split on the separators it is actually written with and the sentence's
+  // closing full stop is dropped off the last item. Deduplicated case-blind,
+  // because a tag and a tool are written by two different hands and
+  // "Embedded Linux" next to "embedded Linux" is one keyword twice.
+  keywords: [...project.tags, ...tools.split(/[,·;]/)]
+    .map((keyword) => keyword.trim().replace(/\.$/, ''))
+    .filter(
+      (keyword, index, all) =>
+        keyword.length > 0 &&
+        all.findIndex((other) => other.toLowerCase() === keyword.toLowerCase()) ===
+          index,
+    ),
+  dateCreated: project.year,
+  creativeWorkStatus: STATUS_LABEL[status],
+  author: { '@id': `${cvData.basics.url}/#person` },
+  // The cover, at its built URL — the OG card is a social preview with type
+  // set over it, not a picture of the thing. Falls back to the card only when
+  // a project has no artwork at all.
+  image: image
+    ? new URL(image.src, Astro.site).href
+    : new URL(`/og/projects/${page.slug}.png`, Astro.site).href,
+};
 ---
 
 <BaseLayout
   title={project.name}
   description={project.summary}
   ogImage={`/og/projects/${page.slug}.png`}
+  schema={[projectSchema]}
 >
   <div class="mx-auto max-w-page space-y-5 px-6 pt-6 pb-8">
     {

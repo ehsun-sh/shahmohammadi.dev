@@ -364,6 +364,21 @@ Deploys happen on push to `main`. Nothing is published from a local machine.
   in `npm run dev` and are absent from `npm run build`, and a project only
   becomes a link once its write-up is published — `getLinkedSlugs()` derives
   that, so nothing has to be flipped in two places.
+- **Structured data is one graph and it never says anything the page does not.**
+  `BaseLayout` emits the `Person` node on every page and a `ProfilePage` after
+  it; a page that is not about Ehsan passes its own nodes through the `schema`
+  prop, which replaces the `ProfilePage` and not the `Person`. A project page
+  emits a `CreativeWork` whose `keywords` are `cv.json`'s tags plus the fixed
+  table's `tools` row — the same words the page already renders as chips, in
+  the one place a crawler reads them as keywords — and `/projects` emits a
+  `CollectionPage` whose `ItemList` points at those by `@id` rather than
+  restating them. Author is always `{'@id': …/#person}`, never a repeated name,
+  so the site has exactly one Person across seventeen pages. Never add a field
+  that is not already visible on the page: a claim only the crawler can see is
+  a spam signal *and* a second copy to keep in sync. `<meta name="keywords">`
+  is deliberately absent — Google dropped it in 2009 and it is the one tag that
+  is purely for machines, which is the reason it stopped counting.
+
 - **Rendered markdown is styled by `.prose-doc` in `global.css`**, the one
   place the site styles elements by tag name — a write-up's headings arrive
   with no class to hang a utility on. Every value it sets comes from the same

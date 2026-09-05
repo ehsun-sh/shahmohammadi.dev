@@ -24,9 +24,58 @@ const standfirst =
   'covers the constraint that made the problem non-trivial, what was traded ' +
   'away to solve it, and the measurements that settled the argument. No ' +
   'schematics, layouts or firmware source — client and employer IP stays out.';
+
+/**
+ * The list, said in machine-readable form.
+ *
+ * A CollectionPage whose `mainEntity` is an ordered ItemList in cv.json's
+ * order — the same order the page renders and the same order `resume.pdf`
+ * prints, so the three cannot disagree about which project leads. Entries with
+ * a published write-up point at that page's `CreativeWork` by `@id`, which is
+ * what makes this a table of contents rather than a second, thinner copy of
+ * every project's facts; an entry with no page yet carries its own name and
+ * keywords inline, because it is real work that is on the page and in the
+ * résumé and there is nowhere else for a crawler to read it.
+ */
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+
+const listSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  url: canonical,
+  name: 'Projects',
+  description: standfirst,
+  isPartOf: { '@id': `${cv.basics.url}/#person` },
+  mainEntity: {
+    '@type': 'ItemList',
+    numberOfItems: cv.projects.length,
+    itemListOrder: 'https://schema.org/ItemListOrderAscending',
+    itemListElement: cv.projects.map((project, index) => {
+      const url =
+        project.slug && linked.has(project.slug)
+          ? new URL(`/projects/${project.slug}/`, Astro.site).href
+          : null;
+
+      return {
+        '@type': 'ListItem',
+        position: index + 1,
+        item: url
+          ? { '@id': `${url}#project` }
+          : {
+              '@type': 'CreativeWork',
+              name: project.name,
+              description: project.summary,
+              keywords: project.tags,
+              dateCreated: project.year,
+              author: { '@id': `${cv.basics.url}/#person` },
+            },
+      };
+    }),
+  },
+};
 ---
 
-<BaseLayout title="Projects" description={standfirst}>
+<BaseLayout title="Projects" description={standfirst} schema={[listSchema]}>
   <div class="mx-auto max-w-page space-y-5 px-6 pt-6 pb-8">
     <PageHeader title="Projects" standfirst={standfirst} />
 

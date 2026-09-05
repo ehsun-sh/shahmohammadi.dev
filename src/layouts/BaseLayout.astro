@@ -27,6 +27,17 @@ interface Props {
    * it skips nothing.
    */
   skipTo?: string;
+  /**
+   * Page-specific JSON-LD, emitted after the Person graph instead of the
+   * generic ProfilePage.
+   *
+   * The default is right for the pages that ARE about Ehsan; it is wrong for a
+   * project page, which is a document about a piece of engineering and should
+   * say so — that is the node a search engine reads the tags, the year and the
+   * picture off. Nodes passed here reference the Person by `@id`, so there is
+   * still exactly one Person in the graph across the site.
+   */
+  schema?: Record<string, unknown>[];
 }
 
 const {
@@ -35,6 +46,7 @@ const {
   ogImage = '/og.png',
   shell = 'page',
   skipTo = '#main',
+  schema,
 } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
@@ -174,7 +186,7 @@ const profilePageSchema = {
 
     <script
       type="application/ld+json"
-      set:html={JSON.stringify([personSchema, profilePageSchema])}
+      set:html={JSON.stringify([personSchema, ...(schema ?? [profilePageSchema])])}
     />
 
     <Analytics />
