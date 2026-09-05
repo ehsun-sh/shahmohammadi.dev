@@ -1,20 +1,24 @@
 ---
 interface Props {
   title: string;
-  /** One or two sentences. Sits at lead size, like the hero standfirst. */
+  /** One or two sentences, set at body size like any other card's prose. */
   standfirst?: string;
 }
 
 const { title, standfirst } = Astro.props;
 ---
 
-{/* The same card the landing page opens with, so /services and /projects begin
-    the way / does: one plate carrying the identity of the page, then the
-    section plates under it. The extra padding at sm: is the only thing that
-    distinguishes a header card from a section card — it is holding display
-    type, which needs more room around it than a section title does. */}
-<header class="card sm:p-8">
-  <h1 class="text-display">{title}</h1>
-  {standfirst && <p class="prose-block mt-4 text-lead text-muted">{standfirst}</p>}
+{/* The same plate a section is, and now the same shape too: title, hairline,
+    content. It used to carry display type and extra padding, which made a page
+    header look like a different kind of object from every card under it — the
+    landing page's "About" card is the reference, and the header answers the
+    same question in the same three roles. The heading is still the page's
+    <h1>; only its size moved. */}
+<header class="card">
+  <h1 class="text-heading">{title}</h1>
+
+  <div class="mt-3 h-px w-full bg-subtle" aria-hidden="true"></div>
+
+  {standfirst && <p class="prose-block mt-5">{standfirst}</p>}
   <slot />
 </header>
