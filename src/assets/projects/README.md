@@ -51,6 +51,15 @@ Check that against `npm run preview`, never `npm run dev`: Astro's dev image
 endpoint drops the alpha channel when it re-encodes to WebP, so a file that will
 ship with a white box around it looks perfect on the dev server.
 
+## A designed card needs two files
+
+Transparency is the answer for a render or a cut-out. A designed card — a
+logo on its own ground, the way `maiman-studio.webp` is — has no edge to cut
+along, so it ships as a pair instead: the light ground in `image`, the dark
+one in `imageDark`, same 16:10, same subject in the same place. Both files are
+emitted and CSS shows the one that matches the theme. Leave `imageDark` null
+for everything else; a transparent file already works on both grounds.
+
 ## What must not go in here
 
 Read the IP boundary in `CLAUDE.md` before exporting anything. No schematics, no

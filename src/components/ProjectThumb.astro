@@ -12,6 +12,8 @@ import { resolveProjectImage } from '../lib/projectImages';
 
 interface Props {
   image: string | null;
+  /** The dark theme's file, when the artwork has its own ground. */
+  imageDark?: string | null;
   alt: string;
   /** Project name, used to describe the placeholder while the image is absent. */
   name: string;
@@ -32,6 +34,7 @@ interface Props {
 
 const {
   image,
+  imageDark = null,
   alt,
   name,
   class: className,
@@ -40,6 +43,7 @@ const {
 } = Astro.props;
 
 const resolved = resolveProjectImage(image, name);
+const resolvedDark = imageDark ? resolveProjectImage(imageDark, name) : null;
 
 // 16:10, the same ratio as the hero visual, so the two never disagree about
 // what shape a picture on this site is.
@@ -57,15 +61,34 @@ const RATIO = '16 / 10';
          sits straight on the white card and loses its edges. It is the same
          ground the carousel's frame uses, so a picture reads the same at
          160px as it does at the full measure. */
-      <Image
-        src={resolved}
-        alt={alt}
-        widths={widths}
-        sizes={sizes}
-        loading="lazy"
-        decoding="async"
-        class="size-full rounded-card border border-subtle bg-bg object-cover"
-      />
+      <>
+        <Image
+          src={resolved}
+          alt={alt}
+          widths={widths}
+          sizes={sizes}
+          loading="lazy"
+          decoding="async"
+          class:list={[
+            'size-full rounded-card border border-subtle bg-bg object-cover',
+            resolvedDark && 'dark:hidden',
+          ]}
+        />
+        {/* Only one of the pair is ever displayed, so only one is in the
+            accessibility tree and they share the alt. `loading="lazy"` keeps
+            the hidden one from being fetched until it would be shown. */}
+        {resolvedDark && (
+          <Image
+            src={resolvedDark}
+            alt={alt}
+            widths={widths}
+            sizes={sizes}
+            loading="lazy"
+            decoding="async"
+            class="hidden size-full rounded-card border border-subtle bg-bg object-cover dark:block"
+          />
+        )}
+      </>
     ) : (
       /* Not a broken-image icon and not invisible: a deliberate empty frame,
          so the row keeps its shape and the gap reads as "picture pending"

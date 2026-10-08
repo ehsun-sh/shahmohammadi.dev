@@ -1,8 +1,8 @@
 ---
-role: 'Sole author. Signal model, component library, fibre solver, coherent DSP, the validation suite and the interface design.'
+role: 'Sole author. Signal model, component library, fibre solver, coherent DSP, photonic circuit solver, the validation suite and the studio.'
 team: 'Solo'
-context: 'Personal project, developed and released in the open.'
-tools: 'Python 3.11+, NumPy/SciPy, optional CuPy GPU backend, pytest in CI'
+context: 'Personal project, developed and released in the open. Published on PyPI as maiman, with a documentation site.'
+tools: 'Python 3.11+, NumPy, optional CuPy GPU backend, a dependency-free HTML/JS studio, pytest, mypy and ruff in CI'
 licence: 'Apache-2.0'
 status: in-progress
 cover: ../../assets/projects/maiman-studio-editor.webp
@@ -11,16 +11,28 @@ specs:
   - label: 'Signal model'
     value: 'Multi-band complex field, Ex/Ey, plus separate noise bins'
   - label: 'Fibre'
-    value: 'Adaptive-step split-step Fourier; loss, CD, SPM/XPM/FWM, PMD'
+    value: 'Coupled adaptive-step split-step; loss, CD, SPM/XPM/FWM, PMD, Raman'
   - label: 'Coherent chain'
-    value: '32 GBd, BPSK to 256-QAM, dual polarization, 256 Gb/s'
+    value: '32 GBd, BPSK to 256-QAM, dual polarization at 256 Gb/s, blind DSP'
   - label: 'Reach demonstrated'
     value: '1000 km compensated to back-to-back quality'
+  - label: 'FEC'
+    value: 'RS(255,239) per G.709; soft-decision staircase and OFEC'
+  - label: 'Photonic circuits'
+    value: 'Bidirectional S-matrix solver, matches SAX to 5e-15; PDK import'
+  - label: 'Library'
+    value: '77 components, 49 example projects with lessons'
   - label: 'Validation'
-    value: '50+ closed-form physics assertions, run in CI'
+    value: '2250+ tests; every physics block against a closed form, in CI'
+  - label: 'Release'
+    value: '0.17.0 on PyPI: pip install maiman, then maiman serve'
 links:
+  - label: 'maimanstudio.com'
+    href: 'https://maimanstudio.com/'
   - label: 'Source on GitHub'
     href: 'https://github.com/ehsun-sh/maiman-studio'
+  - label: 'maiman on PyPI'
+    href: 'https://pypi.org/project/maiman/'
 draft: false
 ---
 
@@ -56,6 +68,19 @@ single-carrier model cannot represent that at any price.
 Projects serialise to versioned JSON, so a schematic is diffable, reviewable and
 runnable headless, and parameter sweeps are a first-class call rather than a
 hand-written loop that mutates the graph in place.
+
+The studio is one more client of that API. `maiman serve` starts a small HTTP
+server, with no dependencies beyond the engine's own, that hands the browser its page and runs the
+project documents it posts; every route is a thin wrapper over a call a script
+can already make. Nothing in the server understands the physics and nothing in
+the engine knows the server exists, which is what stops the two drifting apart:
+a feature that cannot be reached from Python cannot be reached from the
+interface either.
+
+The same engine also solves photonic circuits, as bidirectional S-matrices
+rather than as a separate tool: rings, couplers, MMIs and gratings, a foundry
+kit read from its fitted numbers and refused past the window they were fitted
+in, and a netlist written by a layout tool read as a document.
 
 ## Design decisions
 
@@ -122,12 +147,22 @@ is also the sign check.
 
 ## Status
 
-Pre-alpha. The engine runs end to end and the numbers hold up; the GUI does not
-exist yet. The interface in the repository is a build of the planned one — the
-schematic, the component palette and every figure in the results dock come from
-a real engine run, and what is missing is the session server that would let you
-press Run and get a new one.
+Released, and still 0.x. Version 0.17.0 is on PyPI: `pip install maiman`, then
+`maiman serve`, and the studio opens in a browser with a complete link already
+on the canvas. Build a link by dragging blocks and wires, press Run, sweep a
+parameter, save the project; every number on screen comes from the engine. The
+Examples menu carries 49 projects in seven phases, from first light to
+real-world systems, each with a lesson beside it, and the documentation is
+published at maimanstudio.com.
 
-That ordering is deliberate. The expensive decisions in a simulator are the
-signal model and the validation discipline, and both are much harder to change
-once a front end depends on them.
+Phases 0 through 5 of the roadmap are done: the linear link, the nonlinear and
+amplified one, the coherent transceiver, the studio and WDM, photonic circuits,
+and gratings, sensing and control loops. What remains open are the
+approximations each block states in its own docstring. The version number is
+meant literally — the API is not frozen, and the core is still small enough that
+changing it is cheap.
+
+The order was deliberate. The studio arrived in phase 3, after the signal model
+and the validation discipline were settled, because those are the expensive
+decisions in a simulator and both are much harder to change once a front end
+depends on them.

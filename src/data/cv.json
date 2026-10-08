@@ -279,11 +279,12 @@
       "name": "Maiman Studio",
       "tagline": "modular simulator for optical communication links and photonic systems",
       "year": "2026",
-      "summary": "Open-source Python simulator for optical communication links: multi-band signal model, adaptive split-step fibre propagation, and coherent DSP up to 256 Gb/s dual-polarization 256-QAM over 1000 km. Every physics block is asserted against a closed-form result in CI.",
+      "summary": "Open-source Python simulator for optical links and photonic circuits, released on PyPI with a drag-and-wire studio: multi-band signal model, coupled split-step fibre propagation, and blind coherent DSP from BPSK to 256-QAM over 1000 km. Every physics block is asserted against a closed-form result in CI.",
       "tags": ["Python", "Coherent DSP", "Simulation"],
       "slug": "maiman-studio",
       "image": "maiman-studio.webp",
-      "imageAlt": "The Maiman Studio mark: a letter M drawn by beams of light bouncing between five mirrors, over the wordmark",
+      "imageDark": "maiman-studio-dark.webp",
+      "imageAlt": "The Maiman Studio logo, a rainbow M drawn as one continuous line beside the wordmark, over a red underline and a teal eye diagram that runs the full width of the card",
       "featured": true
     },
     {

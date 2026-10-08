@@ -77,6 +77,16 @@ const projectEntry = z.object({
    *  time; anything else is a broken image nobody notices. Null renders the
    *  placeholder frame. See that folder's README for the export spec. */
   image: z.string().nullable().default(null),
+  /**
+   * Optional second file for the dark theme, same folder, same 16:10.
+   *
+   * For artwork that carries its own ground — a designed card rather than a
+   * cut-out — where one file can only be right in one theme. A transparent
+   * export should leave this null: it already works on both grounds. Both
+   * files ship and CSS picks, for the same reason the portrait does it that
+   * way (see ProfileCard.astro): the theme toggle, not the OS, is the truth.
+   */
+  imageDark: z.string().nullable().default(null),
   /** What the picture shows, for someone who cannot see it. Leave empty only
    *  if the image is pure decoration, which for a project shot it is not. */
   imageAlt: z.string().default(''),
