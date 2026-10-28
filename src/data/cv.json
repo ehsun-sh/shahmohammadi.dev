@@ -185,7 +185,7 @@
       "category": "Embedded Platforms",
       "items": [
         "ESP32",
-        "ARM (ARM7)",
+        "ARM",
         "PIC",
         "Embedded Linux",
         "Particle IoT",
@@ -307,7 +307,7 @@
       "slug": "multi-protocol-gateway",
       "image": "multi-protocol-gateway.webp",
       "imageAlt": "Photograph of the gateway carrier board: a cellular system-in-module soldered down the centre of the green board on two rows of castellated pads, carrying a Quectel BG96 modem under its shield, with a u-blox GNSS receiver at one end, a row of labelled test pads for the cell, Wi-Fi, SWD and GNSS signals down the left, and four mounting holes in the lobed outline",
-      "featured": true
+      "featured": false
     },
     {
       "name": "Optical Network Management System",
@@ -331,7 +331,7 @@
       "image": "wdm-optical-transmitter.webp",
       "imageAlt": "The transmitter standing on a bench: a brushed stainless chassis with a touchscreen set into its top panel, a card cage below it holding vertical cards whose front edges carry columns of blue LC connectors, aqua patch cords looping from the left-hand cards across the front, and a perforated intake running the width of the base",
       "imageCredit": "Prototype",
-      "featured": false
+      "featured": true
     },
     {
       "name": "MRI Radio Coil with Optical Transmission",
