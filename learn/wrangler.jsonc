@@ -1,0 +1,28 @@
+/**
+ * learn.shahmohammadi.dev — the learning hub. A second Worker with static
+ * assets, separate from the `shahmohammadi` Worker that serves the main site.
+ *
+ * Separate rather than a folder of the main site because the main Worker has
+ * no `main` script (see ../wrangler.jsonc), so it cannot route by hostname:
+ * one assets-only Worker serves one tree to every hostname attached to it.
+ * Two Workers keeps both of them script-free, keeps the hub out of the Astro
+ * build (it is a single hand-written index.html with no build step), and lets
+ * either be redeployed without touching the other.
+ *
+ * Deployed by .github/workflows/deploy-learn.yml, never locally — same rule as
+ * the main site. The hostname is attached in Cloudflare (Worker → Settings →
+ * Domains & Routes → Add Custom Domain → learn.shahmohammadi.dev), not here,
+ * for the same reason the apex is: the deploy token only has Workers Scripts
+ * permission, and a `routes` block would need zone permissions it lacks.
+ */
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "shahmohammadi-learn",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./public",
+    // A path nothing matches — /piano before that app ships, a typo — gets
+    // the hub's own Persian 404 with a way back into the room.
+    "not_found_handling": "404-page"
+  }
+}
