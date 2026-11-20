@@ -7,21 +7,21 @@
   │  <nav id="fallback"> list below (search for data-link=). The 3D scene │
   │  reads its URLs from those anchors, so the no-WebGL fallback and the  │
   │  room can never disagree. A link whose href still contains "INSERT"   │
-  │  is shown as "به‌زودی · Coming soon" instead of being clickable.     │
+  │  is shown as "Coming soon" instead of being clickable.          │
   └───────────────────────────────────────────────────────────────────────┘
 
   Self-contained: no images, models or textures are fetched. Everything you
   see is built from primitives at load time and textured with <canvas>.
   The only network requests are three.js (unpkg, pinned) and Google Fonts.
 -->
-<html lang="fa" dir="rtl" class="no-js">
+<html lang="en" class="no-js">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>اتاق یادگیری · Learning Hub</title>
+<title>Learning Hub · Ehsan Shahmohammadi</title>
 <meta name="description" content="Ehsan Shahmohammadi's learning hub: piano tutorials, an FPGA course, language learning, a book reader and Maiman Studio, arranged as one interactive 3D studio.">
 <meta name="theme-color" content="#07080c">
-<meta property="og:title" content="اتاق یادگیری · Learning Hub">
+<meta property="og:title" content="Learning Hub · Ehsan Shahmohammadi">
 <meta property="og:description" content="An interactive 3D studio: piano, FPGA, books and photonics.">
 <meta property="og:url" content="https://learn.shahmohammadi.dev/">
 <link rel="canonical" href="https://learn.shahmohammadi.dev/">
@@ -29,7 +29,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://unpkg.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&family=Vazirmatn:wght@400;500;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap">
 <script>
   // Runs before first paint: flags JS so the fallback list hides, and arms a
   // watchdog that brings the fallback back if the module never reports in
@@ -62,7 +62,6 @@
     --edge: rgba(255, 255, 255, 0.12);
     --edge-strong: rgba(255, 255, 255, 0.2);
     --acc: #6cb6ff;
-    --fa: 'Vazirmatn', 'Segoe UI', Tahoma, sans-serif;
     --en: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
     --mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
     --dock-h: 74px;
@@ -73,12 +72,11 @@
     background: radial-gradient(120% 90% at 55% 40%, #121726 0%, #090b12 55%, #05060a 100%);
     background-color: var(--bg);
     color: var(--ink);
-    font-family: var(--fa);
+    font-family: var(--en);
     overflow: hidden;
     -webkit-font-smoothing: antialiased;
     -webkit-tap-highlight-color: transparent;
   }
-  [lang="en"] { font-family: var(--en); }
   .mono { font-family: var(--mono); }
 
   #scene { position: fixed; inset: 0; width: 100%; height: 100%; display: block; outline: none; touch-action: none; }
@@ -97,16 +95,16 @@
 
   /* ---------------------------------------------------------------- brand */
   #brand {
-    position: fixed; top: max(16px, env(safe-area-inset-top)); right: 18px; z-index: 5;
-    display: flex; align-items: center; gap: 12px; padding: 10px 16px 10px 14px; border-radius: 14px;
+    position: fixed; top: max(16px, env(safe-area-inset-top)); left: 18px; z-index: 5;
+    display: flex; align-items: center; gap: 12px; padding: 10px 14px 10px 16px; border-radius: 14px;
     text-decoration: none; color: inherit;
   }
   #brand .dot { width: 10px; height: 10px; border-radius: 50%; background: #ff4d5e; box-shadow: 0 0 12px #ff4d5e; flex: none; }
   #brand strong { display: block; font-size: 15px; font-weight: 700; line-height: 1.3; }
-  #brand span { display: block; font-family: var(--mono); font-size: 11.5px; color: var(--muted); direction: ltr; text-align: right; }
+  #brand span { display: block; font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
 
   #hint {
-    position: fixed; top: max(18px, env(safe-area-inset-top)); left: 18px; z-index: 5;
+    position: fixed; top: max(18px, env(safe-area-inset-top)); right: 18px; z-index: 5;
     padding: 9px 14px; border-radius: 12px; font-size: 12.5px; color: var(--muted);
     transition: opacity .6s ease, transform .6s ease;
   }
@@ -116,13 +114,13 @@
   /* -------------------------------------------------------------- tooltip */
   #tooltip {
     position: fixed; left: 0; top: 0; z-index: 8; pointer-events: none;
-    padding: 10px 14px 10px 16px; border-radius: 12px; min-width: 150px;
+    padding: 10px 16px 10px 14px; border-radius: 12px; min-width: 150px;
     opacity: 0; transform: translate3d(-9999px, 0, 0); transition: opacity .18s ease;
-    border-right: 3px solid var(--acc);
+    border-left: 3px solid var(--acc);
   }
   #tooltip.on { opacity: 1; }
-  #tooltip .t-fa { font-size: 15px; font-weight: 700; line-height: 1.4; }
-  #tooltip .t-en { font-family: var(--en); font-size: 12px; color: var(--muted); direction: ltr; text-align: right; }
+  #tooltip .t-title { font-size: 15px; font-weight: 700; line-height: 1.4; }
+  #tooltip .t-sub { font-size: 12px; color: var(--muted); }
   #tooltip .t-hint { margin-top: 4px; font-size: 11px; color: var(--acc); }
 
   /* ---------------------------------------------------------------- panel */
@@ -139,11 +137,10 @@
     background: linear-gradient(90deg, transparent, var(--acc), transparent); opacity: .9;
   }
   .p-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
-  .p-index { font-family: var(--mono); font-size: 12px; color: var(--acc); letter-spacing: .08em; padding: 3px 8px; border: 1px solid color-mix(in srgb, var(--acc) 45%, transparent); border-radius: 999px; direction: ltr; }
-  .p-en { font-family: var(--en); font-size: 12.5px; color: var(--muted); letter-spacing: .02em; direction: ltr; }
-  #panel h2 { margin: 0 0 10px; font-size: 24px; line-height: 1.35; font-weight: 800; }
-  .p-desc { margin: 0 0 6px; font-size: 14.5px; line-height: 1.9; color: #d6dbe6; }
-  .p-desc-en { margin: 0 0 18px; font-family: var(--en); font-size: 12.5px; line-height: 1.6; color: var(--muted); direction: ltr; text-align: left; }
+  .p-index { font-family: var(--mono); font-size: 12px; color: var(--acc); letter-spacing: .08em; padding: 3px 8px; border: 1px solid color-mix(in srgb, var(--acc) 45%, transparent); border-radius: 999px; }
+  .p-sub { font-size: 12.5px; color: var(--muted); letter-spacing: .02em; }
+  #panel h2 { margin: 0 0 10px; font-size: 24px; line-height: 1.3; font-weight: 800; letter-spacing: -.01em; }
+  .p-desc { margin: 0 0 18px; font-size: 14.5px; line-height: 1.7; color: #d6dbe6; }
   .p-actions { display: grid; gap: 10px; }
   .cta {
     display: flex; align-items: center; justify-content: space-between; gap: 12px;
@@ -153,7 +150,7 @@
     transition: transform .15s ease, box-shadow .2s ease, filter .2s ease;
   }
   .cta:hover { transform: translateY(-1px); filter: brightness(1.08); }
-  .cta small { font-family: var(--en); font-weight: 600; font-size: 12px; opacity: .75; direction: ltr; }
+  .cta small { font-family: var(--mono); font-weight: 600; font-size: 11.5px; opacity: .75; margin-left: auto; }
   .cta svg { width: 18px; height: 18px; flex: none; }
   .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .choice {
@@ -166,10 +163,10 @@
   .choice .c-ico { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; background: color-mix(in srgb, var(--acc) 18%, transparent); color: var(--acc); }
   .choice .c-ico svg { width: 22px; height: 22px; }
   .choice strong { font-size: 16px; font-weight: 800; }
-  .choice span { font-family: var(--en); font-size: 12px; color: var(--muted); direction: ltr; text-align: right; }
+  .choice span { font-size: 12px; color: var(--muted); }
   .choice.soon { opacity: .62; cursor: default; }
   .choice.soon:hover { transform: none; background: rgba(255, 255, 255, 0.05); border-color: var(--edge); }
-  .badge { position: absolute; top: 10px; left: 10px; font-size: 10.5px; padding: 2px 7px; border-radius: 999px; background: rgba(255, 255, 255, .1); color: var(--muted); }
+  .badge { position: absolute; top: 10px; right: 10px; font-size: 10.5px; padding: 2px 7px; border-radius: 999px; background: rgba(255, 255, 255, .1); color: var(--muted); }
   .p-back {
     margin-top: 14px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
     padding: 11px 14px; border-radius: 12px; cursor: pointer;
@@ -177,7 +174,6 @@
     font: inherit; font-size: 14px; font-weight: 600; transition: background .2s ease;
   }
   .p-back:hover { background: rgba(255, 255, 255, .07); }
-  .p-back [lang="en"] { font-size: 12px; color: var(--muted); }
   kbd { font-family: var(--mono); font-size: 11px; padding: 1px 6px; border-radius: 6px; border: 1px solid var(--edge-strong); color: var(--muted); }
 
   /* ----------------------------------------------------------------- dock */
@@ -217,7 +213,7 @@
   .ld p { margin: 6px 0 18px; font-size: 13px; color: var(--muted); }
   .ld .bar { height: 3px; border-radius: 3px; background: rgba(255, 255, 255, .08); overflow: hidden; }
   .ld .bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #6cb6ff, #ff4d5e); transition: width .35s ease; }
-  .ld .step { margin-top: 10px; font-family: var(--mono); font-size: 11px; color: var(--faint); direction: ltr; }
+  .ld .step { margin-top: 10px; font-family: var(--mono); font-size: 11px; color: var(--faint); }
   @keyframes pulse { 50% { transform: scale(1.35); opacity: .7; } }
 
   /* ------------------------------------------------------------- fallback */
@@ -230,7 +226,7 @@
   #fallback ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
   #fallback a { display: flex; justify-content: space-between; gap: 12px; padding: 14px 16px; border-radius: 14px; border: 1px solid var(--edge); color: var(--ink); text-decoration: none; background: rgba(255, 255, 255, .03); }
   #fallback a:hover { background: rgba(255, 255, 255, .07); }
-  #fallback a span { font-family: var(--en); color: var(--muted); font-size: 13px; direction: ltr; }
+  #fallback a span { color: var(--muted); font-size: 13px; font-family: var(--mono); }
 
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
@@ -242,11 +238,17 @@
     }
     #panel[hidden] { transform: translate3d(0, 24px, 0); }
     #panel h2 { font-size: 21px; }
-    .p-desc { font-size: 14px; line-height: 1.8; }
-    #brand { right: 10px; padding: 8px 12px; }
+    .p-desc { font-size: 14px; line-height: 1.65; }
+    #brand { left: 10px; padding: 8px 12px; }
     #brand span { display: none; }
     #hint { display: none; }
     #dock button { min-width: 60px; padding: 7px 6px 6px; font-size: 10.5px; }
+  }
+  @media (max-width: 440px) {
+    /* six buttons share the width instead of scrolling the last one off-screen */
+    #dock { width: calc(100vw - 20px); gap: 2px; padding: 6px; box-sizing: border-box; }
+    #dock button { flex: 1 1 0; min-width: 0; padding: 7px 2px 6px; font-size: 10px; }
+    #dock .sep { margin: 8px 1px; }
   }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { transition-duration: .01ms !important; animation: none !important; }
@@ -255,37 +257,36 @@
 </head>
 <body>
 
-<canvas id="scene" aria-label="اتاق سه‌بعدی یادگیری با پنج ایستگاه؛ از نوار پایین برای رفتن به هر ایستگاه استفاده کنید." role="img"></canvas>
+<canvas id="scene" aria-label="A 3D studio with five learning stations. Use the dock at the bottom to visit each one." role="img"></canvas>
 
 <a id="brand" class="glass" href="https://shahmohammadi.dev/" aria-label="shahmohammadi.dev">
   <i class="dot"></i>
-  <div><strong>اتاق یادگیری</strong><span>learn.shahmohammadi.dev</span></div>
+  <div><strong>Learning Hub</strong><span>learn.shahmohammadi.dev</span></div>
 </a>
 
-<div id="hint" class="glass"><b>بکشید</b> برای چرخش · <b>کلیک</b> روی هر ایستگاه · <kbd>Esc</kbd> بازگشت</div>
+<div id="hint" class="glass"><b>Drag</b> to look around · <b>Click</b> a station · <kbd>Esc</kbd> to go back</div>
 
 <div id="tooltip" class="glass" role="status" aria-live="polite">
-  <div class="t-fa"></div>
-  <div class="t-en" lang="en"></div>
-  <div class="t-hint">برای ورود کلیک کنید</div>
+  <div class="t-title"></div>
+  <div class="t-sub"></div>
+  <div class="t-hint">Click to enter</div>
 </div>
 
 <aside id="panel" class="glass" role="dialog" aria-labelledby="p-title" hidden>
-  <div class="p-head"><span class="p-index" id="p-index"></span><span class="p-en" id="p-en" lang="en"></span></div>
+  <div class="p-head"><span class="p-sub" id="p-sub"></span><span class="p-index" id="p-index"></span></div>
   <h2 id="p-title"></h2>
   <p class="p-desc" id="p-desc"></p>
-  <p class="p-desc-en" id="p-desc-en" lang="en"></p>
   <div class="p-actions" id="p-actions"></div>
-  <button class="p-back" id="p-back" type="button">بازگشت به اتاق <span lang="en">Back to Room</span> <kbd>Esc</kbd></button>
+  <button class="p-back" id="p-back" type="button">Back to Room <kbd>Esc</kbd></button>
 </aside>
 
-<nav id="dock" class="glass" aria-label="ایستگاه‌ها"></nav>
+<nav id="dock" class="glass" aria-label="Stations"></nav>
 
 <div id="loader" aria-hidden="true">
   <div class="ld">
     <div class="ld-mark"><i></i><s></s><b></b></div>
-    <h1>اتاق یادگیری</h1>
-    <p>در حال چیدن اتاق…</p>
+    <h1>Learning Hub</h1>
+    <p>Setting up the room…</p>
     <div class="bar"><i id="ld-bar"></i></div>
     <div class="step" id="ld-step">initialising</div>
   </div>
@@ -295,17 +296,17 @@
   THE LINKS. Single source of truth for every destination — the 3D room reads
   these hrefs by data-link. Also what a visitor without WebGL/JS sees.
 -->
-<nav id="fallback" aria-label="ایستگاه‌ها">
+<nav id="fallback" aria-label="Stations">
   <div class="fb">
-    <h1>اتاق یادگیری</h1>
-    <p>این صفحه یک اتاق سه‌بعدی است و به WebGL نیاز دارد. همهٔ مسیرها اینجا هم در دسترس‌اند:</p>
+    <h1>Learning Hub</h1>
+    <p>This page is a 3D room and needs WebGL. Every destination is here as well:</p>
     <ul>
-      <li><a data-link="website" href="https://shahmohammadi.dev">سایت اصلی <span>shahmohammadi.dev</span></a></li>
-      <li><a data-link="piano" href="https://learn.shahmohammadi.dev/piano">آموزش پیانو <span>Piano Tutorials</span></a></li>
-      <li><a data-link="fpga" href="https://learn.shahmohammadi.dev/fpga/fa/">دورهٔ FPGA <span>FPGA Course</span></a></li>
-      <li><a data-link="language" href="[INSERT_LANGUAGE_LEARNING_URL]">آموزش زبان <span>Language Learning</span></a></li>
-      <li><a data-link="bookreader" href="https://learn.shahmohammadi.dev/bookreader">کتابخوان <span>Book Reader</span></a></li>
-      <li><a data-link="maiman" href="https://maimanstudio.com">Maiman Studio <span>Optics &amp; Photonics</span></a></li>
+      <li><a data-link="website" href="https://shahmohammadi.dev">Main website <span>shahmohammadi.dev</span></a></li>
+      <li><a data-link="piano" href="https://learn.shahmohammadi.dev/piano">Piano tutorials <span>/piano</span></a></li>
+      <li><a data-link="fpga" href="https://learn.shahmohammadi.dev/fpga/fa/">FPGA course <span>/fpga/fa/</span></a></li>
+      <li><a data-link="language" href="[INSERT_LANGUAGE_LEARNING_URL]">Language learning <span>coming soon</span></a></li>
+      <li><a data-link="bookreader" href="https://learn.shahmohammadi.dev/bookreader">Book reader <span>/bookreader</span></a></li>
+      <li><a data-link="maiman" href="https://maimanstudio.com">Maiman Studio <span>maimanstudio.com</span></a></li>
     </ul>
   </div>
 </nav>
@@ -330,52 +331,46 @@ const isPlaceholder = (href) => !href || /INSERT_/i.test(href);
 
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const COARSE = matchMedia('(pointer: coarse)').matches;
-const FA_DIGITS = (n) => String(n).replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[d]);
-
+// UI is English for now. Persian (and RTL) is a planned second language.
 const STATIONS = [
   {
-    id: 'desk', key: '1', accent: '#6cb6ff',
-    fa: 'میز کامپیوتر', en: 'Main Website',
-    desc: 'پورتفولیو، رزومه و پروژه‌های مهندسی؛ نقطهٔ شروع آشنایی با کارهای من.',
-    descEn: 'Portfolio, résumé and engineering projects: the front door to my work.',
-    actions: [{ link: 'website', fa: 'ورود به سایت اصلی', en: 'shahmohammadi.dev' }],
+    id: 'desk', key: '1', accent: '#6cb6ff', dock: 'Website',
+    title: 'Computer Desk', sub: 'Main Website',
+    desc: 'Portfolio, résumé and engineering projects: the front door to my work.',
+    actions: [{ link: 'website', label: 'Open the main website', hint: 'shahmohammadi.dev' }],
     view: { az: 0.3, polar: 1.14, dist: 3.6 },
   },
   {
-    id: 'piano', key: '2', accent: '#ffc46b',
-    fa: 'گوشهٔ پیانو', en: 'Piano Tutorials',
-    desc: 'آموزش‌های پیانو، قدم‌به‌قدم و پشت همین کلاویه.',
-    descEn: 'Piano tutorials, step by step, at this very keyboard.',
-    actions: [{ link: 'piano', fa: 'شروع آموزش پیانو', en: '/piano' }],
+    id: 'piano', key: '2', accent: '#ffc46b', dock: 'Piano',
+    title: 'Piano Corner', sub: 'Piano Tutorials',
+    desc: 'Piano tutorials, step by step, at this very keyboard.',
+    actions: [{ link: 'piano', label: 'Start the piano lessons', hint: '/piano' }],
     view: { az: 1.22, polar: 1.1, dist: 3.5 },
   },
   {
-    id: 'fpga', key: '3', accent: '#4ff0b0',
-    fa: 'میز الکترونیک و FPGA', en: 'FPGA Course',
-    desc: 'دورهٔ FPGA به زبان فارسی؛ از منطق دیجیتال تا طراحی روی سخت‌افزار واقعی.',
-    descEn: 'A Persian-language FPGA course, from digital logic to designs on real hardware.',
-    actions: [{ link: 'fpga', fa: 'ورود به دورهٔ FPGA', en: '/fpga/fa/' }],
+    id: 'fpga', key: '3', accent: '#4ff0b0', dock: 'FPGA',
+    title: 'Electronics & FPGA Bench', sub: 'FPGA Course',
+    desc: 'An FPGA course, from digital logic to designs running on real hardware.',
+    actions: [{ link: 'fpga', label: 'Open the FPGA course', hint: '/fpga/fa/' }],
     view: { az: 0.42, polar: 1.1, dist: 3.8 },
   },
   {
-    id: 'books', key: '4', accent: '#c4a7ff',
-    fa: 'کتابخانه', en: 'Language & Book Reader',
-    desc: 'دو مسیر از یک قفسه: یادگیری زبان، یا کتابخوان برای مطالعه.',
-    descEn: 'Two paths from one shelf: language learning, or the book reader.',
+    id: 'books', key: '4', accent: '#c4a7ff', dock: 'Books',
+    title: 'Bookshelf', sub: 'Languages & Reading',
+    desc: 'Two paths from one shelf: learn a language, or open the book reader.',
     choice: true,
     actions: [
-      { link: 'language', fa: 'آموزش زبان', en: 'Language Learning', icon: 'lang' },
-      { link: 'bookreader', fa: 'کتابخوان', en: 'Book Reader', icon: 'book' },
+      { link: 'language', label: 'Language Learning', hint: 'Learn a language', icon: 'lang' },
+      { link: 'bookreader', label: 'Book Reader', hint: 'Read books', icon: 'book' },
     ],
     view: { az: 0.3, polar: 1.3, dist: 5.6 },
   },
   {
-    id: 'optics', key: '5', accent: '#ff5a6a',
-    fa: 'میز اپتیک و فوتونیک', en: 'Maiman Studio',
-    desc: 'Maiman Studio؛ شبیه‌ساز ماژولار لینک‌های مخابرات نوری و سیستم‌های فوتونیک.',
-    descEn: 'A modular simulator for optical communication links and photonic systems.',
-    actions: [{ link: 'maiman', fa: 'ورود به Maiman Studio', en: 'maimanstudio.com' }],
-    view: { az: 0.72, polar: 0.98, dist: 3.3 },
+    id: 'optics', key: '5', accent: '#ff5a6a', dock: 'Optics',
+    title: 'Optics & Photonics Bench', sub: 'Maiman Studio',
+    desc: 'Maiman Studio: a modular simulator for optical communication links and photonic systems.',
+    actions: [{ link: 'maiman', label: 'Open Maiman Studio', hint: 'maimanstudio.com' }],
+    view: { az: 1.3, polar: 1.1, dist: 3.9 },
   },
 ];
 const STATION = Object.fromEntries(STATIONS.map((s) => [s.id, s]));
@@ -530,7 +525,6 @@ function fitText(g, text, maxW, size, weight, family) {
   let s = size;
   do { g.font = `${weight} ${s}px ${family}`; s -= 1; } while (g.measureText(text).width > maxW && s > 6);
 }
-const FA = 'Vazirmatn, Tahoma, sans-serif';
 const EN = 'Inter, system-ui, sans-serif';
 const MONO = '"JetBrains Mono", ui-monospace, monospace';
 
@@ -859,25 +853,25 @@ function pcbTexture() {
 function labelTexture(w, h, draw) { return canvasTexture(w, h, draw); }
 
 function breadboardTexture() {
-  // 2.0 m × 1.0 m table, M6 holes on a 25 mm grid.
-  return canvasTexture(2048, 1024, (g, w, h) => {
+  // 0.9 m × 0.45 m breadboard, M6 holes on a 25 mm grid (36 × 18).
+  const COLS = 36, ROWS = 18, P = 32;
+  return canvasTexture(COLS * P, ROWS * P, (g, w, h) => {
     const n = makeNoise(9);
     const img = g.createImageData(w, h);
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-      const brushed = n(x * 0.004, y * 1.3) * 26 + n(x * 0.05, y * 0.6) * 10;
+      const brushed = n(x * 0.008, y * 1.3) * 26 + n(x * 0.1, y * 0.6) * 10;
       const v = 52 + brushed;
       const i = (y * w + x) * 4;
       img.data[i] = v; img.data[i + 1] = v + 2; img.data[i + 2] = v + 6; img.data[i + 3] = 255;
     }
     g.putImageData(img, 0, 0);
-    const pitch = w / 80;
-    for (let iy = 0; iy < 40; iy++) for (let ix = 0; ix < 80; ix++) {
-      const x = (ix + 0.5) * pitch, y = (iy + 0.5) * pitch;
-      g.fillStyle = 'rgba(160,168,178,0.55)'; g.beginPath(); g.arc(x, y + 0.6, 4.3, 0, 7); g.fill();
-      g.fillStyle = '#08090b'; g.beginPath(); g.arc(x, y, 3.5, 0, 7); g.fill();
+    for (let iy = 0; iy < ROWS; iy++) for (let ix = 0; ix < COLS; ix++) {
+      const x = (ix + 0.5) * P, y = (iy + 0.5) * P;
+      g.fillStyle = 'rgba(160,168,178,0.55)'; g.beginPath(); g.arc(x, y + 0.6, 4.6, 0, 7); g.fill();
+      g.fillStyle = '#08090b'; g.beginPath(); g.arc(x, y, 3.8, 0, 7); g.fill();
     }
-    g.fillStyle = 'rgba(210,215,225,0.5)'; g.font = `600 14px ${MONO}`;
-    g.fillText('M6 × 25 mm · OPTICAL BREADBOARD · FLATNESS ±0.1 mm/600 mm²', 30, h - 8);
+    g.fillStyle = 'rgba(210,215,225,0.5)'; g.font = `600 10px ${MONO}`;
+    g.fillText('M6 × 25 mm · OPTICAL BREADBOARD', 20, h - 4);
   });
 }
 
@@ -891,8 +885,8 @@ function bookAtlas() {
     ['Control Systems', 'en'], ['Embedded C', 'en'], ['RF Design', 'en'], ['Quantum Optics', 'en'], ['Linear Algebra', 'en'],
     ['Antenna Theory', 'en'], ['Harmony', 'en'], ['Piano Method', 'en'], ['Bach · Preludes', 'en'], ['Chopin · Nocturnes', 'en'],
     ['English Grammar', 'en'], ['Deutsch A1', 'en'], ['Français', 'en'], ['Español', 'en'], ['VLSI', 'en'], ['Calculus', 'en'],
-    ['دیوان حافظ', 'fa'], ['شاهنامه', 'fa'], ['مثنوی معنوی', 'fa'], ['گلستان سعدی', 'fa'], ['بوستان', 'fa'], ['رباعیات خیام', 'fa'],
-    ['الکترونیک', 'fa'], ['فیزیک نور', 'fa'], ['هارمونی', 'fa'], ['زبان انگلیسی', 'fa'], ['Data Structures', 'en'], ['Linux Kernel', 'en'],
+    ['Hafez · Divan', 'en'], ['Shahnameh', 'en'], ['Rumi · Masnavi', 'en'], ['Saadi · Gulistan', 'en'], ['Bustan', 'en'], ['Khayyam', 'en'],
+    ['Optoelectronics', 'en'], ['Wave Optics', 'en'], ['Counterpoint', 'en'], ['Vocabulary', 'en'], ['Data Structures', 'en'], ['Linux Kernel', 'en'],
     ['Optics', 'en'], ['Semiconductors', 'en'], ['Music Theory', 'en'], ['DSP', 'en'],
   ];
   const r = mulberry32(31);
@@ -916,13 +910,12 @@ function bookAtlas() {
       if (style === 0) { g.fillRect(x + 6, y + 40, CW - 12, 5); g.fillRect(x + 6, y + 52, CW - 12, 2); g.fillRect(x + 6, y + CH - 56, CW - 12, 2); g.fillRect(x + 6, y + CH - 46, CW - 12, 5); }
       else if (style === 1) { g.fillStyle = 'rgba(0,0,0,0.25)'; g.fillRect(x, y + 70, CW, 120); g.fillStyle = ink; }
       else { g.lineWidth = 2; g.strokeRect(x + 10, y + 26, CW - 20, CH - 52); }
-      const [title, lang] = titles[i % titles.length];
+      const [title] = titles[i % titles.length];
       g.save(); g.translate(x + CW / 2, y + CH / 2); g.rotate(Math.PI / 2);
       g.textAlign = 'center'; g.textBaseline = 'middle';
-      if (lang === 'fa') { g.direction = 'rtl'; fitText(g, title, CH * 0.62, 40, 700, FA); }
-      else { fitText(g, title.toUpperCase(), CH * 0.62, 34, 700, EN); }
+      fitText(g, title.toUpperCase(), CH * 0.62, 34, 700, EN);
       g.fillStyle = ink;
-      g.fillText(lang === 'fa' ? title : title.toUpperCase(), 0, 2);
+      g.fillText(title.toUpperCase(), 0, 2);
       g.restore();
       g.fillStyle = ink; g.globalAlpha = 0.85; g.beginPath(); g.arc(x + CW / 2, y + CH - 92, 9, 0, 7); g.fill(); g.globalAlpha = 1;
     }
@@ -935,8 +928,8 @@ function sheetMusicTexture() {
     const page = (ox, title) => {
       g.fillStyle = '#f3ecdc'; g.fillRect(ox + 6, 6, w / 2 - 12, h - 12);
       g.fillStyle = '#2b2620'; g.textAlign = 'center';
-      g.direction = 'rtl'; g.font = `700 30px ${FA}`; g.fillText(title, ox + w / 4, 56);
-      g.direction = 'ltr'; g.textAlign = 'left';
+      g.font = `700 28px ${EN}`; g.fillText(title, ox + w / 4, 56);
+      g.textAlign = 'left';
       const r = mulberry32(ox + 5);
       for (let s = 0; s < 4; s++) {
         const top = 100 + s * 148;
@@ -957,7 +950,7 @@ function sheetMusicTexture() {
         }
       }
     };
-    page(0, 'تمرین شمارهٔ ۱'); page(w / 2, 'پرلود در دو ماژور');
+    page(0, 'Étude No. 1'); page(w / 2, 'Prelude in C Major');
   });
 }
 
@@ -1033,7 +1026,7 @@ function posterRuby() {
     g.font = `800 54px ${EN}`; g.fillText('694.3 nm', w / 2, 500);
     g.font = `600 22px ${EN}`; g.fillStyle = '#ff6b7a'; g.fillText('THE RUBY LASER · 1960', w / 2, 540);
     g.font = `500 18px ${EN}`; g.fillStyle = '#a8a0a6'; g.fillText('T. H. Maiman, Hughes Research Laboratories', w / 2, 574);
-    g.direction = 'rtl'; g.font = `700 26px ${FA}`; g.fillStyle = '#e8e0e4'; g.fillText('نخستین لیزر جهان', w / 2, 120);
+    g.font = `700 24px ${EN}`; g.fillStyle = '#e8e0e4'; g.fillText('THE FIRST LASER', w / 2, 120);
     g.strokeStyle = 'rgba(255,255,255,0.15)'; g.lineWidth = 2; g.strokeRect(24, 24, w - 48, h - 48);
   });
 }
@@ -1055,8 +1048,8 @@ function posterFifths() {
       g.font = `600 17px ${EN}`; g.fillText(min[i], cx + Math.cos(a) * 101, cy + Math.sin(a) * 101);
     }
     g.fillStyle = '#1f1a16'; g.beginPath(); g.arc(cx, cy, 72, 0, 7); g.fill();
-    g.fillStyle = '#efe6d2'; g.direction = 'rtl'; g.font = `700 22px ${FA}`; g.fillText('دایرهٔ پنجم‌ها', cx, cy + 2);
-    g.direction = 'ltr'; g.fillStyle = '#1f1a16'; g.font = `700 20px ${EN}`; g.fillText('CIRCLE OF FIFTHS', cx, 30);
+    g.fillStyle = '#efe6d2'; g.font = `800 22px ${EN}`; g.fillText('♮ ♯ ♭', cx, cy + 2);
+    g.fillStyle = '#1f1a16'; g.font = `700 20px ${EN}`; g.fillText('CIRCLE OF FIFTHS', cx, 30);
   });
 }
 function posterMaxwell() {
@@ -1169,7 +1162,7 @@ function buildRoom() {
   for (let i = 0; i < 24; i++) box(slats, 0.045, 2.2, 0.03, slatWood, -0.92 + i * 0.08, 1.28, 0.02, 0.006);
 
   // Rug with fringe.
-  const rug = new THREE.Group(); rug.position.set(-1.15, 0, 0.15); g.add(rug);
+  const rug = new THREE.Group(); rug.position.set(-0.5, 0, 0.35); g.add(rug);
   const rugMat = new THREE.MeshStandardMaterial({ map: TEX.rug, roughness: 1, bumpMap: TEX.rug, bumpScale: 1.2 });
   const rugEdge = std('#3a141a', 1);
   const rm = box(rug, 2.6, 0.012, 1.8, [rugEdge, rugEdge, rugMat, rugEdge, rugEdge, rugEdge], 0, 0.006, 0, 0.004, 1);
@@ -1450,15 +1443,24 @@ function buildPiano() {
    8. STATION 3 — ELECTRONICS & FPGA WORKBENCH
    ========================================================================== */
 
-function buildWorkbench() {
-  const g = new THREE.Group(); g.name = 'fpga'; g.position.set(2.55, 0, -3.56); scene.add(g);
-  const top = 0.9;
+// The steel-framed butcher-block bench both lab stations stand on: 2.2 × 0.85 m,
+// local +z towards the room, a slatted shelf at 0.2 m. Returns the steel material.
+const BENCH_TOP = 0.9;
+function benchFrame(g) {
+  const top = BENCH_TOP;
   const steel = std('#2b2f36', 0.45, 0.75);
-  // Frame + butcher-block top + ESD mat.
   for (const sx of [-1, 1]) for (const sz of [-1, 1]) box(g, 0.05, top - 0.05, 0.05, steel, sx * 1.05, (top - 0.05) / 2, sz * 0.36, 0.006);
   box(g, 2.1, 0.04, 0.05, steel, 0, 0.18, 0.36, 0.006); box(g, 2.1, 0.04, 0.05, steel, 0, 0.18, -0.36, 0.006);
   box(g, 2.06, 0.025, 0.7, new THREE.MeshStandardMaterial({ map: TEX.woodLight, color: '#8a6a4a', roughness: 0.6 }), 0, 0.2, 0, 0.004);
   box(g, 2.2, 0.05, 0.85, new THREE.MeshStandardMaterial({ map: TEX.woodLight, roughness: 0.5 }), 0, top - 0.025, 0, 0.01);
+  return steel;
+}
+
+function buildWorkbench() {
+  const g = new THREE.Group(); g.name = 'fpga'; g.position.set(2.55, 0, -3.56); scene.add(g);
+  const top = BENCH_TOP;
+  // Frame + butcher-block top + ESD mat.
+  const steel = benchFrame(g);
   const esd = new THREE.MeshStandardMaterial({ map: TEX.esd, roughness: 0.88 });
   box(g, 2.06, 0.004, 0.74, esd, 0, top + 0.002, 0.02, 0.002, 1);
   // Storage bins on the lower shelf.
@@ -1781,56 +1783,80 @@ let posterRubyMini;
    ========================================================================== */
 
 function buildOptics() {
-  const g = new THREE.Group(); g.name = 'optics'; g.position.set(1.7, 0, 1.3); scene.add(g);
-  const TOP = 0.82, HB = TOP + 0.105; // breadboard top, beam height
+  // A second lab bench against the left wall, the same frame as the FPGA one.
+  // Local +x runs along the wall towards the bookshelf; local +z faces the room.
+  const g = new THREE.Group(); g.name = 'optics';
+  g.position.set(ROOM.x0 + 0.435, 0, -2.25); g.rotation.y = Math.PI / 2;
+  scene.add(g);
+  const top = BENCH_TOP;
+  const steel = benchFrame(g);
   const anodBlack = std('#16171a', 0.38, 0.6);
-  const steel = std('#c6cbd2', 0.25, 1);
-  // Vibration-isolation legs + frame.
-  const legMat = std('#2b2e34', 0.5, 0.5);
-  for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
-    const x = sx * 0.82, z = sz * 0.36;
-    cyl(g, 0.07, 0.075, TOP - 0.1, legMat, x, (TOP - 0.1) / 2, z, 32);
-    cyl(g, 0.078, 0.078, 0.02, steel, x, TOP - 0.11, z, 32);
-    cyl(g, 0.06, 0.06, 0.03, std('#111', 0.8), x, TOP - 0.085, z, 24);
-    cyl(g, 0.09, 0.09, 0.02, legMat, x, 0.01, z, 32);
-  }
-  box(g, 1.55, 0.05, 0.05, legMat, 0, 0.2, 0.36, 0.006); box(g, 1.55, 0.05, 0.05, legMat, 0, 0.2, -0.36, 0.006);
-  box(g, 0.05, 0.05, 0.62, legMat, 0.82, 0.2, 0, 0.006); box(g, 0.05, 0.05, 0.62, legMat, -0.82, 0.2, 0, 0.006);
-  // Perforated breadboard: brushed anodised top, honeycomb-core edge band.
+  const chrome = std('#c6cbd2', 0.25, 1);
+  const jacketSM = std('#ffc21a', 0.45);   // single-mode patch cord
+  const jacketMM = std('#3fc9cf', 0.45);   // OM3/OM4 aqua
+  const black = std('#111', 0.5);
+  const v3 = (x, y, z) => new THREE.Vector3(x, y, z);
+  const at = (obj, x, y, z) => { obj.updateMatrix(); return v3(x, y, z).applyMatrix4(obj.matrix); };
+  const axis = (obj, x, y, z) => v3(x, y, z).applyQuaternion(obj.quaternion);
+
+  // A connector plugged in at p, cable leaving along dir. Returns where the jacket starts.
+  const plug = (p, dir, color, len = 0.02) => {
+    const d = dir.clone().normalize();
+    const q = new THREE.Group(); q.position.copy(p); q.quaternion.setFromUnitVectors(v3(1, 0, 0), d); g.add(q);
+    box(q, len, 0.0075, 0.0075, std(color, 0.45), len / 2, 0, 0, 0.0015);
+    const b = cyl(q, 0.0032, 0.0046, 0.024, std(color, 0.55), len + 0.012, 0, 0, 12); b.rotation.z = -Math.PI / 2;
+    return p.clone().addScaledVector(d, len + 0.024);
+  };
+
+  // ---------- Under the bench: fibre reels and a parts bin ----------
+  const shelfY = 0.2125;
+  [['#ffc21a', -0.78], ['#3fc9cf', -0.5], ['#ff7a1a', -0.22]].forEach(([c, x]) => {
+    const reel = new THREE.Group(); reel.position.set(x, shelfY + 0.095, 0.04); reel.rotation.x = Math.PI / 2; g.add(reel);
+    const fl = std('#1c1e22', 0.5, 0.1);
+    cyl(reel, 0.095, 0.095, 0.006, fl, 0, 0.032, 0, 40); cyl(reel, 0.095, 0.095, 0.006, fl, 0, -0.032, 0, 40);
+    cyl(reel, 0.072, 0.072, 0.058, std(c, 0.55), 0, 0, 0, 40);
+    cyl(reel, 0.022, 0.022, 0.07, std('#d9dde3', 0.4, 0.6), 0, 0, 0, 20);
+  });
+  ['#27496b', '#6b2c27', '#27496b'].forEach((c, i) => box(g, 0.3, 0.16, 0.38, std(c, 0.65), 0.2 + i * 0.36, 0.295, 0.02, 0.012));
+
+  // ---------- Compact optical breadboard ----------
+  const BB = { x: 0.05, z: -0.175, w: 0.9, d: 0.45, h: 0.035 };
+  const TOP = top + BB.h, HB = TOP + 0.105; // breadboard top, beam height
   const bbTop = new THREE.MeshStandardMaterial({ map: TEX.breadboard, roughness: 0.42, metalness: 0.55, bumpMap: TEX.breadboard, bumpScale: 1.2 });
   const bbSide = std('#1d1f24', 0.4, 0.7);
-  box(g, 2.0, 0.07, 1.0, [bbSide, bbSide, bbTop, bbSide, bbSide, bbSide], 0, TOP - 0.035, 0, 0.004, 1);
-  box(g, 2.004, 0.012, 1.004, std('#7a1222', 0.6), 0, TOP - 0.055, 0); // trim stripe
+  box(g, BB.w, BB.h, BB.d, [bbSide, bbSide, bbTop, bbSide, bbSide, bbSide], BB.x, top + BB.h / 2, BB.z, 0.003, 1);
+  box(g, BB.w + 0.004, 0.008, BB.d + 0.004, std('#7a1222', 0.6), BB.x, top + 0.008, BB.z); // trim stripe
 
   // Post + post-holder + base, the common mount under every optic.
   const post = (x, z, h) => {
     const p = new THREE.Group(); p.position.set(x, TOP, z); g.add(p);
     box(p, 0.03, 0.008, 0.07, anodBlack, 0, 0.004, 0, 0.002);
     cyl(p, 0.0105, 0.0105, 0.055, anodBlack, 0, 0.0355, 0, 20);
-    cyl(p, 0.0064, 0.0064, h, steel, 0, 0.06 + h / 2 - 0.02, 0, 16);
-    const screw = cyl(p, 0.003, 0.003, 0.012, steel, 0.0115, 0.05, 0, 8); screw.rotation.z = Math.PI / 2;
+    cyl(p, 0.0064, 0.0064, h, chrome, 0, 0.04 + h / 2, 0, 16);
+    const screw = cyl(p, 0.003, 0.003, 0.012, chrome, 0.0115, 0.05, 0, 8); screw.rotation.z = Math.PI / 2;
     return p;
   };
   const postTo = (x, z, y) => post(x, z, y - TOP - 0.04);
 
-  // Beam geometry (table-local).
-  const P0 = new THREE.Vector3(-0.72, HB, -0.25); // diode aperture
-  const P1 = new THREE.Vector3(0.25, HB, -0.25);  // M1 (90° fold)
-  const P2 = new THREE.Vector3(0.25, HB, 0.16);   // beamsplitter
-  const P3 = new THREE.Vector3(0.25, HB, 0.4);    // detector
-  const P4 = new THREE.Vector3(0.7, HB, 0.16);    // fibre collimator
+  // Beam path: diode → iris → fold mirror → lens → beamsplitter → detector, and a
+  // sampled branch into a fibre collimator.
+  const P0 = v3(-0.3, HB, -0.3);  // diode aperture
+  const P1 = v3(0.22, HB, -0.3);  // M1 (90° fold)
+  const P2 = v3(0.22, HB, -0.1);  // beamsplitter
+  const P3 = v3(0.22, HB, 0.0);   // detector
+  const P4 = v3(0.4, HB, -0.1);   // fibre collimator
 
   // Laser diode in a finned TEC mount.
-  const ld = new THREE.Group(); ld.position.set(-0.8, HB, -0.25); g.add(ld);
+  const ld = new THREE.Group(); ld.position.set(P0.x - 0.0815, HB, P0.z); g.add(ld);
   box(ld, 0.06, 0.05, 0.05, anodBlack, 0, 0, 0, 0.004);
   for (let i = 0; i < 7; i++) box(ld, 0.055, 0.003, 0.06, std('#2a2d33', 0.4, 0.8), 0, 0.03 + i * 0.006, 0, 0);
-  const em = cyl(ld, 0.012, 0.012, 0.05, steel, 0.05, 0, 0, 24); em.rotation.z = Math.PI / 2;
+  const em = cyl(ld, 0.012, 0.012, 0.05, chrome, 0.05, 0, 0, 24); em.rotation.z = Math.PI / 2;
   const ap = cyl(ld, 0.009, 0.009, 0.006, std('#0c0c0e', 0.5), 0.078, 0, 0, 20); ap.rotation.z = Math.PI / 2;
   mesh(new THREE.CircleGeometry(0.004, 16), glowMat('#ff3030', 6), ld, 0.0815, 0, 0, false).rotation.y = Math.PI / 2;
-  postTo(-0.8, -0.25, HB - 0.025);
+  postTo(ld.position.x, P0.z, HB - 0.025);
   // Driver with key switch, emission LED and a safety label.
-  const drv = new THREE.Group(); drv.position.set(-0.78, TOP, 0.12); drv.rotation.y = 0.25; g.add(drv);
-  box(drv, 0.18, 0.07, 0.14, std('#2a2d33', 0.45, 0.3), 0, 0.035, 0, 0.008);
+  const drv = new THREE.Group(); drv.position.set(-0.27, TOP, -0.09); drv.rotation.y = 0.2; g.add(drv);
+  box(drv, 0.15, 0.06, 0.12, std('#2a2d33', 0.45, 0.3), 0, 0.03, 0, 0.008);
   const warn = labelTexture(256, 128, (c, w, h) => {
     c.fillStyle = '#ffcc00'; c.fillRect(0, 0, w, h); c.fillStyle = '#111';
     c.beginPath(); c.moveTo(46, 18); c.lineTo(84, 92); c.lineTo(8, 92); c.closePath(); c.lineWidth = 7; c.strokeStyle = '#111'; c.stroke();
@@ -1838,19 +1864,18 @@ function buildOptics() {
     c.font = `800 22px ${EN}`; c.fillText('LASER', 100, 48); c.font = `700 15px ${EN}`; c.fillText('RADIATION', 100, 70); c.fillText('CLASS 3B', 100, 92);
     c.font = `600 13px ${MONO}`; c.fillText('λ 650 nm · 5 mW', 12, 118);
   });
-  mesh(new THREE.PlaneGeometry(0.1, 0.05), std('#fff', 0.5, 0, { map: warn }), drv, 0.02, 0.071, 0, false).rotation.x = -Math.PI / 2;
-  const emLed = glowMat('#ff2a2a', 5); mesh(new THREE.CircleGeometry(0.005, 16), emLed, drv, -0.06, 0.04, 0.0705, false);
-  const key = cyl(drv, 0.008, 0.008, 0.012, steel, -0.03, 0.04, 0.074, 16); key.rotation.x = Math.PI / 2;
-  const knobD = cyl(drv, 0.012, 0.012, 0.012, anodBlack, 0.04, 0.04, 0.074, 20); knobD.rotation.x = Math.PI / 2;
-  drv.updateMatrix();
-  tube([new THREE.Vector3(-0.07, 0.035, -0.07).applyMatrix4(drv.matrix), new THREE.Vector3(-0.85, TOP + 0.01, -0.05), new THREE.Vector3(-0.86, TOP + 0.02, -0.2), new THREE.Vector3(-0.83, HB - 0.01, -0.25)], 0.003, std('#111', 0.5), g, 40, 6);
+  mesh(new THREE.PlaneGeometry(0.09, 0.045), std('#fff', 0.5, 0, { map: warn }), drv, 0.01, 0.0605, 0, false).rotation.x = -Math.PI / 2;
+  const emLed = glowMat('#ff2a2a', 5); mesh(new THREE.CircleGeometry(0.005, 16), emLed, drv, -0.05, 0.034, 0.0605, false);
+  const key = cyl(drv, 0.008, 0.008, 0.012, chrome, -0.02, 0.034, 0.064, 16); key.rotation.x = Math.PI / 2;
+  const knobD = cyl(drv, 0.011, 0.011, 0.012, anodBlack, 0.035, 0.034, 0.064, 20); knobD.rotation.x = Math.PI / 2;
+  tube([at(drv, -0.06, 0.03, -0.06), v3(-0.36, TOP + 0.01, -0.17), v3(-0.4, TOP + 0.03, -0.27), v3(ld.position.x - 0.03, HB - 0.01, P0.z)], 0.003, black, g, 40, 6);
 
   // Iris diaphragm.
-  const iris = new THREE.Group(); iris.position.set(-0.35, HB, -0.25); iris.rotation.y = Math.PI / 2; g.add(iris);
+  const iris = new THREE.Group(); iris.position.set(-0.12, HB, P0.z); iris.rotation.y = Math.PI / 2; g.add(iris);
   mesh(new THREE.RingGeometry(0.004, 0.022, 32), new THREE.MeshStandardMaterial({ color: '#0d0d0f', roughness: 0.5, metalness: 0.4, side: THREE.DoubleSide }), iris);
   mesh(new THREE.TorusGeometry(0.023, 0.004, 10, 32), anodBlack, iris);
-  box(iris, 0.004, 0.012, 0.004, steel, 0.02, 0.02, 0, 0.001);
-  postTo(-0.35, -0.25, HB - 0.027);
+  box(iris, 0.004, 0.012, 0.004, chrome, 0.02, 0.02, 0, 0.001);
+  postTo(-0.12, P0.z, HB - 0.027);
 
   // Kinematic mirror mount: two plates, mirror, two adjusters.
   const mirrorMount = (p, normal) => {
@@ -1862,18 +1887,18 @@ function buildOptics() {
     postTo(p.x, p.z, p.y - 0.021);
     return m;
   };
-  mirrorMount(P1, new THREE.Vector3(-1, 0, 1).normalize());
+  mirrorMount(P1, v3(-1, 0, 1).normalize());
 
   // Biconvex lens (real transmission + IOR) in a ring mount.
-  const LZ = -0.04;
+  const LZ = -0.2;
   const prof = [];
   const RL = 0.0127, tc = 0.0045;
   for (let i = 0; i <= 12; i++) { const r = RL * i / 12; prof.push([r, -tc * (1 - (r / RL) ** 2) - 0.0008]); }
   for (let i = 12; i >= 0; i--) { const r = RL * i / 12; prof.push([r, tc * (1 - (r / RL) ** 2) + 0.0008]); }
   const lensMat = new THREE.MeshPhysicalMaterial({ color: '#ffffff', metalness: 0, roughness: 0.02, transmission: 1, thickness: 0.01, ior: 1.517, attenuationColor: '#e8fbff', attenuationDistance: 0.6, specularIntensity: 1, clearcoat: 1 });
-  const lens = lathe(prof, lensMat, g, 48); lens.position.set(0.25, HB, LZ); lens.rotation.x = Math.PI / 2; lens.castShadow = false;
-  const lr = mesh(new THREE.TorusGeometry(0.0145, 0.003, 12, 40), anodBlack, g, 0.25, HB, LZ);
-  postTo(0.25, LZ, HB - 0.017);
+  const lens = lathe(prof, lensMat, g, 48); lens.position.set(P1.x, HB, LZ); lens.rotation.x = Math.PI / 2; lens.castShadow = false;
+  mesh(new THREE.TorusGeometry(0.0145, 0.003, 12, 40), anodBlack, g, P1.x, HB, LZ);
+  postTo(P1.x, LZ, HB - 0.017);
 
   // Beamsplitter cube with its coated diagonal.
   const bs = new THREE.Group(); bs.position.copy(P2); g.add(bs);
@@ -1884,42 +1909,246 @@ function buildOptics() {
   box(bs, 0.04, 0.006, 0.04, anodBlack, 0, -0.019, 0, 0.002);
   postTo(P2.x, P2.z, HB - 0.022);
 
-  // Detector / power-meter sensor head facing the beam, with a console.
+  // Free-space detector head at the end of the straight-through arm.
   const det = new THREE.Group(); det.position.copy(P3); g.add(det);
   const head = cyl(det, 0.024, 0.024, 0.024, anodBlack, 0, 0, 0.012, 32); head.rotation.x = Math.PI / 2;
-  const rim = cyl(det, 0.026, 0.026, 0.004, steel, 0, 0, 0.0, 32); rim.rotation.x = Math.PI / 2;
+  const rim = cyl(det, 0.026, 0.026, 0.004, chrome, 0, 0, 0.0, 32); rim.rotation.x = Math.PI / 2;
   mesh(new THREE.CircleGeometry(0.017, 32), std('#26282c', 0.7, 0.2), det, 0, 0, -0.0025, false).rotation.y = Math.PI;
   postTo(P3.x, P3.z + 0.012, HB - 0.024);
-  const pm = new THREE.Group(); pm.position.set(-0.22, TOP, 0.33); pm.rotation.y = 0.35; g.add(pm);
-  box(pm, 0.13, 0.03, 0.09, std('#25282e', 0.5, 0.2), 0, 0.015, 0, 0.008);
-  const face = new THREE.Group(); face.position.set(0, 0.03, 0.01); face.rotation.x = -0.9; pm.add(face);
-  box(face, 0.13, 0.08, 0.02, std('#25282e', 0.5, 0.2), 0, 0.04, 0, 0.008);
-  const pmTex = canvasTexture(256, 128, () => {}, { mips: false });
-  const drawPM = (v) => { const c = pmTex.userData.ctx; c.fillStyle = '#061018'; c.fillRect(0, 0, 256, 128); c.fillStyle = '#6fe8ff'; c.font = `700 50px ${MONO}`; c.fillText(v.toFixed(2), 20, 72); c.font = `600 24px ${MONO}`; c.fillText('mW', 186, 72); c.fillStyle = '#3c8ca8'; c.font = `500 17px ${MONO}`; c.fillText('λ 650nm  RANGE 20mW', 20, 108); pmTex.needsUpdate = true; };
-  drawPM(2.47);
-  mesh(new THREE.PlaneGeometry(0.1, 0.05), new THREE.MeshBasicMaterial({ map: pmTex, color: new THREE.Color(1.5, 1.5, 1.5) }), face, 0, 0.045, 0.0102, false);
-  pm.updateMatrix();
-  tube([new THREE.Vector3(0, 0, -0.02).add(P3).setY(HB - 0.01), new THREE.Vector3(0.25, TOP + 0.01, 0.47), new THREE.Vector3(0.0, TOP + 0.008, 0.44), new THREE.Vector3(-0.15, TOP + 0.01, 0.38), new THREE.Vector3(0.06, 0.02, -0.03).applyMatrix4(pm.matrix)], 0.0025, std('#111', 0.5), g, 50, 6);
+  tube([v3(P3.x, HB - 0.01, P3.z + 0.026), v3(P3.x + 0.03, TOP + 0.02, P3.z + 0.05), v3(0.47, top + 0.008, 0.06), v3(0.6, top + 0.008, -0.2), v3(0.62, top + 0.01, -0.41), v3(0.62, top - 0.1, -0.43)], 0.0025, black, g, 60, 6);
 
-  // Fibre collimator (on a kinematic mount) + coiled yellow patch cord with orange boots.
+  // Fibre collimator on its own mount; the sampled beam goes to the power meter.
   const fc = new THREE.Group(); fc.position.copy(P4); g.add(fc);
-  const col = cyl(fc, 0.007, 0.007, 0.04, steel, 0.01, 0, 0, 20); col.rotation.z = Math.PI / 2;
+  const col = cyl(fc, 0.007, 0.007, 0.04, chrome, 0.01, 0, 0, 20); col.rotation.z = Math.PI / 2;
   box(fc, 0.009, 0.04, 0.04, anodBlack, 0.03, 0, 0, 0.003);
-  const boot = cyl(fc, 0.005, 0.0035, 0.03, std('#ff7a1a', 0.5), 0.05, 0, 0, 16); boot.rotation.z = Math.PI / 2;
+  const fboot = cyl(fc, 0.0035, 0.005, 0.03, std('#2f6fd6', 0.5), 0.05, 0, 0, 16); fboot.rotation.z = -Math.PI / 2;
   postTo(P4.x + 0.02, P4.z, HB - 0.021);
-  const jacket = std('#ffc21a', 0.45);
-  const coilPts = [new THREE.Vector3(P4.x + 0.065, HB, P4.z), new THREE.Vector3(P4.x + 0.12, HB - 0.04, P4.z - 0.02), new THREE.Vector3(0.83, TOP + 0.01, 0.0)];
-  const cc = new THREE.Vector3(0.7, TOP, -0.2);
-  for (let i = 0; i <= 160; i++) { const a = i / 160 * Math.PI * 2 * 5; const r = 0.1 - i / 160 * 0.045; coilPts.push(new THREE.Vector3(cc.x + Math.cos(a) * r, TOP + 0.0035 + Math.sin(a * 3) * 0.0008, cc.z + Math.sin(a) * r * 0.92)); }
-  coilPts.push(new THREE.Vector3(0.6, TOP + 0.006, -0.34), new THREE.Vector3(0.45, TOP + 0.006, -0.38));
-  mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(coilPts), 800, 0.0028, 6), jacket, g);
-  const endBoot = cyl(g, 0.005, 0.0035, 0.03, std('#ff7a1a', 0.5), 0.43, TOP + 0.006, -0.385, 16); endBoot.rotation.z = Math.PI / 2;
-  const fcCap = cyl(g, 0.0045, 0.0045, 0.012, std('#d9dde3', 0.3, 0.9), 0.41, TOP + 0.006, -0.387, 16); fcCap.rotation.z = Math.PI / 2;
 
-  // Safety goggles resting on the table (a lens band + strap).
-  const gog = new THREE.Group(); gog.position.set(-0.45, TOP + 0.02, 0.36); gog.rotation.set(-0.2, 0.5, 0); g.add(gog);
+  // ---------- EXFO OSA (benchtop) ----------
+  const osa = new THREE.Group(); osa.position.set(-0.74, top, -0.17); osa.rotation.y = 0.2; g.add(osa);
+  const OW = 0.42, OH = 0.2, OD = 0.32, OY = 0.012 + OH / 2;
+  box(osa, OW, OH, OD, std('#3a3f47', 0.5, 0.25), 0, OY, 0, 0.012);
+  box(osa, OW, 0.012, OD, std('#14161a', 0.6), 0, 0.006, 0, 0.004);               // feet rail
+  box(osa, OW - 0.06, OH - 0.04, 0.03, std('#2b2f36', 0.6), 0, OY, -OD / 2 - 0.012, 0.02); // rear fan housing
+  for (const s of [-1, 1]) {                                                       // front handles
+    box(osa, 0.016, OH - 0.02, 0.012, chrome, s * (OW / 2 - 0.006), OY, OD / 2 + 0.018, 0.004);
+    for (const yy of [-1, 1]) box(osa, 0.016, 0.014, 0.024, chrome, s * (OW / 2 - 0.006), OY + yy * (OH / 2 - 0.02), OD / 2 + 0.008, 0.003);
+  }
+  const osaFace = canvasTexture(1024, 488, (c, w, h) => {
+    c.fillStyle = '#23262c'; c.fillRect(0, 0, w, h);
+    c.fillStyle = '#0b0d10'; roundRect(c, 40, 30, 626, 382, 10); c.fill();
+    c.fillStyle = '#f2f4f7'; c.font = `800 64px ${EN}`; c.fillText('EXFO', 700, 86);
+    c.fillStyle = '#9aa0aa'; c.font = `600 17px ${MONO}`; c.fillText('OPTICAL SPECTRUM ANALYZER', 702, 116);
+    c.fillText('1250 – 1650 nm', 702, 140);
+    const keys = ['CENTER', 'SPAN', 'RBW', 'PEAK', 'MARKER', 'SWEEP'];
+    keys.forEach((k, i) => {
+      const x = 702 + (i % 3) * 102, y = 166 + Math.floor(i / 3) * 64;
+      c.fillStyle = '#3a3e46'; roundRect(c, x, y, 90, 46, 8); c.fill();
+      c.fillStyle = '#d6dae0'; c.font = `600 15px ${MONO}`; c.textAlign = 'center'; c.fillText(k, x + 45, y + 29); c.textAlign = 'left';
+    });
+    c.fillStyle = '#9aa0aa'; c.font = `600 15px ${MONO}`; c.fillText('OPTICAL IN', 868, 340); c.fillText('SM · FC/APC', 868, 360);
+    c.strokeStyle = '#4ff0b0'; c.lineWidth = 3; c.beginPath(); c.arc(930, 400, 30, 0, 7); c.stroke();
+    c.fillStyle = '#5a606a'; c.font = `600 14px ${MONO}`; c.fillText('POWER', 702, 460);
+  });
+  mesh(new THREE.PlaneGeometry(OW, OH), std('#ffffff', 0.55, 0.1, { map: osaFace }), osa, 0, OY, OD / 2 + 0.0008, false);
+  // The spectrum: a 1310 nm DFB line off the TOSA, side modes ~40 dB down.
+  const spec = canvasTexture(512, 300, () => {}, { mips: false });
+  const drawSpec = (t) => {
+    const c = spec.userData.ctx, W = 512, H = 300;
+    c.fillStyle = '#040810'; c.fillRect(0, 0, W, H);
+    const gx0 = 34, gy0 = 34, gw = W - 48, gh = H - 74;
+    c.strokeStyle = '#10283c'; c.lineWidth = 1;
+    for (let i = 0; i <= 10; i++) { const x = gx0 + gw * i / 10; c.beginPath(); c.moveTo(x, gy0); c.lineTo(x, gy0 + gh); c.stroke(); }
+    for (let i = 0; i <= 8; i++) { const y = gy0 + gh * i / 8; c.beginPath(); c.moveTo(gx0, y); c.lineTo(gx0 + gw, y); c.stroke(); }
+    c.fillStyle = '#7fb8d8'; c.font = `600 13px ${MONO}`;
+    c.fillText('EXFO  OSA', 10, 20); c.fillText('CTR 1310.00 nm  SPAN 10 nm  RBW 0.07 nm', 112, 20);
+    const top0 = -2.3 + (REDUCED ? 0 : Math.sin(t * 0.9) * 0.15);
+    const dB = (x) => {
+      const nm = (x - 0.5) * 10;
+      let v = -68 + (REDUCED ? 0 : (Math.random() - 0.5) * 2.6);
+      v = Math.max(v, top0 - 10 * Math.log10(1 + (nm / 0.035) ** 2) * 1.6);
+      for (const k of [-3, -2, -1, 1, 2, 3]) v = Math.max(v, top0 - 40 - Math.abs(k) * 3 - 10 * Math.log10(1 + ((nm - k * 1.12) / 0.03) ** 2) * 1.6);
+      return v;
+    };
+    const yOf = (v) => gy0 + gh * (0 - v) / 80;
+    c.strokeStyle = '#ffd84a'; c.lineWidth = 2; c.beginPath();
+    for (let i = 0; i <= 400; i++) { const x = i / 400; const y = yOf(dB(x)); if (i) c.lineTo(gx0 + gw * x, y); else c.moveTo(gx0, y); }
+    c.stroke();
+    const px = gx0 + gw * 0.5, py = yOf(top0);
+    c.fillStyle = '#4ff0b0'; c.beginPath(); c.moveTo(px, py - 4); c.lineTo(px - 6, py - 14); c.lineTo(px + 6, py - 14); c.fill();
+    c.fillStyle = '#4ff0b0'; c.font = `700 15px ${MONO}`;
+    c.fillText(`A  1310.21 nm   ${top0.toFixed(1)} dBm   SMSR ${(40 + 3 + (REDUCED ? 0 : Math.random() * 0.4)).toFixed(1)} dB`, 34, H - 16);
+    spec.needsUpdate = true;
+  };
+  drawSpec(0);
+  const specMat = new THREE.MeshPhysicalMaterial({ color: '#000', emissive: '#fff', emissiveMap: spec, emissiveIntensity: 1.9, roughness: 0.15, clearcoat: 1, clearcoatRoughness: 0.05 });
+  // Screen rect on the face texture: x 40..666, y 30..412 of 1024 × 488.
+  const sx = ((40 + 666) / 2 / 1024 - 0.5) * OW, sy = (0.5 - (30 + 412) / 2 / 488) * OH;
+  mesh(new THREE.PlaneGeometry(OW * 0.596, OH * 0.765), specMat, osa, sx, OY + sy, OD / 2 + 0.0016, false);
+  const pxToOsa = (px, py) => [(px / 1024 - 0.5) * OW, OY + (0.5 - py / 488) * OH];
+  { const [kx, ky] = pxToOsa(760, 400); const k = cyl(osa, 0.016, 0.017, 0.014, std('#3a3e46', 0.45, 0.3), kx, ky, OD / 2 + 0.007, 28); k.rotation.x = Math.PI / 2; }
+  const [cx, cy] = pxToOsa(930, 400);
+  const port = cyl(osa, 0.006, 0.006, 0.012, chrome, cx, cy, OD / 2 + 0.006, 16); port.rotation.x = Math.PI / 2;
+  const [lx, ly] = pxToOsa(690, 455);
+  mesh(new THREE.CircleGeometry(0.003, 12), glowMat('#3aff8a', 4), osa, lx, ly, OD / 2 + 0.0016, false);
+  const osaIn = at(osa, cx, cy, OD / 2 + 0.012), osaOut = axis(osa, 0, 0, 1);
+
+  // ---------- TOSA / ROSA evaluation board ----------
+  const pcb = new THREE.Group(); pcb.position.set(-0.3, top + 0.012, 0.24); pcb.rotation.y = 0.06; g.add(pcb);
+  const PW = 0.26, PD = 0.17;
+  const pcbTex = canvasTexture(1024, 670, (c, w, h) => {
+    c.fillStyle = '#0f5a2e'; c.fillRect(0, 0, w, h);
+    c.strokeStyle = '#1d7a42'; c.lineWidth = 6;
+    for (let i = 0; i < 2; i++) { c.beginPath(); c.moveTo(120, 210 + i * 14); c.lineTo(260, 210 + i * 14); c.lineTo(300, 250 + i * 14); c.lineTo(820, 250 + i * 14); c.lineTo(900, 190 + i * 14); c.stroke(); }
+    for (let i = 0; i < 2; i++) { c.beginPath(); c.moveTo(120, 450 + i * 14); c.lineTo(260, 450 + i * 14); c.lineTo(300, 410 + i * 14); c.lineTo(820, 410 + i * 14); c.lineTo(900, 470 + i * 14); c.stroke(); }
+    c.lineWidth = 3; for (let i = 0; i < 24; i++) { c.beginPath(); c.moveTo(430 + i * 14, 330); c.lineTo(430 + i * 14, 300 + (i % 3) * 20); c.stroke(); }
+    c.fillStyle = '#d4b45a'; for (let i = 0; i < 40; i++) c.fillRect(380 + (i % 20) * 22, i < 20 ? 140 : 520, 10, 14);
+    c.fillStyle = '#f1f3ee'; c.font = `800 44px ${EN}`; c.fillText('TOSA', 40, 150); c.fillText('ROSA', 40, 560);
+    c.font = `700 26px ${MONO}`; c.fillText('TX', 900, 160); c.fillText('RX', 900, 540);
+    c.font = `700 30px ${EN}`; c.fillText('OPTICAL TRANSCEIVER EVAL', 330, 620);
+    c.font = `600 22px ${MONO}`; c.fillText('REV B · 10G · 1310 nm', 330, 652); c.fillText('LDD', 330, 210); c.fillText('TIA/LA', 330, 470);
+    c.strokeStyle = '#f1f3ee'; c.lineWidth = 3; c.strokeRect(300, 165, 90, 90); c.strokeRect(300, 395, 90, 90); c.strokeRect(560, 280, 120, 120);
+    for (const [x, y] of [[20, 20], [w - 20, 20], [20, h - 20], [w - 20, h - 20]]) { c.fillStyle = '#d4b45a'; c.beginPath(); c.arc(x, y, 14, 0, 7); c.fill(); c.fillStyle = '#0b0d0c'; c.beginPath(); c.arc(x, y, 7, 0, 7); c.fill(); }
+  });
+  const fr4 = std('#0d3b22', 0.7);
+  box(pcb, PW, 0.0035, PD, [fr4, fr4, new THREE.MeshStandardMaterial({ map: pcbTex, roughness: 0.7, metalness: 0 }), fr4, fr4, fr4], 0, 0, 0);
+  for (const sx of [-1, 1]) for (const sz of [-1, 1]) cyl(pcb, 0.004, 0.004, 0.012, chrome, sx * (PW / 2 - 0.005), -0.0075, sz * (PD / 2 - 0.005), 10);
+  const px2 = (px, pz) => [(px / 1024 - 0.5) * PW, (pz / 670 - 0.5) * PD];
+  const kovar = std('#c9b37a', 0.3, 0.9);
+  const osaPart = (pz, capColor) => {
+    // A TO-can sub-assembly in an LC receptacle, axis along local −x, overhanging the edge.
+    const [, z] = px2(0, pz);
+    const y = 0.0085;
+    const can = cyl(pcb, 0.0068, 0.0068, 0.016, kovar, -PW / 2 + 0.024, y, z, 20); can.rotation.z = Math.PI / 2;
+    const bar = cyl(pcb, 0.0054, 0.0054, 0.026, chrome, -PW / 2 + 0.003, y, z, 20); bar.rotation.z = Math.PI / 2;
+    box(pcb, 0.012, 0.0016, 0.012, std('#d4b45a', 0.3, 1), -PW / 2 + 0.038, 0.0026, z, 0.0005); // flex leads
+    if (capColor) { const cap = cyl(pcb, 0.0062, 0.0062, 0.012, std(capColor, 0.5), -PW / 2 - 0.014, y, z, 16); cap.rotation.z = Math.PI / 2; }
+    return v3(-PW / 2 - 0.01, y, z);
+  };
+  const tosaEnd = osaPart(222, null);
+  osaPart(455, '#d42b2b');
+  const ic = std('#1b1c1f', 0.4, 0.2);
+  [[345, 210, 0.02], [345, 440, 0.02], [620, 340, 0.028]].forEach(([px, pz, s]) => { const [x, z] = px2(px, pz); box(pcb, s, 0.0028, s, ic, x, 0.0031, z, 0.0006); });
+  for (let i = 0; i < 10; i++) { const [x, z] = px2(450 + i * 30, 160 + (i % 2) * 360); box(pcb, 0.004, 0.0022, 0.002, std(i % 3 ? '#b88a52' : '#2a2a2e', 0.5), x, 0.0029, z); }
+  const sma = std('#d9b860', 0.45, 1);
+  [190, 290, 380, 480].forEach((pz) => {
+    const [, z] = px2(0, pz);
+    box(pcb, 0.012, 0.009, 0.012, sma, PW / 2 - 0.006, 0.006, z, 0.001);
+    const b = cyl(pcb, 0.0035, 0.0035, 0.014, sma, PW / 2 + 0.006, 0.006, z, 6); b.rotation.z = Math.PI / 2;
+  });
+  const pcbLed = glowMat('#33ff66', 4); { const [x, z] = px2(940, 90); mesh(new THREE.BoxGeometry(0.004, 0.002, 0.003), pcbLed, pcb, x, 0.0028, z, false); }
+  { const [x, z] = px2(960, 600); box(pcb, 0.01, 0.008, 0.005, std('#111214', 0.6), x, 0.0057, z);
+    pcb.updateMatrix();
+    [['#c0392b', -0.0015], ['#1b1b1b', 0.0015]].forEach(([c, o]) => tube([at(pcb, x + o, 0.009, z), at(pcb, x + o + 0.02, 0.012, z - 0.02), v3(-0.02 + o, top + 0.004, 0.07), v3(0.0 + o, top + 0.006, -0.2), v3(0.12 + o, top + 0.004, -0.41), v3(0.12 + o, top - 0.1, -0.43)], 0.0014, std(c, 0.5), g, 60, 5)); }
+
+  // TOSA → OSA: the yellow single-mode cord, blue LC on the board, green APC at the OSA.
+  const tosaOut = axis(pcb, -1, 0, 0);
+  const tosaWorld = at(pcb, tosaEnd.x, tosaEnd.y, tosaEnd.z);
+  const j1 = plug(tosaWorld, tosaOut, '#2f6fd6', 0.016);
+  const j2 = plug(osaIn, osaOut, '#2fae5a', 0.018);
+  tube([j1, j1.clone().addScaledVector(tosaOut, 0.04).setY(top + 0.01), v3(-0.5, top + 0.006, 0.27), v3(-0.6, top + 0.006, 0.17), j2.clone().addScaledVector(osaOut, 0.05).setY(top + 0.012), j2], 0.0028, jacketSM, g, 80, 6);
+
+  // ---------- EXFO handheld power meter ----------
+  const pm = new THREE.Group(); pm.position.set(0.74, top, 0.17); pm.rotation.y = -0.32; g.add(pm);
+  const rubber = std('#f0b21a', 0.8);
+  box(pm, 0.106, 0.032, 0.196, rubber, 0, 0.016, 0, 0.012, 2);
+  box(pm, 0.09, 0.006, 0.17, std('#25282e', 0.5, 0.2), 0, 0.0325, 0.004, 0.005);
+  const pmFace = canvasTexture(256, 512, (c, w, h) => {
+    c.fillStyle = '#25282e'; c.fillRect(0, 0, w, h);
+    c.fillStyle = '#f2f4f7'; c.font = `800 40px ${EN}`; c.fillText('EXFO', 22, 52);
+    c.fillStyle = '#f0b21a'; c.font = `700 17px ${MONO}`; c.fillText('POWER METER', 22, 78);
+    c.fillStyle = '#0b0d10'; roundRect(c, 16, 96, 224, 156, 10); c.fill();
+    const lab = ['λ', 'dB/W', 'REF', 'HOLD', 'ZERO', '⏻'];
+    lab.forEach((k, i) => {
+      const x = 40 + (i % 2) * 104, y = 300 + Math.floor(i / 2) * 62;
+      c.fillStyle = i === 5 ? '#1f8a4a' : '#3a3e46'; c.beginPath(); c.ellipse(x + 34, y + 20, 38, 22, 0, 0, 7); c.fill();
+      c.fillStyle = '#e8eaee'; c.font = `700 17px ${MONO}`; c.textAlign = 'center'; c.fillText(k, x + 34, y + 26); c.textAlign = 'left';
+    });
+  });
+  const faceM = mesh(new THREE.PlaneGeometry(0.088, 0.176), std('#fff', 0.5, 0.05, { map: pmFace }), pm, 0, 0.0357, 0.004, false);
+  faceM.rotation.x = -Math.PI / 2;
+  const lcd = canvasTexture(256, 160, () => {}, { mips: false });
+  const drawLCD = (v) => {
+    const c = lcd.userData.ctx;
+    c.fillStyle = '#071318'; c.fillRect(0, 0, 256, 160);
+    c.fillStyle = '#8ff7ff'; c.font = `700 62px ${MONO}`; c.fillText(v.toFixed(2), 12, 92);
+    c.font = `700 24px ${MONO}`; c.fillText('dBm', 196, 92);
+    c.fillStyle = '#4aa8b8'; c.font = `600 18px ${MONO}`; c.fillText('650 nm   ABS   AUTO', 14, 134); c.fillText('●', 226, 30);
+    lcd.needsUpdate = true;
+  };
+  drawLCD(-3.42);
+  // LCD window on the face texture: y 96..252 of 512, i.e. towards the top (−z) end.
+  const lcdM = mesh(new THREE.PlaneGeometry(0.074, 0.05), new THREE.MeshBasicMaterial({ map: lcd, color: new THREE.Color(1.5, 1.5, 1.5) }), pm, 0, 0.036, 0.004 + (174 / 512 - 0.5) * 0.176, false);
+  lcdM.rotation.x = -Math.PI / 2;
+  const pmPort = cyl(pm, 0.0075, 0.0075, 0.012, chrome, 0, 0.018, -0.104, 16); pmPort.rotation.x = Math.PI / 2;
+  const pmIn = at(pm, 0, 0.018, -0.11), pmOut = axis(pm, 0, 0, -1);
+  const j3 = plug(pmIn, pmOut, '#2f6fd6', 0.016);
+  const fcOut = v3(P4.x + 0.065, HB, P4.z);
+  tube([fcOut, v3(P4.x + 0.11, HB - 0.03, P4.z + 0.01), v3(0.53, top + 0.03, -0.05), v3(0.6, top + 0.006, -0.05), j3.clone().addScaledVector(pmOut, 0.05).setY(top + 0.008), j3], 0.0028, jacketSM, g, 70, 6);
+
+  // ---------- Foam tray of SFP / QSFP modules ----------
+  const tray = new THREE.Group(); tray.position.set(0.24, top, 0.27); tray.rotation.y = -0.05; g.add(tray);
+  box(tray, 0.3, 0.024, 0.15, std('#2b2d31', 1), 0, 0.012, 0, 0.006);
+  const mods = [
+    ['10G SFP+ LR', '1310 nm · 10 km', '#2f6fd6'], ['10G SFP+ ER', '1550 nm · 40 km', '#c8322b'],
+    ['1G SFP SX', '850 nm · 550 m', '#d9cdb4'], ['25G SFP28 LR', '1310 nm · 10 km', '#2f6fd6'],
+    ['100G QSFP28', 'LR4 · 1310 nm', '#2f6fd6'], ['40G QSFP+', 'SR4 · 850 nm', '#d9cdb4'],
+  ];
+  const stick = canvasTexture(768, 256, (c) => {
+    mods.forEach(([a, b], i) => {
+      const x = (i % 3) * 256, y = Math.floor(i / 3) * 128;
+      c.fillStyle = '#f4f4f0'; c.fillRect(x + 3, y + 3, 250, 122);
+      c.fillStyle = '#16181c'; fitText(c, a, 230, 34, 800, EN); c.fillText(a, x + 12, y + 44);
+      c.font = `600 20px ${MONO}`; c.fillText(b, x + 12, y + 74);
+      for (let k = 0; k < 44; k++) if ((k * 7 + i * 3) % 5 !== 0) c.fillRect(x + 12 + k * 5, y + 88, (k % 3) + 1.5, 26);
+    });
+  });
+  const shell = std('#c3c8cf', 0.32, 0.9);
+  const xcvr = (i, x, wide) => {
+    const [, , bail] = mods[i];
+    const W = wide ? 0.033 : 0.024, Hh = wide ? 0.016 : 0.015, L = wide ? 0.13 : 0.1;
+    const m = new THREE.Group(); m.position.set(x, 0.024 - 0.004, 0.005); tray.add(m);
+    box(m, W, Hh, L, shell, 0, Hh / 2, 0, 0.0015);
+    const s = mesh(new THREE.PlaneGeometry(L * 0.62, W * 0.86), std('#fff', 0.6, 0, { map: atlasCell(stick, i % 3, Math.floor(i / 3), 3, 2), polygonOffset: true, polygonOffsetFactor: -1 }), m, 0, Hh + 0.0003, -L * 0.08, false);
+    s.rotation.set(-Math.PI / 2, 0, Math.PI / 2);
+    box(m, W * 0.86, Hh * 0.8, 0.012, std('#16171a', 0.5), 0, Hh * 0.45, L / 2 + 0.002, 0.001);
+    if (wide) {
+      const tab = box(m, 0.012, 0.0018, 0.07, std(bail, 0.55), 0, Hh * 0.75, L / 2 + 0.04, 0.0008); tab.rotation.x = 0.05;
+    } else {
+      tube([[-W / 2 + 0.002, Hh * 0.55, L / 2 - 0.004], [-W / 2 + 0.002, Hh * 0.55, L / 2 + 0.012], [W / 2 - 0.002, Hh * 0.55, L / 2 + 0.012], [W / 2 - 0.002, Hh * 0.55, L / 2 - 0.004]], 0.0013, std(bail, 0.5), m, 20, 5, 0.1);
+      box(m, W * 0.7, 0.004, 0.005, std(bail, 0.5), 0, Hh * 0.55, L / 2 + 0.013, 0.001);
+    }
+    return m;
+  };
+  const sfps = [0, 1, 2, 3].map((i) => xcvr(i, -0.125 + i * 0.037, false));
+  xcvr(4, 0.04, true); xcvr(5, 0.095, true);
+  // An aqua LC duplex cord still plugged into the SX module, trailing off the tray.
+  const sxPort = at(tray, sfps[2].position.x, 0.024 + 0.006, 0.005 + 0.058);
+  const sxDir = axis(tray, 0, 0, 1);
+  const j4 = plug(sxPort, sxDir, '#d9cdb4', 0.014);
+  tube([j4, j4.clone().addScaledVector(sxDir, 0.04).setY(top + 0.006), v3(0.14, top + 0.005, 0.4), v3(-0.02, top + 0.005, 0.39), v3(-0.1, top + 0.006, 0.36), v3(-0.13, top + 0.008, 0.38)], 0.0028, jacketMM, g, 70, 6);
+
+  // A spare yellow cord, coiled and tied, at the front corner.
+  const cc = v3(-0.8, top, 0.27), coilPts = [v3(-0.62, top + 0.006, 0.36)];
+  for (let i = 0; i <= 160; i++) { const a = i / 160 * Math.PI * 2 * 4; const r = 0.075 - i / 160 * 0.022; coilPts.push(v3(cc.x + Math.cos(a) * r, top + 0.0035 + Math.sin(a * 3) * 0.0008, cc.z + Math.sin(a) * r * 0.9)); }
+  coilPts.push(v3(-0.82, top + 0.005, 0.17));
+  mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(coilPts), 700, 0.0028, 6), jacketSM, g);
+  plug(v3(-0.82, top + 0.005, 0.17).add(v3(0.01, 0, -0.03)), v3(-0.3, 0, 1), '#2f6fd6', 0.014);
+  plug(v3(-0.62, top + 0.006, 0.36).add(v3(0.035, 0, 0.0)), v3(-1, 0, 0), '#2fae5a', 0.014);
+  const tie = mesh(new THREE.TorusGeometry(0.008, 0.003, 6, 16), std('#d42b2b', 0.6), g, cc.x + 0.06, top + 0.006, cc.z); tie.rotation.y = Math.PI / 2;
+
+  // Safety goggles parked at the back.
+  const gog = new THREE.Group(); gog.position.set(0.88, top + 0.02, -0.22); gog.rotation.set(-0.2, -0.6, 0); g.add(gog);
   box(gog, 0.16, 0.045, 0.012, new THREE.MeshPhysicalMaterial({ color: '#2fd06a', roughness: 0.1, transparent: true, opacity: 0.6, clearcoat: 1 }), 0, 0, 0, 0.012);
   const strap = mesh(new THREE.TorusGeometry(0.08, 0.006, 6, 30, Math.PI), std('#1b1b1d', 0.8), gog, 0, 0, -0.02); strap.rotation.x = Math.PI / 2; strap.scale.set(1, 0.6, 1);
+
+  // Wall LED bar over the bench. Kept out of the station group so the click
+  // target and the marker sit on the bench, below the poster.
+  const wall = new THREE.Group(); wall.position.copy(g.position); wall.rotation.copy(g.rotation); scene.add(wall);
+  box(wall, 1.8, 0.035, 0.05, steel, 0, 1.39, -0.4, 0.006);
+  mesh(new THREE.BoxGeometry(1.7, 0.01, 0.022), glowMat('#e8f1ff', 2.1), wall, 0, 1.37, -0.385, false);
+  const task = new THREE.SpotLight('#dfe9ff', 2.4, 3.0, 1.05, 0.7, 1.6);
+  task.position.set(0, 1.36, -0.32); task.target.position.set(0, top, 0.08); wall.add(task, task.target);
 
   // ---------- The beam ----------
   const TIME = { value: 0 };
@@ -1949,7 +2178,7 @@ function buildOptics() {
   const glows = [];
   const segment = (a, b, power) => {
     const d = new THREE.Vector3().subVectors(b, a); const len = d.length();
-    const q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.clone().normalize());
+    const q = new THREE.Quaternion().setFromUnitVectors(v3(0, 1, 0), d.clone().normalize());
     const core = mesh(new THREE.CylinderGeometry(0.0011, 0.0011, len, 8, 1, true), beamCore, g, 0, 0, 0, false);
     core.position.copy(a).addScaledVector(d, 0.5); core.quaternion.copy(q);
     const gm = glowShader(1.6 * power, len); gm.userData.base = 1.6 * power; glows.push(gm);
@@ -1957,14 +2186,13 @@ function buildOptics() {
     glow.position.copy(core.position); glow.quaternion.copy(q);
   };
   segment(P0, P1, 1); segment(P1, P2, 0.95); segment(P2, P3, 0.6); segment(P2, P4, 0.45);
-  // Hot spots where the beam meets an optic; the detector's pulses.
   const spotMat = (k) => new THREE.SpriteMaterial({ map: TEX.radial, color: new THREE.Color('#ff3a2a').multiplyScalar(k), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true });
-  const spots = [[P1, 0.05, 2], [P2, 0.045, 1.6], [P4.clone().add(new THREE.Vector3(-0.012, 0, 0)), 0.04, 1.4], [P0, 0.04, 2]].map(([p, s, k]) => { const sp = new THREE.Sprite(spotMat(k)); sp.position.copy(p); sp.scale.setScalar(s); g.add(sp); return sp; });
-  const focal = new THREE.Sprite(spotMat(3)); focal.position.copy(P3).add(new THREE.Vector3(0, 0, -0.004)); focal.scale.setScalar(0.06); g.add(focal);
-  const laserLight = new THREE.PointLight('#ff2a20', 0.5, 1.4, 2); laserLight.position.set(0.0, HB + 0.04, -0.05); g.add(laserLight);
+  const spots = [[P1, 0.05, 2], [P2, 0.045, 1.6], [P4.clone().add(v3(-0.012, 0, 0)), 0.04, 1.4], [P0, 0.04, 2]].map(([p, s, k]) => { const sp = new THREE.Sprite(spotMat(k)); sp.position.copy(p); sp.scale.setScalar(s); g.add(sp); return sp; });
+  const focal = new THREE.Sprite(spotMat(3)); focal.position.copy(P3).add(v3(0, 0, -0.004)); focal.scale.setScalar(0.06); g.add(focal);
+  const laserLight = new THREE.PointLight('#ff2a20', 0.45, 1.1, 2); laserLight.position.set(0.0, HB + 0.04, -0.2); g.add(laserLight);
 
   // Dust motes drifting through the beam — they sparkle only where they cross it.
-  const N = 220;
+  const N = 160;
   const pos = new Float32Array(N * 3), seed = new Float32Array(N);
   const segs = [[P0, P1], [P1, P2], [P2, P3], [P2, P4]];
   for (let i = 0; i < N; i++) {
@@ -1996,7 +2224,7 @@ function buildOptics() {
   const motes = new THREE.Points(pg, pmat); g.add(motes);
   motes.userData.pmat = pmat;
 
-  let lastPM = -1;
+  let lastPM = -1, lastSpec = -1;
   animators.push((t, dt, st) => {
     TIME.value = REDUCED ? 0 : t;
     const hot = st.hover === 'optics' || st.focus === 'optics' ? 1.35 : 1;
@@ -2006,8 +2234,12 @@ function buildOptics() {
     focal.material.opacity = 0.8 + 0.2 * pulse;
     spots.forEach((s, i) => { s.material.opacity = REDUCED ? 0.9 : 0.75 + 0.25 * Math.sin(t * 5 + i); });
     emLed.color.set('#ff2a2a').multiplyScalar(REDUCED ? 4 : 3 + Math.sin(t * 2) * 1.5);
+    pcbLed.color.set('#33ff66').multiplyScalar(REDUCED || Math.sin(t * 4) > -0.6 ? 4 : 0.4);
+    if (REDUCED) return;
     const step = Math.floor(t * 4);
-    if (step !== lastPM) { lastPM = step; drawPM(2.47 + (REDUCED ? 0 : Math.sin(t * 0.7) * 0.03 + (Math.random() - 0.5) * 0.01)); }
+    if (step !== lastPM) { lastPM = step; drawLCD(-3.42 + Math.sin(t * 0.7) * 0.03 + (Math.random() - 0.5) * 0.01); }
+    const sStep = Math.floor(t * 6);
+    if (sStep !== lastSpec) { lastSpec = sStep; drawSpec(t); }
   });
   return g;
 }
@@ -2055,8 +2287,8 @@ function buildDecor() {
     c.fillStyle = '#f2eee6'; c.beginPath(); c.arc(128, 128, 126, 0, 7); c.fill();
     c.fillStyle = '#1a1a1c';
     for (let i = 0; i < 60; i++) { c.save(); c.translate(128, 128); c.rotate(i * Math.PI / 30); c.fillRect(-1.5, -118, 3, i % 5 ? 8 : 18); c.restore(); }
-    c.font = `700 24px ${FA}`; c.textAlign = 'center'; c.textBaseline = 'middle';
-    for (let i = 1; i <= 12; i++) { const a = i * Math.PI / 6 - Math.PI / 2; c.fillText(FA_DIGITS(i), 128 + Math.cos(a) * 86, 128 + Math.sin(a) * 86); }
+    c.font = `600 24px ${EN}`; c.textAlign = 'center'; c.textBaseline = 'middle';
+    for (let i = 1; i <= 12; i++) { const a = i * Math.PI / 6 - Math.PI / 2; c.fillText(String(i), 128 + Math.cos(a) * 86, 128 + Math.sin(a) * 86); }
   });
   cyl(clockG, 0.17, 0.17, 0.035, frameM, 0, 0, 0, 48).rotation.x = Math.PI / 2;
   mesh(new THREE.CircleGeometry(0.155, 48), std('#fff', 0.6, 0, { map: face }), clockG, 0, 0, 0.0185, false);
@@ -2068,8 +2300,8 @@ function buildDecor() {
     hS.rotation.z = -s / 60 * Math.PI * 2; hM.rotation.z = -m / 60 * Math.PI * 2; hH.rotation.z = -h / 12 * Math.PI * 2;
   });
 
-  // Monstera in a ceramic pot between the bookshelf and the piano.
-  const mon = new THREE.Group(); mon.position.set(-3.45, 0, -1.45); g.add(mon);
+  // Monstera in a ceramic pot between the bookshelf and the desk.
+  const mon = new THREE.Group(); mon.position.set(-1.8, 0, -3.62); mon.scale.setScalar(0.9); g.add(mon);
   lathe([[0, 0], [0.15, 0], [0.18, 0.04], [0.19, 0.36], [0.175, 0.37], [0.165, 0.34], [0, 0.34]], std('#1e2024', 0.45, 0.1), mon, 40);
   mesh(new THREE.CircleGeometry(0.168, 32), std('#2a1c12', 1), mon, 0, 0.34, 0, false).rotation.x = -Math.PI / 2;
   const mLeaf = new THREE.MeshStandardMaterial({ map: TEX.monstera, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.5 });
@@ -2218,7 +2450,7 @@ function viewFor(id) {
   if (id === 'books') target.y = 1.15;
   if (id === 'fpga') { target.y = 1.02; target.z += 0.12; }
   if (id === 'desk') { target.y = 1.0; target.z += 0.1; }
-  if (id === 'optics') target.y = 0.92;
+  if (id === 'optics') target.y = 1.0;
   if (id === 'piano') target.y = 0.88;
   return { target, az: s.view.az, polar: s.view.polar, dist: s.view.dist * Math.min(aspectBoost(), 1.9) };
 }
@@ -2297,19 +2529,18 @@ const ui = {
   hint: document.getElementById('hint'),
 };
 function buildDock() {
-  const mk = (id, fa, en, accent) => {
+  const mk = (id, label, sub, accent) => {
     const b = document.createElement('button'); b.type = 'button'; b.dataset.id = id || '';
     b.style.setProperty('--c', accent || '#eef1f7');
-    b.innerHTML = `${ICONS[id || 'overview']}<span>${fa}</span>`;
-    b.title = en; b.setAttribute('aria-label', `${fa} · ${en}`);
+    b.innerHTML = `${ICONS[id || 'overview']}<span>${label}</span>`;
+    b.title = sub; b.setAttribute('aria-label', `${label} · ${sub}`);
     b.addEventListener('click', () => (id ? select(id) : reset()));
     ui.dock.appendChild(b);
     return b;
   };
-  mk(null, 'نمای کلی', 'Overview');
+  mk(null, 'Overview', 'Whole room');
   const sep = document.createElement('i'); sep.className = 'sep'; ui.dock.appendChild(sep);
-  const short = { desk: 'سایت اصلی', piano: 'پیانو', fpga: 'FPGA', books: 'کتابخانه', optics: 'اپتیک' };
-  STATIONS.forEach((s) => mk(s.id, short[s.id], s.en, s.accent));
+  STATIONS.forEach((s) => mk(s.id, s.dock, s.title, s.accent));
   updateDock();
 }
 function updateDock() {
@@ -2320,10 +2551,9 @@ function renderPanel(s) {
   const p = ui.panel;
   p.style.setProperty('--acc', s.accent);
   document.getElementById('p-index').textContent = `STATION ${String(STATIONS.indexOf(s) + 1).padStart(2, '0')}`;
-  document.getElementById('p-en').textContent = s.en;
-  document.getElementById('p-title').textContent = s.fa;
+  document.getElementById('p-sub').textContent = s.sub;
+  document.getElementById('p-title').textContent = s.title;
   document.getElementById('p-desc').textContent = s.desc;
-  document.getElementById('p-desc-en').textContent = s.descEn;
   const box = document.getElementById('p-actions');
   box.innerHTML = '';
   const wrap = s.choice ? Object.assign(document.createElement('div'), { className: 'choices' }) : box;
@@ -2336,10 +2566,10 @@ function renderPanel(s) {
     if (s.choice) {
       el.className = 'choice' + (soon ? ' soon' : '');
       if (soon) el.setAttribute('aria-disabled', 'true');
-      el.innerHTML = `${soon ? '<em class="badge">به‌زودی · Soon</em>' : ''}<i class="c-ico">${ICONS[a.icon]}</i><strong>${a.fa}</strong><span lang="en">${a.en}</span>`;
+      el.innerHTML = `${soon ? '<em class="badge">Coming soon</em>' : ''}<i class="c-ico">${ICONS[a.icon]}</i><strong>${a.label}</strong><span>${a.hint}</span>`;
     } else {
       el.className = 'cta';
-      el.innerHTML = `<span>${a.fa}</span><small lang="en">${a.en}</small>${ICONS.arrow}`;
+      el.innerHTML = `<span>${a.label}</span><small>${a.hint}</small>${ICONS.arrow}`;
     }
     wrap.appendChild(el);
   }
@@ -2362,8 +2592,8 @@ document.getElementById('p-back').addEventListener('click', () => reset());
 function showTip(s, x, y) {
   const t = ui.tip;
   t.style.setProperty('--acc', s.accent);
-  t.querySelector('.t-fa').textContent = s.fa;
-  t.querySelector('.t-en').textContent = s.en;
+  t.querySelector('.t-title').textContent = s.title;
+  t.querySelector('.t-sub').textContent = s.sub;
   t.classList.add('on');
   const w = t.offsetWidth, h = t.offsetHeight;
   let px = x + 18, py = y + 18;
@@ -2456,9 +2686,9 @@ async function stage(label, frac, fn) {
 
 async function loadFonts() {
   if (!document.fonts || !document.fonts.load) return;
-  const faces = ['400 24px Vazirmatn', '700 24px Vazirmatn', '500 24px Inter', '700 24px Inter', '800 24px Inter', '600 24px "JetBrains Mono"', '700 24px "JetBrains Mono"'];
+  const faces = ['500 24px Inter', '600 24px Inter', '700 24px Inter', '800 24px Inter', '600 24px "JetBrains Mono"', '700 24px "JetBrains Mono"'];
   await Promise.race([
-    Promise.all(faces.map((f) => document.fonts.load(f, 'Aa اتاق ۱۲'))).catch(() => {}),
+    Promise.all(faces.map((f) => document.fonts.load(f, 'Aa12'))).catch(() => {}),
     new Promise((r) => setTimeout(r, 3000)),
   ]);
 }

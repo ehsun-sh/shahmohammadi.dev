@@ -487,7 +487,13 @@ plus a `404.html` and `_headers`. No build step and nothing from `src/`.
 
 - The main site's conventions above (Astro, Tailwind, the type scale, colour
   rationing, `cv.json`) **do not apply inside `learn/`**; it is self-contained
-  by design and Persian-first (`lang="fa" dir="rtl"`).
+  by design. The UI is **English only for now** (`lang="en"`, LTR); a Persian
+  version is planned, so keep every visible string in the `STATIONS` table,
+  the markup or the canvas texture that draws it, not scattered through logic.
+- The two lab stations stand on **one bench**: `benchFrame()` builds the steel
+  frame and top for both the FPGA bench (back wall) and the optics bench (left
+  wall). A change to the bench is made there once. Wall-mounted lights sit
+  outside the station group so the click target and marker stay on the bench.
 - **Every destination URL lives in one place:** the `<nav id="fallback">`
   list in `learn/public/index.html`. The 3D scene reads its links from those
   anchors, so the room and the no-WebGL fallback cannot disagree. An `href`
