@@ -110,6 +110,62 @@ cached DNS answer.
 
 ---
 
+## learn.shahmohammadi.dev — the learning hub
+
+A second Worker, `shahmohammadi-learn`, configured by `learn/wrangler.jsonc`
+and deployed by `.github/workflows/deploy-learn.yml`. It serves `learn/public/`
+as-is: one hand-written `index.html` (the 3D room), a `404.html`, `_headers`.
+No build step, no Astro.
+
+**Why a second Worker and not a folder of this one.** This Worker has no
+`main`, so it cannot look at the hostname: every hostname attached to it gets
+the same `dist/`. Hostname routing would mean adding a script to the request
+path of every page on the main site, which is the thing `wrangler.jsonc` says
+not to do. Two assets-only Workers keep both script-free.
+
+Routine deploys work the same way as the main site — push to `main`, previews
+on other branches — but only when something under `learn/` changed.
+
+### One-time setup
+
+1. **Merge once.** The first push to `main` that touches `learn/` runs
+   `wrangler deploy`, which creates the `shahmohammadi-learn` Worker. Same
+   secrets as the main site; nothing new to add. Until then the branch
+   preview step has no Worker to upload to and is allowed to fail.
+2. **Attach the hostname.** Worker `shahmohammadi-learn` → **Settings →
+   Domains & Routes → Add Custom Domain** → `learn.shahmohammadi.dev`.
+   Cloudflare creates the DNS record itself. If it refuses, a record already
+   exists at `learn` — delete it (see the note in step 3 above).
+3. Optionally enable **Preview URLs** on that Worker, as for the main one.
+
+### Other apps under learn.shahmohammadi.dev
+
+The room links to `/piano`, `/fpga/fa/` and `/bookreader` on this hostname.
+They are not part of this Worker. Until they exist, those paths return the
+hub's 404 page with a link back into the room. To serve one from its own
+Worker, give that Worker a **route** such as `learn.shahmohammadi.dev/piano*`
+(Settings → Domains & Routes → Add Route). Cloudflare runs a route on a path
+of a hostname in front of that hostname's Custom Domain (see "Interaction with
+Routes" in the Custom Domains docs) — check it with `curl` after adding one. Or drop a static build into
+`learn/public/piano/` and it ships with the hub.
+
+### Editing destinations
+
+Every URL the room opens is an `href` in the `<nav id="fallback">` list in
+`learn/public/index.html`. The 3D scene reads them from there, so it and the
+no-WebGL fallback cannot disagree. An `href` still containing `INSERT_`
+renders as "coming soon" instead of a dead link.
+
+### Verifying
+
+```bash
+curl -sI https://learn.shahmohammadi.dev/ | head -1            # 200
+curl -so /dev/null -w '%{http_code}\n' https://learn.shahmohammadi.dev/nope   # 404
+curl -sI https://learn.shahmohammadi.dev/ | grep -i x-frame      # DENY
+```
+
+---
+
 ## Verifying a deploy
 
 ```bash

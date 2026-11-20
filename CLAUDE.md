@@ -477,6 +477,29 @@ Deploys happen on push to `main`. Nothing is published from a local machine.
   `resume.pdf` is served from a public URL. The reference export carries one
   because it lives behind an account; email and the site are the contact path.
 
+## learn.shahmohammadi.dev (`learn/`)
+
+The learning hub is a **separate site in the same repo**: a second Worker
+(`learn/wrangler.jsonc`, name `shahmohammadi-learn`) deployed by
+`.github/workflows/deploy-learn.yml`, path-filtered to `learn/**`. It is one
+hand-written `learn/public/index.html` — a Three.js room with five stations —
+plus a `404.html` and `_headers`. No build step and nothing from `src/`.
+
+- The main site's conventions above (Astro, Tailwind, the type scale, colour
+  rationing, `cv.json`) **do not apply inside `learn/`**; it is self-contained
+  by design and Persian-first (`lang="fa" dir="rtl"`).
+- **Every destination URL lives in one place:** the `<nav id="fallback">`
+  list in `learn/public/index.html`. The 3D scene reads its links from those
+  anchors, so the room and the no-WebGL fallback cannot disagree. An `href`
+  containing `INSERT_` renders as "coming soon" rather than a dead link.
+- three.js is pinned in the import map (`three@0.186.1` on unpkg). On that
+  release `PCFSoftShadowMap` is gone — `PCFShadowMap` *is* the soft filter,
+  driven by `shadow.radius` — so do not "fix" the shadow type back.
+- Same spirit as the main site's hard constraints: works without JS (the
+  fallback list), honours `prefers-reduced-motion` (no flights, bobbing or
+  shimmer), keyboard-reachable (dock buttons, `1`–`5`, `0`, `Esc`).
+- Hosting details and the one-time Cloudflare setup are in `Docs/DEPLOY.md`.
+
 ## Hard constraints
 
 These are load-bearing. Do not trade them away for visual polish.

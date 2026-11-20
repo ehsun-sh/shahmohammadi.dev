@@ -1,0 +1,8 @@
+{
+  "name": "shahmohammadi-learn",
+  "private": true,
+  "description": "learn.shahmohammadi.dev — static, no build step. This file exists so wrangler-action installs wrangler here instead of climbing to the repo root and installing the whole Astro toolchain.",
+  "devDependencies": {
+    "wrangler": "4.127.1"
+  }
+}

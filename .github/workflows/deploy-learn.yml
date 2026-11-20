@@ -1,0 +1,73 @@
+name: Deploy learn.shahmohammadi.dev
+
+# The learning hub is its own Worker (learn/wrangler.jsonc) with no build step:
+# learn/public/ is uploaded as it is. Path-filtered so a change to the main
+# site never redeploys the hub and the other way round — deploy.yml still runs
+# on every push, which is harmless because nothing in learn/ is an input to it.
+on:
+  push:
+    branches: ['**']
+    paths:
+      - 'learn/**'
+      - '.github/workflows/deploy-learn.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-learn-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      # The page reads every destination from the fallback <nav>; a link left
+      # as the placeholder renders as "coming soon" rather than breaking, so
+      # this is a notice in the run summary and not a failure.
+      - name: Check the page
+        run: |
+          test -s learn/public/index.html || { echo "::error::learn/public/index.html missing"; exit 1; }
+          test -s learn/public/_headers   || { echo "::error::learn/public/_headers missing"; exit 1; }
+          test -s learn/public/404.html   || { echo "::error::learn/public/404.html missing"; exit 1; }
+          if grep -q 'INSERT_' learn/public/index.html; then
+            echo "::notice file=learn/public/index.html::A destination is still a placeholder (INSERT_…); it shows as 'coming soon'."
+          fi
+
+      # Same split as deploy.yml: main publishes to the live hostname, any
+      # other branch uploads a version and gets a preview URL.
+      # `wranglerVersion` matches the pin in the root package.json and in
+      # learn/package.json — change all three together.
+      - name: Deploy to production
+        if: github.ref == 'refs/heads/main'
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: '4.127.1'
+          workingDirectory: learn
+          command: deploy
+
+      # Until the first production deploy has created the Worker, there is
+      # nothing to upload a version *to*, and this step fails. A preview is a
+      # convenience, not a gate, so that failure is reported without turning
+      # the branch red. After the first merge it behaves like deploy.yml's.
+      - name: Upload preview version
+        if: github.ref != 'refs/heads/main'
+        continue-on-error: true
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: '4.127.1'
+          workingDirectory: learn
+          command: versions upload

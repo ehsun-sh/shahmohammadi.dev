@@ -1,0 +1,16 @@
+# Response headers for learn.shahmohammadi.dev. Same rules as the main site's
+# public/_headers: every matching block applies and same-named headers are
+# joined with a comma, so `/*` carries security headers only and never a
+# Cache-Control. The page is one HTML file with no fixed-path assets to cache
+# for a year, so nothing here needs `immutable`.
+#
+# No Content-Security-Policy, for the same reason as the main site: the page is
+# one inline module script by design (the brief asked for a single
+# self-contained index.html), so a useful policy needs a hash of that script
+# generated at deploy time. Worth doing, in its own change.
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), interest-cohort=()
+  Cross-Origin-Opener-Policy: same-origin
