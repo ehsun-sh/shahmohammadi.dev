@@ -132,22 +132,27 @@ on other branches — but only when something under `learn/` changed.
    `wrangler deploy`, which creates the `shahmohammadi-learn` Worker. Same
    secrets as the main site; nothing new to add. Until then the branch
    preview step has no Worker to upload to and is allowed to fail.
-2. **Attach the hostname.** Worker `shahmohammadi-learn` → **Settings →
-   Domains & Routes → Add Custom Domain** → `learn.shahmohammadi.dev`.
-   Cloudflare creates the DNS record itself. If it refuses, a record already
-   exists at `learn` — delete it (see the note in step 3 above).
+2. **Attach the hostname with a route, not a Custom Domain.** Other apps
+   already live on `learn.shahmohammadi.dev` (`/fpga` is a separate Worker on
+   its own route, behind a proxied `A learn → 192.0.2.1` placeholder record).
+   A Custom Domain would take the whole hostname and break them. So the room
+   gets only the root path: zone `shahmohammadi.dev` → **Workers Routes → Add
+   route** → `learn.shahmohammadi.dev/` (exactly that, **no `*`**) → Worker
+   `shahmohammadi-learn`. A pattern with no wildcard matches that one path,
+   and it is more specific than any `learn.shahmohammadi.dev/*` route, so it
+   wins at `/` and nothing else changes. Leave the A record as it is and
+   proxied; a route only runs on proxied traffic.
+   The room needs nothing else from its own origin — three.js and the fonts
+   come from CDNs — so serving only `/` is enough. The hub's `404.html` is not
+   reachable this way; unknown paths fall through to whatever owns them.
 3. Optionally enable **Preview URLs** on that Worker, as for the main one.
 
 ### Other apps under learn.shahmohammadi.dev
 
 The room links to `/piano`, `/fpga/fa/` and `/bookreader` on this hostname.
-They are not part of this Worker. Until they exist, those paths return the
-hub's 404 page with a link back into the room. To serve one from its own
-Worker, give that Worker a **route** such as `learn.shahmohammadi.dev/piano*`
-(Settings → Domains & Routes → Add Route). Cloudflare runs a route on a path
-of a hostname in front of that hostname's Custom Domain (see "Interaction with
-Routes" in the Custom Domains docs) — check it with `curl` after adding one. Or drop a static build into
-`learn/public/piano/` and it ships with the hub.
+They are not part of this repo and each is served by its own Worker route
+(`/fpga` already is). A new one is added the same way: Workers Routes →
+`learn.shahmohammadi.dev/piano*` → its Worker. Check with `curl` after adding.
 
 ### Editing destinations
 
@@ -160,7 +165,7 @@ renders as "coming soon" instead of a dead link.
 
 ```bash
 curl -sI https://learn.shahmohammadi.dev/ | head -1            # 200
-curl -so /dev/null -w '%{http_code}\n' https://learn.shahmohammadi.dev/nope   # 404
+curl -so /dev/null -w '%{http_code}\n' https://learn.shahmohammadi.dev/fpga   # still the FPGA app
 curl -sI https://learn.shahmohammadi.dev/ | grep -i x-frame      # DENY
 ```
 

@@ -10,10 +10,12 @@
  * either be redeployed without touching the other.
  *
  * Deployed by .github/workflows/deploy-learn.yml, never locally — same rule as
- * the main site. The hostname is attached in Cloudflare (Worker → Settings →
- * Domains & Routes → Add Custom Domain → learn.shahmohammadi.dev), not here,
- * for the same reason the apex is: the deploy token only has Workers Scripts
- * permission, and a `routes` block would need zone permissions it lacks.
+ * the main site. The room is attached in Cloudflare as a route on the root
+ * path only (zone → Workers Routes → `learn.shahmohammadi.dev/`, no `*`), not
+ * a Custom Domain, because other apps such as /fpga already have routes on
+ * this hostname. It is set in the dashboard, not here, for the same reason
+ * the apex is: the deploy token only has Workers Scripts permission, and a
+ * `routes` block would need zone permissions it lacks. See Docs/DEPLOY.md.
  */
 {
   "$schema": "../node_modules/wrangler/config-schema.json",
@@ -21,8 +23,8 @@
   "compatibility_date": "2026-09-01",
   "assets": {
     "directory": "./public",
-    // A path nothing matches — /piano before that app ships, a typo — gets
-    // the hub's own Persian 404 with a way back into the room.
+    // Only reached on the workers.dev / preview URLs: on the real hostname
+    // this Worker serves `/` alone and other paths belong to other routes.
     "not_found_handling": "404-page"
   }
 }
